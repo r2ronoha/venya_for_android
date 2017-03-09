@@ -3,6 +3,7 @@ package dev.nohasmith.venya_android_app;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.res.TypedArrayUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +18,10 @@ import android.widget.TextView;
 
 import android.util.Log;
 
+import java.util.Arrays;
 import java.util.HashMap;
+
+import static dev.nohasmith.venya_android_app.MainActivity.signinOptions;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -27,17 +31,30 @@ public class SigninFragment extends Fragment {
     EditText usernameInput;
     EditText passwordInput;
     TextView errorsView;
+    TextView signinTitle;
     Context appContext;
+
+    TextView toRegister;
 
     public SigninFragment() {
         // Required empty public constructor
     }
 
+    /*
+    public SigninFragment(Context context) {
+        // Required empty public constructor
+        appContext = context;
+    }*/
+
     interface SigninListener {
         void signinClicked(String sessionid, FullCustomerSettings customer);
     }
-
     private SigninListener listener;
+
+    interface ToRegisterListener {
+        void toRegisterClicked(int position);
+    }
+    private ToRegisterListener regListener;
     
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -52,7 +69,13 @@ public class SigninFragment extends Fragment {
         if (context instanceof SigninListener) {
             listener = (SigninListener)context;
         } else {
-            throw new RuntimeException(context.toString() + "must implement OnFragmentInteractionListener");
+            throw new RuntimeException(context.toString() + " (SigninListener@Signin) must implement OnFragmentInteractionListener");
+        }
+
+        if (context instanceof ToRegisterListener) {
+            regListener = (ToRegisterListener)context;
+        } else {
+            throw new RuntimeException(context.toString() + " (ToREgisterListener@Signin) must implement OnFragmentInteractionListener");
         }
     }
     @Override
@@ -67,8 +90,24 @@ public class SigninFragment extends Fragment {
         passwordInput = (EditText)view.findViewById(R.id.passwordInput);
         submitButton = (Button)view.findViewById(R.id.signinButton);
 
+        toRegister = (TextView)view.findViewById(R.id.registerLink) ;
+        String toRegisterText = Parsing.formatMessage(new String[] {getResources().getString(R.string.signup_question),getResources().getString(R.string.signup_link)} );
+        toRegister.setText(toRegisterText);
+
         errorsView = (TextView)view.findViewById(R.id.errorsView);
         errorsView.setText("");
+
+        signinTitle = (TextView)view.findViewById(R.id.signinTitle);
+        signinTitle.setText(getResources().getString(R.string.signin_title));
+
+        toRegister.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v){
+                int registerFragmentPosition = Parsing.getIndexOf(signinOptions,"register");
+                Log.d("SigninFragment","index of \"register\" in signinOptions = " + registerFragmentPosition);
+                regListener.toRegisterClicked(registerFragmentPosition);
+            }
+        });
 
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -116,7 +155,7 @@ public class SigninFragment extends Fragment {
 
                         if ( ! status.equals(getResources().getString(R.string.success_status)) ) {
                             String errormessage = (String) parsedResponse.get("errormessage");
-                            errorsView.setText(getResources().getString(Parsing.getResId(appContext, errormessage)));
+                            errorsView.setText(getResources().getString(Parsing.getResId(appContext, "errors_" + errormessage)));
                         } else {
 
                             String action = (String) parsedResponse.get("action");
@@ -139,7 +178,11 @@ public class SigninFragment extends Fragment {
                                 if ( updatedSessionid == null ) {
                                     errorsView.setText(getResources().getString(R.string.errors_nullfromserver));
                                 } else if ( ! sessionid.equals(updatedSessionid) ) {
-                                    errorsView.setText(getResources().getString(Parsing.getResId(appContext,updatedSessionid)));
+                                    try {
+                                        errorsView.setText(getResources().getString(Parsing.getResId(appContext, "errors_" + updatedSessionid)));
+                                    } catch (Exception e) {
+                                        errorsView.setText(getResources().getString(R.string.errors_invalidsessionid));
+                                    }
                                 } else {
                                     //update customer with session id generated
                                     customer.setField("sessionid",sessionid);

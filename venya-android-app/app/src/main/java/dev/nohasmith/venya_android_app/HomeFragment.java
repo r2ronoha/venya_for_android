@@ -15,6 +15,7 @@ import java.util.Arrays;
 
 import static dev.nohasmith.venya_android_app.MainActivity.booleanFields;
 import static dev.nohasmith.venya_android_app.MainActivity.customerFields;
+import static dev.nohasmith.venya_android_app.MainActivity.dateFields;
 import static dev.nohasmith.venya_android_app.MainActivity.privateFields;
 import static dev.nohasmith.venya_android_app.MainActivity.secretFields;
 
@@ -83,12 +84,15 @@ public class HomeFragment extends Fragment {
                     } else if ( Arrays.asList(booleanFields).contains(field) ) {
                         boolean value = (boolean)fullField.getValue();
                         valueCell.setText(Parsing.getBooleanValue(value));
+                    } else if ( Arrays.asList(dateFields).contains(field) ){
+                        String date = Parsing.formatDate((String)fullField.getValue());
+                        valueCell.setText(date);
                     } else {
-                        String value = (String)fullField.getValue();
-                        if ( Arrays.asList(secretFields).contains(field) ) {
-                            value = Parsing.hideValue(value);
-                        }
-                        valueCell.setText(value);
+                            String value = (String)fullField.getValue();
+                            if ( Arrays.asList(secretFields).contains(field) ) {
+                                value = Parsing.hideValue(value);
+                            }
+                            valueCell.setText(value);
                     }
                     valueCell.setPadding(10,10,10,10);
                     row.addView(valueCell);

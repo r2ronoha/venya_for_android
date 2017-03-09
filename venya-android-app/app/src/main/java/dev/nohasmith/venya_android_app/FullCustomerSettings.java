@@ -24,6 +24,7 @@ public class FullCustomerSettings implements Parcelable{
     private CustomerField sessionid;
     private CustomerField username;
     private CustomerField password;
+    private CustomerField dob;
     private CustomerField email;
     private CustomerField address;
     private CustomerField phone;
@@ -76,7 +77,7 @@ public class FullCustomerSettings implements Parcelable{
         */
     }
 
-    public FullCustomerSettings(Context appContext, String id, String firstname, String surname) {
+    public FullCustomerSettings(Context appContext, String id, String firstname, String surname, String dob) {
         customerFields = appContext.getResources().getStringArray(R.array.customerFields);
         booleanFields = appContext.getResources().getStringArray(R.array.booleanFields);
         privateFields = appContext.getResources().getStringArray(R.array.privateFields);
@@ -85,6 +86,7 @@ public class FullCustomerSettings implements Parcelable{
         this.id = new CustomerField("String",id,1);
         this.firstname = new CustomerField("String",firstname,1);
         this.surname = new CustomerField("String",surname,1);
+        this.dob = new CustomerField("String",dob,1);
 
         sessionid = new CustomerField("String","closed",0);
         email = new CustomerField("String",appContext.getResources().getString(R.string.default_email),0);
@@ -141,6 +143,8 @@ public class FullCustomerSettings implements Parcelable{
                 return this.getFirstname();
             case "surname":
                 return this.getSurname();
+            case "dob":
+                return this.getDOB();
             case "type":
                 return this.getType();
             case "sessionid":
@@ -180,6 +184,9 @@ public class FullCustomerSettings implements Parcelable{
                 break;
             case "surname":
                 customerField = this.getSurname();
+                break;
+            case "dob":
+                customerField = this.getDOB();
                 break;
             case "type":
                 customerField = this.getType();
@@ -240,6 +247,7 @@ public class FullCustomerSettings implements Parcelable{
         this.sessionid = (CustomerField)in.readSerializable();
         this.firstname = (CustomerField)in.readSerializable();
         this.surname = (CustomerField)in.readSerializable();
+        this.dob = (CustomerField)in.readSerializable();
         this.email = (CustomerField)in.readSerializable();
         this.language = (CustomerField)in.readSerializable();
         this.username = (CustomerField)in.readSerializable();
@@ -263,6 +271,7 @@ public class FullCustomerSettings implements Parcelable{
         dest.writeSerializable(sessionid);
         dest.writeSerializable(firstname);
         dest.writeSerializable(surname);
+        dest.writeSerializable(dob);
         dest.writeSerializable(email);
         dest.writeSerializable(language);
         dest.writeSerializable(username);
@@ -340,6 +349,10 @@ public class FullCustomerSettings implements Parcelable{
 
     public CustomerField getFirstname () {
         return this.firstname;
+    }
+
+    public CustomerField getDOB () {
+        return this.dob;
     }
 
     public CustomerField getType () {

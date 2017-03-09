@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">VenYa for Android</string>
     <!-- <string name="venya_node_server">venya.es</string> -->
+
+    <!-- APPLICATION CONSTANTS -->
     <string name="venya_node_server">192.168.99.100</string>
     <string name="venya_node_port">8888</string>
 
@@ -15,6 +17,24 @@
     <integer name="sessionPlusIdLength">24</integer>
     <integer name="sessionPlusIdMin">0</integer>
     <integer name="sessionPlusIdMax">99</integer>
+
+    <string name="true_value">on</string>
+    <string name="false_value">off</string>
+    <string name="success_status">SUCCESS</string>
+    <string name="username">username</string>
+    <string name="password">password</string>
+
+    <string name="sessionclosed">closed</string>
+
+    <string name="idFormat">^[0-9a-fA-F]{24}$</string>
+    <string name="usernameFormat">^\\w{8,}$</string>
+    <string name="passwordFormat">^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{6,}$</string>
+    <string name="emailFormat">^\\w+([\\.-_]?\\w+)*@\\w+([\\.-_]?\\w+)*(\\.\\w{2,3})+$</string>
+    <string name="phoneFormat">^(\\+|00)?[0-9]{4,}$</string>
+    <string name="postcodeFormat">^\\w+([\\s-]*\\w*)?$</string>
+    <string name="dobFormat">[0-9]{8}</string>
+
+    <!-- APPLICATION ARRAYS -->
 
     <string-array name="statusFields">
         <item>status</item>
@@ -41,6 +61,7 @@
         <item>id</item>
         <item>firstname</item>
         <item>surname</item>
+        <item>dob</item>
     </string-array>
     <string-array name="addressFields">
         <item>street</item>
@@ -66,11 +87,6 @@
         <item>firstname</item>
         <item>surname</item>
     </string-array>
-    <string name="true_value">on</string>
-    <string name="false_value">off</string>
-    <string name="success_status">SUCCESS</string>
-    <string name="username">username</string>
-    <string name="password">password</string>
     <string-array name="privateFields">
         <item>id</item>
         <item>sessionid</item>
@@ -80,6 +96,9 @@
     <string-array name="secretFields">
         <item>password</item>
     </string-array>
+    <string-array name="dateFields">
+        <item>dob</item>
+    </string-array>
     <string-array name="subscriberTypes">
         <item>customer</item>
         <item>provider</item>
@@ -88,14 +107,6 @@
         <item>esp</item>
         <item>eng</item>
     </string-array>
-    <string name="sessionclosed">closed</string>
-
-
-    <string name="zone_provider">providers area</string>
-    <string name="zone_customer">customers area</string>
-    <string name="init_welcome">WELCOME TO VENYA</string>
-    <string name="init_customer">I AM A CUSTOMER</string>
-    <string name="init_provider">I AM A PROVIDER</string>
     <string-array name="menuOptions">
         <item>home</item>
         <item>apointments</item>
@@ -103,6 +114,65 @@
         <item>settings</item>
         <item>logout</item>
     </string-array>
+    <string-array name="signinOptions">
+        <item>signin</item>
+        <item>register</item>
+        <item>lostusername</item>
+        <item>lostpassword</item>
+    </string-array>
+    <string-array name="securityCheckFields">
+        <item>id</item>
+        <item>surname</item>
+        <item>dob</item>
+    </string-array>
+
+    <!-- WEB_PAGES -->
+    <string name="pages_choosesite_esp">choose_site_esp.html</string>
+    <string name="pages_choosesite_eng">choose_site_eng.html</string>
+    <string name="pages_signin">signin.html</string>
+    <string name="pages_home">home.html</string>
+    <string name="pages_register">register.html</string>
+    <string name="pages_settings">settings.html</string>
+    <string name="pages_changeSettings">changeSettings.html</string>
+    <string name="pages_appointments">appointments.html</string>
+    <string name="pages_notifications">notifications.html</string>
+    <string name="pages_settingsPages_email">changeEmail.html</string>
+    <string name="pages_settingsPages_password">changePassword.html</string>
+    <string name="pages_settingsPages_times">changeTimes.html</string>
+    <string name="pages_settingsPages_username">changeUsername.html</string>
+    <string name="pages_settingsPages_address">changeAddress.html</string>
+    <string name="pages_settingsPages_phone">changePhone.html</string>
+    <string name="pages_lostusername">lostUsername.html</string>
+    <string name="pages_lostpassword">lostPassword.html</string>
+    <string name="pages_lostid">lostID.html</string>
+    <string name="pages_webcreatecustomer">web_create_customer.html</string>
+    <string name="pages_webnewappointment">web_new_appointment.html</string>
+    <string name="pages_showlostinfo">show_lost_info.html</string>
+    <string name="pages_logout">logout.html</string>
+    <string name="pages_provider_signin">provider_signin.html</string>
+    <string name="pages_provider_register">provider_register.html</string>
+    <string name="pages_provider_home">provider_home.html</string>
+    <string name="pages_provider_settings">provider_settings.html</string>
+    <string name="pages_provider_logout">provider_logout.html</string>
+    <string name="pages_provider_createcustomer">provider_create_customer.html</string>
+    <string name="pages_provider_changeSettings">changeSettings.html</string>
+    <string name="pages_provider_appointments">appointments.html</string>
+    <string name="pages_provider_settingsPages_email">changeEmail.html</string>
+    <string name="pages_provider_settingsPages_password">changePassword.html</string>
+    <string name="pages_provider_settingsPages_times">changeTimes.html</string>
+    <string name="pages_provider_settingsPages_username">changeUsername.html</string>
+    <string name="pages_provider_settingsPages_address">changeAddress.html</string>
+    <string name="pages_provider_settingsPages_phone">changePhone.html</string>
+    <string name="pages_provider_lostusername">lostUsername.html</string>
+    <string name="pages_provider_lostpassword">lostPassword.html</string>
+    <string name="pages_provider_showlostinfo">show_lost_info.html</string>
+
+    <!-- LANGUAGE SPECIFIC STRINGS -->
+    <string name="zone_provider">providers area</string>
+    <string name="zone_customer">customers area</string>
+    <string name="init_welcome">WELCOME TO VENYA</string>
+    <string name="init_customer">I AM A CUSTOMER</string>
+    <string name="init_provider">I AM A PROVIDER</string>
     <string name="menu_home">@string/app_name</string>
     <string name="menu_appointments">appointments</string>
     <string name="menu_notifications">notifications</string>
@@ -136,6 +206,7 @@
     <string name="customer_type">type</string>
     <string name="customer_firstname">firstname</string>
     <string name="customer_surname">surname</string>
+    <string name="customer_dob">date of birth</string>
     <string name="customer_address">address</string>
     <string name="customer_email">email</string>
     <string name="customer_username">username</string>
@@ -182,7 +253,8 @@
     <string name="form_submit">submit</string>
     <string name="form_cancel">cancel</string>
     <string name="form_toprovider">Don\'t have an id? Get an account from your provider.</string>
-    <string name="form_getid">Id lost? Get it here</string>
+    <string name="form_getid">ID lost? Get it here</string>
+    <string name="form_optional">optional</string>
     <string name="underconstruction">under construction</string>
     <string name="errors_badfields">please double check the following fields</string>
     <string name="errors_required">is required</string>
@@ -194,6 +266,7 @@
     <string name="errors_emailformat">invalid email format</string>
     <string name="errors_phoneformat">invalid phone number</string>
     <string name="errors_notregistered">username invalid. Please register to the service with the id provided by your provider</string>
+    <string name="errors_notcreated">the user profile has not been created. Please contact your provider</string>
     <string name="errors_accountnotfound">account not found</string>
     <string name="errors_wrongcredentials">wrong username or password</string>
     <string name="errors_registrationerror">Registration error</string>
@@ -223,8 +296,6 @@
     <string name="menu_open">open</string>
     <string name="errors_pagenotavailable">page not available</string>
     <string name="goodbye">goodbye</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="errors_unknwon">unknown error</string>
 
 </resources>

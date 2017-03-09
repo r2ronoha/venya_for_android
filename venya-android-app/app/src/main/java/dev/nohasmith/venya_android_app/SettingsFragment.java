@@ -15,6 +15,7 @@ import java.util.Arrays;
 
 import static dev.nohasmith.venya_android_app.MainActivity.booleanFields;
 import static dev.nohasmith.venya_android_app.MainActivity.customerFields;
+import static dev.nohasmith.venya_android_app.MainActivity.dateFields;
 import static dev.nohasmith.venya_android_app.MainActivity.listFields;
 import static dev.nohasmith.venya_android_app.MainActivity.nameFields;
 import static dev.nohasmith.venya_android_app.MainActivity.privateFields;
@@ -116,6 +117,8 @@ public class SettingsFragment extends Fragment {
                         value = Parsing.formatName(value);
                     } else if ( Arrays.asList(upperCaseFields).contains(field) ) {
                         value = value.toUpperCase();
+                    } else if ( Arrays.asList(dateFields).contains(field) ) {
+                        value = Parsing.formatDate(value);
                     }
                     valueCell.setText(value);
                     valueCell.setPadding(10,10,10,10);

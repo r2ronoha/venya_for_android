@@ -20,6 +20,7 @@ public class CustomerSettings implements Parcelable{
     private String firstname;
     private String surname;
 
+    private String dob;
     private String sessionid;
     private String username;
     private String password;
@@ -37,6 +38,7 @@ public class CustomerSettings implements Parcelable{
         this.firstname = "N/A";
         this.surname = "N/A";
 
+        this.dob = "ddmmyyyy";
         this.email = appContext.getResources().getString(R.string.default_email);
         this.language = appContext.getResources().getString(R.string.default_lang);
         this.username = appContext.getResources().getString(R.string.default_username);
@@ -48,11 +50,12 @@ public class CustomerSettings implements Parcelable{
         this.location = true;
     }
 
-    public CustomerSettings(Context appContext, String id, String firstname, String surname) {
+    public CustomerSettings(Context appContext, String id, String firstname, String surname, String dob) {
         this.id = id;
         this.firstname = firstname;
         this.surname = surname;
 
+        this.dob = dob;
         this.sessionid = "closed";
         this.email = appContext.getResources().getString(R.string.default_email);
         this.language = appContext.getResources().getString(R.string.default_lang);
@@ -119,6 +122,10 @@ public class CustomerSettings implements Parcelable{
 
     public String getFirstname () {
         return this.firstname;
+    }
+
+    public String getDOB () {
+        return this.dob;
     }
 
     public String getType () {
@@ -213,6 +220,7 @@ public class CustomerSettings implements Parcelable{
         this.sessionid = in.readString();
         this.firstname = in.readString();
         this.surname = in.readString();
+        this.dob = in.readString();
         this.email = in.readString();
         this.language = in.readString();
         this.username = in.readString();
@@ -236,6 +244,7 @@ public class CustomerSettings implements Parcelable{
         dest.writeString(sessionid);
         dest.writeString(firstname);
         dest.writeString(surname);
+        dest.writeString(dob);
         dest.writeString(email);
         dest.writeString(language);
         dest.writeString(username);
@@ -267,6 +276,8 @@ public class CustomerSettings implements Parcelable{
                 return this.getFirstname();
             case "surname":
                 return this.getSurname();
+            case "dob":
+                return this.getDOB();
             case "type":
                 return this.getType();
             case "sessionid":

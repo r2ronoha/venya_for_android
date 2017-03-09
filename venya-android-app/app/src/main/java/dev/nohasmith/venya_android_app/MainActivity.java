@@ -2,6 +2,7 @@ package dev.nohasmith.venya_android_app;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
@@ -18,7 +19,7 @@ import android.widget.Toast;
 
 import java.util.HashMap;
 
-class MainActivity extends AppCompatActivity implements SigninFragment.SigninListener {
+class MainActivity extends AppCompatActivity implements LostIdFragment.ToSigninListener, LostIdFragment.LostIdListener, SigninFragment.SigninListener, SigninFragment.ToRegisterListener, RegisterFragment.ToSigninListener, RegisterFragment.GetIdListener, RegisterFragment.RegisterListener{
     /*Button submitButton;
     EditText usernameInput;
     EditText passwordInput;
@@ -36,6 +37,10 @@ class MainActivity extends AppCompatActivity implements SigninFragment.SigninLis
     public static String [] statusFields;
     public static String [] customerConstructFields;
     public static String [] upperCaseFields;
+    public static String [] signinOptions;
+    public static String [] dateFields;
+    public static String [] securityCheckFields;
+    public static HashMap<String,String> languages_from_locale;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +60,13 @@ class MainActivity extends AppCompatActivity implements SigninFragment.SigninLis
         statusFields = getResources().getStringArray(R.array.statusFields);
         customerConstructFields =  getResources().getStringArray(R.array.customerCunstructFields);
         upperCaseFields =  getResources().getStringArray(R.array.upperCaseFields);
+        signinOptions = getResources().getStringArray(R.array.signinOptions);
+        dateFields = getResources().getStringArray(R.array.dateFields);
+        securityCheckFields = getResources().getStringArray(R.array.securityCheckFields);
+
+        languages_from_locale = new HashMap<String,String>();
+        languages_from_locale.put("es","esp");
+        languages_from_locale.put("en","esp");
 
         setFragment(currentPosition);
     }
@@ -66,21 +78,23 @@ class MainActivity extends AppCompatActivity implements SigninFragment.SigninLis
 
         switch (position) {
             case 1:
-                //appointments
+                //registration
                 toast.makeText(this,getResources().getString(R.string.action_registration).toUpperCase(),Toast.LENGTH_LONG).show();
+                fragment = new RegisterFragment();
                 break;
             case 2:
-                // notifications
+                // lost username
                 toast.makeText(this,getResources().getString(R.string.signin_lostusername).toUpperCase(),Toast.LENGTH_LONG).show();
                 break;
             case 3:
-                // settings
+                // lost passwird
                 toast.makeText(this,getResources().getString(R.string.signin_lostpassword).toUpperCase(),Toast.LENGTH_SHORT).show();
                 //fragment = new SettingsFragment(SESSION_ID, customer);
                 break;
             default:
-                // home
+                // default ==> got to signin
                 toast.makeText(this,getResources().getString(R.string.signin_button),Toast.LENGTH_LONG).show();
+                //fragment = new SigninFragment(getApplicationContext());
                 fragment = new SigninFragment();
         }
 
@@ -103,5 +117,39 @@ class MainActivity extends AppCompatActivity implements SigninFragment.SigninLis
         intent.putExtra("sessionid", sessionid);
         intent.putExtra("customer", customer);
         intentContext.startActivity(intent);
+    }
+
+    public void registerClicked(String sessionid, FullCustomerSettings customer){
+        Context intentContext = MainActivity.this;
+        Intent intent = new Intent(intentContext, Home.class);
+        intent.putExtra("sessionid", sessionid);
+        intent.putExtra("customer", customer);
+        intentContext.startActivity(intent);
+    }
+
+    public void toRegisterClicked(int position) {
+        currentPosition = position;
+        goToFragment(new RegisterFragment());
+    }
+
+    public void toSigninClicked(int position) {
+        currentPosition = position;
+        goToFragment(new SigninFragment());
+    }
+
+    /*
+    public void getIdClicked(String url){
+        Context intentContext = MainActivity.this;
+        Intent browserInternet = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+        intentContext.startActivity(browserInternet);
+    }
+    */
+
+    public void getIdClicked(){
+        goToFragment(new LostIdFragment());
+    }
+
+    public void lostIdClicked(FullCustomerSettings customer) {
+        goToFragment(new RegisterFragment(customer));
     }
 }

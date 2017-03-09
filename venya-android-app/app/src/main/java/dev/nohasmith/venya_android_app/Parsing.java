@@ -9,6 +9,7 @@ import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.nfc.Tag;
+import android.os.Build;
 import android.util.Log;
 import android.widget.TextView;
 
@@ -27,6 +28,8 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static dev.nohasmith.venya_android_app.MainActivity.addressFields;
 import static dev.nohasmith.venya_android_app.MainActivity.customerConstructFields;
@@ -52,20 +55,28 @@ public class Parsing {
 
     public static String formatName(String name){
         String myTag = TAG + ".formatName";
-        String [] messages = name.split("\\s+");
-        String message = toUpperCase(messages[0].charAt(0)) + messages[0].substring(1);
-        //String message = "";
+        String message = name;
+        try {
+            String[] messages = name.split("\\s+");
+            message = toUpperCase(messages[0].charAt(0)) + messages[0].substring(1);
+            //String message = "";
 
-        for (int i=1; i<messages.length; i++){
-            //Log.d(myTag,"concatenating " + messages[i] + " to " + message);
-            String part = toUpperCase(messages[i].charAt(0)) + messages[i].substring(1);
-            message = message.concat(" " + part);
+            for (int i = 1; i < messages.length; i++) {
+                //Log.d(myTag,"concatenating " + messages[i] + " to " + message);
+                String part = toUpperCase(messages[i].charAt(0)) + messages[i].substring(1);
+                message = message.concat(" " + part);
+            }
+        } catch (Exception e) {
+            Log.e(myTag,"Error formatting \"" + name + "\". Return unchanged");
+            message = name;
         }
         return message;
         //return toUpperCase(message.charAt(0)) + message.substring(1);
     }
 
-
+    public static String formatDate(String date) {
+        return date.replaceAll("^([0-9]{2})([0-9]{2})([0-9]+)","$1/$2/$3");
+    }
 
     public static int getResId(Context appContext, String name) {
         return appContext.getResources().getIdentifier(name,"string",appContext.getPackageName());
@@ -193,6 +204,33 @@ public class Parsing {
         return sessionid;
     }
 
+    public static Locale getLocale(Configuration config) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N ){
+            return config.getLocales().get(0);
+        } else {
+            return config.locale;
+        }
+    }
+
+    public static String getMapKeyFromValue(HashMap<String,String> map, String value ) {
+        for ( String key : map.keySet() ) {
+            if ( map.get(key).equals(value) ) {
+                return key;
+            }
+        }
+        return null;
+    }
+
+    public static int getIndexOf(String [] array, String value ){
+        int position = -1;
+        for ( int i=0; i<array.length; i++ ) {
+            if ( array[i].equals(value) ) {
+                position = i;
+            }
+        }
+        return position;
+    }
+
     public static CustomerSettings parseCustomerJson(String jsonStr, Context appContext) {
         // Parse a JSON response from Nodejs server and return the customer info as CustomerSettgin class
         /*
@@ -213,6 +251,7 @@ public class Parsing {
             String type = jsonObject.getString("type");
             String firstname = jsonObject.getString("firstname");
             String surname = jsonObject.getString("surname");
+            String dob = jsonObject.getString("dob");
             String email = jsonObject.getString("email");
             String username = jsonObject.getString("username");
             String password = jsonObject.getString("password");
@@ -233,7 +272,7 @@ public class Parsing {
             //if (notifString == "0") { notifications = false; }
             boolean location = Boolean.parseBoolean(jsonObject.getString("location"));
 
-            customer = new CustomerSettings(appContext,id,firstname,surname);
+            customer = new CustomerSettings(appContext,id,firstname,surname,dob);
             customer.setSessionid(sessionid);
             customer.setUsername(username);
             customer.setPassword(password);
@@ -300,7 +339,8 @@ public class Parsing {
                 String id = customerConstruct.get("id");
                 String firstname = customerConstruct.get("firstname");
                 String surname = customerConstruct.get("surname");
-                customer = new CustomerSettings(appContext, id, firstname, surname);
+                String dob = customerConstruct.get("dob");
+                customer = new CustomerSettings(appContext, id, firstname, surname, dob);
 
                 for (int i = 0; i < customerFields.length; i++) {
                     try {
@@ -401,7 +441,8 @@ public class Parsing {
                 String id = customerConstruct.get("id");
                 String firstname = customerConstruct.get("firstname");
                 String surname = customerConstruct.get("surname");
-                customer = new FullCustomerSettings(appContext, id, firstname, surname);
+                String dob = customerConstruct.get("dob");
+                customer = new FullCustomerSettings(appContext, id, firstname, surname, dob);
 
                 for (int i = 0; i < customerFields.length; i++) {
                     try {
@@ -495,5 +536,61 @@ public class Parsing {
         Configuration config = new Configuration();
         config.setLocale(locale);
         context.createConfigurationContext(config);
+    }
+
+    public static boolean checkDateFormat(Context context, String dob) {
+        String dobFormat = context.getResources().getString(R.string.dobFormat);
+        Pattern p = Pattern.compile(dobFormat);
+        Matcher m = p.matcher(dob);
+        return m.matches();
+    }
+
+    public static boolean checkRequired(Context context, String field) {
+        //Log.d("RegisterFragment.CheckRequired","field = \"" + field + "\"");
+        return ! field.equals("") && field != null;
+    }
+
+    public static boolean checkUidFormat(Context context, String uid) {
+        String uidFormat = context.getResources().getString(R.string.idFormat);
+        Pattern p = Pattern.compile(uidFormat);
+        Matcher m = p.matcher(uid);
+        return m.matches();
+    }
+
+    public static boolean checkUsernameFormat(Context context, String username) {
+        String usernameFormat = context.getResources().getString(R.string.usernameFormat);
+        String defaultUsername = context.getResources().getString(R.string.default_username);
+
+        Pattern p = Pattern.compile(usernameFormat);
+        Matcher m = p.matcher(username);
+
+        if ( username.equals(defaultUsername) || ! m.matches() ) {
+            return false;
+        }
+        return true;
+    }
+
+    public static boolean checkPasswordFormat(Context context, String password) {
+        String passwordFormat = context.getResources().getString(R.string.passwordFormat);
+        //return password.matches(passwordFormat);
+        Pattern p = Pattern.compile(passwordFormat);
+        Matcher m = p.matcher(password);
+        return m.matches();
+    }
+
+    public static boolean checkEmailFormat(Context context, String email) {
+        String emailFormat = context.getResources().getString(R.string.emailFormat);
+        //return email.matches(emailFormat);
+        Pattern p = Pattern.compile(emailFormat);
+        Matcher m = p.matcher(email);
+        return m.matches();
+    }
+
+    public static boolean checkPhoneFormat(Context context, String phone) {
+        String phoneFormat = context.getResources().getString(R.string.phoneFormat);
+        //return phone.matches(phoneFormat);
+        Pattern p = Pattern.compile(phoneFormat);
+        Matcher m = p.matcher(phone);
+        return m.matches();
     }
 }

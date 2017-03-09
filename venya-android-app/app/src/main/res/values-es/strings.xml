@@ -48,6 +48,7 @@
     <string name="customer_type">tipo</string>
     <string name="customer_firstname">nombre</string>
     <string name="customer_surname">apellidos</string>
+    <string name="customer_dob">fecha de nacimiento</string>
     <string name="customer_address">dirección</string>
     <string name="customer_email">email</string>
     <string name="customer_username">nombre de usuario</string>
@@ -94,7 +95,8 @@
     <string name="form_submit">enviar</string>
     <string name="form_cancel">anular</string>
     <string name="form_toprovider">¿No tienes identificador? Créate una cuenta con tu proveedor.</string>
-    <string name="form_getid">¿Identificador perdido? Recupéralo aquí</string>
+    <string name="form_getid">¿Has perdido to identificador? Recupéralo aquí</string>
+    <string name="form_optional">opcional</string>
     <string name="underconstruction">en construcción</string>
     <string name="errors_badfields">por favor, revisa los campos siguientes</string>
     <string name="errors_required">es obligatorio</string>
@@ -106,6 +108,7 @@
     <string name="errors_emailformat">formato de email erróneo</string>
     <string name="errors_phoneformat">formato de teléfono no válido</string>
     <string name="errors_notregistered">nombre de usuario no válido. Regístrate con el identificador proporcionado por tu proveedor</string>
+    <string name="notcreated">no hay un perfil para este usuario.Contacte a su proveedor</string>
     <string name="errors_accountnotfound">no hemos encontrado tu cuenta</string>
     <string name="errors_wrongcredentials">nombre de usuario o contraseña erróneos</string>
     <string name="errors_registrationerror">error de inscripción</string>
@@ -135,4 +138,5 @@
     <string name="menu_open">open</string>
     <string name="errors_pagenotavailable">página no disponible</string>
     <string name="goodbye">adiós</string>
+    <string name="errors_unknwon">error desconocido</string>
 </resources>
