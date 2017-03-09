@@ -1,6 +1,9 @@
 package dev.nohasmith.venya_android_app;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by arturo on 27/02/2017.
@@ -24,6 +27,31 @@ public class Address implements Serializable{
         this.postcode = postcode;
         this.city = city;
         this.country = country;
+    }
+
+    public String formatAddress() {
+        String formattedAddress;
+        List<String> notEmpty = new ArrayList<String>();
+        if ( ! street.equals("N/A") ) {
+            notEmpty.add(street);
+        }
+        if ( ! postcode.equals("N/A") ) {
+            notEmpty.add(postcode);
+        }
+        if ( ! city.equals("N/A") ) {
+            notEmpty.add(city);
+        }
+        if ( ! country.equals("N/A") ) {
+            notEmpty.add(country);
+        }
+
+        StringBuilder sb = new StringBuilder();
+        for ( String s : notEmpty ) {
+            sb.append(s);
+            sb.append(" ");
+        }
+        formattedAddress = sb.toString().replace("\\s+$","");
+        return Parsing.formatName(formattedAddress);
     }
 
     public void setField(String field, String value) {

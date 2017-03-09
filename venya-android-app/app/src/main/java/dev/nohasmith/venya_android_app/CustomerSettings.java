@@ -15,10 +15,10 @@ import android.view.View;
 public class CustomerSettings implements Parcelable{
 //public class CustomerSettings implements Serializable{
 
-    private static String id;
+    private String id;
     private final static String type = "customer";
-    private static String firstname;
-    private static String surname;
+    private String firstname;
+    private String surname;
 
     private String sessionid;
     private String username;

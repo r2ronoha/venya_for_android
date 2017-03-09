@@ -28,6 +28,8 @@ class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         appContext = getApplicationContext();
+        Parsing.setLocale(appContext,"es");
+
         usernameInput = (EditText)findViewById(R.id.usernameInput);
         passwordInput = (EditText)findViewById(R.id.passwordInput);
         submitButton = (Button)findViewById(R.id.signinButton);
@@ -57,7 +59,12 @@ class MainActivity extends AppCompatActivity {
                         errorsView.setText(R.string.errors_notregistered);
                 } else {
                     // send request to the server to check the credentials
-                    String reqUrl = "http://" + getResources().getString(R.string.venya_node_server) + ":" + getResources().getString(R.string.venya_node_port) + "/getCustomer?action=login&username=" + username + "&password=" + password;
+                    //String reqUrl = "http://" + getResources().getString(R.string.venya_node_server) + ":" + getResources().getString(R.string.venya_node_port) + "/getCustomer?action=login&username=" + username + "&password=" + password;
+                    String reqUrl = "http://" + getResources().getString(R.string.venya_node_server) + ":" + getResources().getString(R.string.venya_node_port) +
+                            "/getFullSubscriberData?type=customer" +
+                            "&action=login" +
+                            "&username=" + username +
+                            "&password=" + password;
                     //String response = Parsing.getHttpResponse(appContext,reqUrl);
                     //reqUrl = "http://www.google.com";
                     MyHttpHandler httpHandler = new MyHttpHandler(appContext);
@@ -71,7 +78,7 @@ class MainActivity extends AppCompatActivity {
                         Log.e("[MainActivity.OnClick]","NULL response from server");
                     } else {
                         Log.d("MainActivity","HTTP response from server: " + response);
-                        HashMap<String, Object> parsedResponse = Parsing.parseGetCustomerResponseJson(response, appContext);
+                        HashMap<String, Object> parsedResponse = Parsing.parseGetFullCustomerResponseJson(response, appContext);
                         String status = (String) parsedResponse.get("status");
 
                         if ( ! status.equals(getResources().getString(R.string.success_status)) ) {
@@ -80,22 +87,29 @@ class MainActivity extends AppCompatActivity {
                         } else {
 
                             String action = (String) parsedResponse.get("action");
-                            CustomerSettings customer = (CustomerSettings) parsedResponse.get("customer");
+                            FullCustomerSettings customer = (FullCustomerSettings) parsedResponse.get("customer");
+                            Log.d("MAIN Activity","ID after parsing = " + customer.getId().getValue());
 
-                            if ( ! customer.getSessionid().equals(getResources().getString(R.string.sessionclosed))) {
+                            if ( ! customer.getSessionid().getValue().equals(getResources().getString(R.string.sessionclosed))) {
                                 String errormessage = Parsing.formatMessage(new String [] {getResources().getString(R.string.errors_sessionopened)});
                                 errorsView.setText(errormessage);
                             } else {
-                                String id = customer.getId();
+                                String id = (String)customer.getId().getValue();
+                                //Log.d("MAIN Activity","ID = " + id);
                                 String sessionid = Parsing.randomSessionID(id);
-                                errorsView.setText(sessionid);
+                                //Log.d("MAIN Activity","session id generated = " + sessionid);
+                                //errorsView.setText(sessionid);
 
                                 String updatedSessionid = Parsing.setSessionId(appContext,id,sessionid,"customer");
+                                Log.d("MAIN Activity","session id updated = " + updatedSessionid);
+
                                 if ( updatedSessionid == null ) {
                                     errorsView.setText(getResources().getString(R.string.errors_nullfromserver));
                                 } else if ( ! sessionid.equals(updatedSessionid) ) {
                                     errorsView.setText(getResources().getString(Parsing.getResId(appContext,updatedSessionid)));
                                 } else {
+                                    //update customer with session id generated
+                                    customer.setField("sessionid",sessionid);
                                     // call home fragment with action and sessionid
                                     Context intentContext = MainActivity.this;
                                     Intent intent = new Intent(intentContext, Home.class);

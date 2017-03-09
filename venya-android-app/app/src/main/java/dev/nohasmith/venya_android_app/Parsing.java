@@ -5,6 +5,7 @@ package dev.nohasmith.venya_android_app;
  */
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.nfc.Tag;
@@ -25,6 +26,7 @@ import java.net.ProtocolException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Locale;
 
 import static java.lang.Character.toUpperCase;
 
@@ -43,6 +45,23 @@ public class Parsing {
         }
         return toUpperCase(message.charAt(0)) + message.substring(1);
     }
+
+    public static String formatName(String name){
+        String myTag = TAG + ".formatName";
+        String [] messages = name.split("\\s+");
+        String message = toUpperCase(messages[0].charAt(0)) + messages[0].substring(1);
+        //String message = "";
+
+        for (int i=1; i<messages.length; i++){
+            //Log.d(myTag,"concatenating " + messages[i] + " to " + message);
+            String part = toUpperCase(messages[i].charAt(0)) + messages[i].substring(1);
+            message = message.concat(" " + part);
+        }
+        return message;
+        //return toUpperCase(message.charAt(0)) + message.substring(1);
+    }
+
+
 
     public static int getResId(Context appContext, String name) {
         return appContext.getResources().getIdentifier(name,"string",appContext.getPackageName());
@@ -156,12 +175,13 @@ public class Parsing {
     }
 
     public static String randomSessionID (String id) {
+        Log.d(TAG,"id recibido : " + id);
         // Create a random session id based on the user id and a random suffix of 2 digits
         double suffix = Math.floor(Math.random()*(R.integer.sessionPlusIdMax - R.integer.sessionPlusIdMin + 1) + R.integer.sessionPlusIdMin);
         String suffixString = String.format("%.0f",suffix).replaceAll("/^([0-9])$/","0$1");
         suffixString = suffixString.substring(suffixString.length() - 2);
         String sessionid = id + suffixString;
-        //Log.d(TAG,"id = " + id + " - suffix = " + suffix + " - suffixString = " + suffixString + " ==> sessionid = " + sessionid);
+        Log.d(TAG,"id = " + id + " - suffix = " + suffix + " - suffixString = " + suffixString + " ==> sessionid = " + sessionid);
         return sessionid;
     }
 
@@ -313,6 +333,107 @@ public class Parsing {
         return parsedResponse;
     }
 
+    public static HashMap<String, Object> parseGetFullCustomerResponseJson(String serverResponse, Context appContext) {
+        /*
+         parse a JSON response from the Nodejs server and return a HAsh Map with
+         - action
+         - status
+         - errormessage
+         - customer info (as CustomerSetting class
+          */
+        String [] customerFields = appContext.getResources().getStringArray(R.array.customerFields);
+        String [] addressFields = appContext.getResources().getStringArray(R.array.addressFields);
+        String [] statusFields = appContext.getResources().getStringArray(R.array.statusFields);
+
+        HashMap<String,Object> parsedResponse = new HashMap<String, Object>();
+        FullCustomerSettings customer;
+        HashMap<String,String> customerConstruct;
+        String [] customerConstructFields = appContext.getResources().getStringArray(R.array.customerCunstructFields);
+        Address customerAddress;
+        Log.d("[Parsing.parseGetFullCustomerResponseJson]",serverResponse);
+        try {
+            JSONObject jsonObject = new JSONObject(serverResponse);
+
+            for (int i=0; i<statusFields.length; i++) {
+                try {
+                    String field = statusFields[i];
+                    String value = jsonObject.getString(field);
+                    parsedResponse.put(field,value);
+                } catch (Exception e) {
+                    Log.d(TAG,"Unable to parse field " + statusFields[i]);
+                }
+            }
+
+            if ( parsedResponse.get("status").equals(appContext.getResources().getString(R.string.success_status)) ) {
+                customerConstruct = new HashMap<String, String>();
+                for (int i = 0; i < customerConstructFields.length; i++) {
+                    try {
+                        String field = customerConstructFields[i];
+                        String value;
+
+                        //Log.d(TAG,"parsing cnstructor field: " + field);
+                        if ( field.equals("id") ) {
+                            value = jsonObject.getString("_id");
+                        } else {
+                            JSONObject fullValue = jsonObject.getJSONObject(field);
+                            value = fullValue.getString("value");
+                        }
+                        customerConstruct.put(field, value);
+                    } catch (Exception e) {
+                        Log.d(TAG, "Failed to parse " + customerConstructFields[i]);
+                        e.printStackTrace();
+                    }
+                }
+                String id = customerConstruct.get("id");
+                String firstname = customerConstruct.get("firstname");
+                String surname = customerConstruct.get("surname");
+                customer = new FullCustomerSettings(appContext, id, firstname, surname);
+
+                for (int i = 0; i < customerFields.length; i++) {
+                    try {
+                        String field = customerFields[i];
+                        FullCustomerSettings customerSettings;
+                        if (!customerConstruct.containsKey(field)) {
+                            //Log.d(TAG,"parsing \"" + field + "\"");
+                            JSONObject fieldJson = jsonObject.getJSONObject(field);
+                            if (field.equals("address")) {
+                                //Log.d(TAG,"\"" + field + "\" is address");
+                                customerAddress = new Address();
+                                JSONObject myAddress = fieldJson.getJSONObject("value");
+                                for (int j = 0; j < addressFields.length; j++) {
+                                    String addrField = addressFields[j];
+                                    String value = myAddress.getString(addrField);
+                                    customerAddress.setField(addrField, value);
+                                }
+                                customer.setField(field, customerAddress);
+                            } else {
+                                String[] booleanFields = appContext.getResources().getStringArray(R.array.booleanFields);
+                                if (Arrays.asList(booleanFields).contains(field)) {
+                                    //Log.d(TAG,"\"" + field + "\" is boolean");
+                                    boolean value = Boolean.parseBoolean(fieldJson.getString("value"));
+                                    customer.setField(field, value);
+                                } else {
+                                    //Log.d(TAG,"\"" + field + "\" is string");
+                                    String value = fieldJson.getString("value");
+                                    customer.setField(field, value);
+                                }
+                            }
+                        }
+                    } catch (Exception e) {
+                        Log.d(TAG, "Unable to parse field " + customerFields[i]);
+                        e.printStackTrace();
+                    }
+                }
+                parsedResponse.put("customer",customer);
+            }
+        } catch (final JSONException e) {
+            Log.e(TAG,"Json parsing error" + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return parsedResponse;
+    }
+
     public static String setSessionId(Context context, String id, String sessionid, String type) {
         String hostname = context.getResources().getString(R.string.venya_node_server);
         String port = context.getResources().getString(R.string.venya_node_port);
@@ -336,11 +457,10 @@ public class Parsing {
             Log.e(TAG,"NULL response from server");
             return context.getResources().getString(R.string.errors_nullfromserver);
         } else {
-            HashMap<String, Object> parsedResponse = Parsing.parseServerResponseJson(response, context);
+            HashMap<String, Object> parsedResponse = Parsing.parseGetCustomerResponseJson(response, context);
             String status = (String) parsedResponse.get("status");
 
             if ( ! status.equals(context.getResources().getString(R.string.success_status)) ) {
-                Log.d(TAG,"status " + status + " is not " + context.getResources().getString(R.string.success_status));
                 String errormessage = (String) parsedResponse.get("errormessage");
                 return errormessage;
             } else {
@@ -353,5 +473,13 @@ public class Parsing {
     public static String getBooleanValue(Boolean value) {
         return ( value ) ? "ON" : "OFF";
         //return convert;
+    }
+
+    public static void setLocale(Context context, String lang) {
+        Locale locale = new Locale(lang);
+        Locale.setDefault(locale);
+        Configuration config = new Configuration();
+        config.setLocale(locale);
+        context.createConfigurationContext(config);
     }
 }

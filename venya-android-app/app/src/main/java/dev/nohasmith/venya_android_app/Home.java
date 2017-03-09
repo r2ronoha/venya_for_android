@@ -28,8 +28,8 @@ import static android.app.PendingIntent.getActivity;
  * Created by arturo on 07/03/2017.
  */
 public class Home extends AppCompatActivity{
-    public static String SESSION_ID = "closed";
-    public static CustomerSettings customer;
+    public String SESSION_ID = "closed";
+    public FullCustomerSettings customer;
     private static String hostname;
     private static String port;
     ActionBar actionBar;
@@ -82,14 +82,14 @@ public class Home extends AppCompatActivity{
         // Check if the screen has been rotated (there was an option already selected) and we set it back
         if ( savedInstanceState != null ) {
             currentPosition = savedInstanceState.getInt("position");
-            customer = (CustomerSettings)savedInstanceState.getParcelable("customer");
+            customer = (FullCustomerSettings)savedInstanceState.getParcelable("customer");
             SESSION_ID = savedInstanceState.getString("sessionid");
             setActionBarTitle(currentPosition);
         } else {
 
             Log.d("HOME", "Getting Extras");
             SESSION_ID = (String) getIntent().getExtras().get("sessionid");
-            customer = (CustomerSettings) getIntent().getParcelableExtra("customer");
+            customer = (FullCustomerSettings) getIntent().getParcelableExtra("customer");
         }
 
         if ( SESSION_ID == null || customer == null) {
@@ -101,7 +101,7 @@ public class Home extends AppCompatActivity{
             //TextView errorsView = (TextView)findViewById(R.id.homeErrorsView);
             //errorsView.setText(SESSION_ID);
             Log.d("HOME","Home activity started with sessionid = " + SESSION_ID);
-            Log.d("HOME","customer: " + customer.getFirstname() + " " + customer.getSurname());
+            Log.d("HOME","customer: " + (String)customer.getFieldElement("firstname","value") + " " + (String)customer.getFieldElement("surname","value"));
 
             selectItem(currentPosition);
 
@@ -166,7 +166,7 @@ public class Home extends AppCompatActivity{
             case 4:
                 // logout
                 toast.makeText(this,"YOU ARE BEING LOGGED OUT",Toast.LENGTH_LONG).show();
-                String newSessionid = Parsing.setSessionId(getApplicationContext(),customer.getId(),homeContext.getResources().getString(R.string.sessionclosed),"customer");
+                String newSessionid = Parsing.setSessionId(getApplicationContext(),(String)customer.getFieldElement("id","value"),homeContext.getResources().getString(R.string.sessionclosed),"customer");
                 if ( newSessionid.equals(homeContext.getResources().getString(R.string.sessionclosed)) ) {
                     Log.d("HOME","session closed");
                     Context intentContext = Home.this;

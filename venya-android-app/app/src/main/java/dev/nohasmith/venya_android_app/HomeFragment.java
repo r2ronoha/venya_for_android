@@ -17,10 +17,10 @@ import java.util.Arrays;
  * A simple {@link Fragment} subclass.
  */
 public class HomeFragment extends Fragment {
-    CustomerSettings customer;
+    FullCustomerSettings customer;
     String sessionid;
 
-    public HomeFragment(String sessionid, CustomerSettings customer) {
+    public HomeFragment(String sessionid, FullCustomerSettings customer) {
         this.customer = customer;
         this.sessionid = sessionid;
     }
@@ -63,14 +63,18 @@ public class HomeFragment extends Fragment {
                     fieldCell.setText(field);
                     row.addView(fieldCell);
 
+                    CustomerField fullField = customer.getField(field);
                     valueCell = new TextView(getContext());
                     if ( field.equals("address") ) {
                         // iterate through address fields
+                        Address address = (Address)fullField.getValue();
+                        String addrStr = address.formatAddress();
+                        valueCell.setText(addrStr);
                     } else if ( Arrays.asList(booleanFields).contains(field) ) {
-                        boolean value = (boolean)customer.getField(field);
+                        boolean value = (boolean)fullField.getValue();
                         valueCell.setText(Parsing.getBooleanValue(value));
                     } else {
-                        String value = (String)customer.getField(field);
+                        String value = (String)fullField.getValue();
                         valueCell.setText(value);
                     }
                     valueCell.setPadding(5,5,5,5);
