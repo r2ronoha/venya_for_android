@@ -22,6 +22,18 @@ class MainActivity extends AppCompatActivity {
     TextView errorsView;
     Context appContext;
 
+
+    public static String [] customerFields;
+    public static String [] privateFields;
+    public static String [] booleanFields;
+    public static String [] secretFields;
+    public static String [] listFields;
+    public static String [] nameFields;
+    public static String [] addressFields;
+    public static String [] statusFields;
+    public static String [] customerConstructFields;
+    public static String [] upperCaseFields;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,6 +48,17 @@ class MainActivity extends AppCompatActivity {
 
         errorsView = (TextView)findViewById(R.id.errorsView);
         errorsView.setText("");
+
+        customerFields = getResources().getStringArray(R.array.customerFields);
+        privateFields = getResources().getStringArray(R.array.privateFields);
+        booleanFields = getResources().getStringArray(R.array.booleanFields);
+        secretFields = getResources().getStringArray(R.array.secretFields);
+        listFields = getResources().getStringArray(R.array.listFields);
+        nameFields = getResources().getStringArray(R.array.nameFields);
+        addressFields = getResources().getStringArray(R.array.addressFields);
+        statusFields = getResources().getStringArray(R.array.statusFields);
+        customerConstructFields =  getResources().getStringArray(R.array.customerCunstructFields);
+        upperCaseFields =  getResources().getStringArray(R.array.upperCaseFields);
 
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override

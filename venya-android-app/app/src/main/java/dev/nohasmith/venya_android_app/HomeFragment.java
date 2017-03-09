@@ -13,6 +13,11 @@ import android.widget.TextView;
 
 import java.util.Arrays;
 
+import static dev.nohasmith.venya_android_app.MainActivity.booleanFields;
+import static dev.nohasmith.venya_android_app.MainActivity.customerFields;
+import static dev.nohasmith.venya_android_app.MainActivity.privateFields;
+import static dev.nohasmith.venya_android_app.MainActivity.secretFields;
+
 /**
  * A simple {@link Fragment} subclass.
  */
@@ -49,18 +54,23 @@ public class HomeFragment extends Fragment {
         int rowCount = 0;
 
         if ( customer != null ) {
-            String [] fields = getResources().getStringArray(R.array.customerFields);
-            String [] privateFields = getResources().getStringArray(R.array.privateFields);
-            String [] booleanFields = getResources().getStringArray(R.array.booleanFields);
+            /*
+            customerFields = getResources().getStringArray(R.array.customerFields);
+            privateFields = getResources().getStringArray(R.array.privateFields);
+            booleanFields = getResources().getStringArray(R.array.booleanFields);
+            secretFields = getResources().getStringArray(R.array.secretFields);
+            */
 
-            for ( int i=fields.length-1; i>=0; i-- ) {
-                String field = fields[i];
+            //for ( int i=customerFields.length-1; i>=0; i-- ) {
+            for ( int i=0; i<customerFields.length; i++ ) {
+                String field = customerFields[i];
                 if ( customer.getField(field) != null && ! Arrays.asList(privateFields).contains(field) ) {
                     row = new TableRow(getContext());
                     layoutParams = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT);
                     row.setLayoutParams(layoutParams);
                     fieldCell = new TextView(getContext());
                     fieldCell.setText(field);
+                    fieldCell.setPadding(10,10,10,10);
                     row.addView(fieldCell);
 
                     CustomerField fullField = customer.getField(field);
@@ -75,11 +85,14 @@ public class HomeFragment extends Fragment {
                         valueCell.setText(Parsing.getBooleanValue(value));
                     } else {
                         String value = (String)fullField.getValue();
+                        if ( Arrays.asList(secretFields).contains(field) ) {
+                            value = Parsing.hideValue(value);
+                        }
                         valueCell.setText(value);
                     }
-                    valueCell.setPadding(5,5,5,5);
+                    valueCell.setPadding(10,10,10,10);
                     row.addView(valueCell);
-                    tableLayout.addView(row,rowCount);
+                    tableLayout.addView(row,rowCount++);
                 }
             }
         }

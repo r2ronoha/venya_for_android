@@ -58,6 +58,14 @@
         <item>notifications</item>
         <item>location</item>
     </string-array>
+    <string-array name="listFields">
+        <item>language</item>
+    </string-array>
+    <string-array name="nameFields">
+        <item>address</item>
+        <item>firstname</item>
+        <item>surname</item>
+    </string-array>
     <string name="true_value">on</string>
     <string name="false_value">off</string>
     <string name="success_status">SUCCESS</string>
@@ -93,7 +101,7 @@
         <item>apointments</item>
         <item>notifications</item>
         <item>settings</item>
-        <item>logout></item>
+        <item>logout</item>
     </string-array>
     <string name="menu_home">@string/app_name</string>
     <string name="menu_appointments">appointments</string>
@@ -213,9 +221,10 @@
     <string name="errors_httpexception">Exception raised attempting to handle HTTP request</string>
     <string name="menu_close">closing</string>
     <string name="menu_open">open</string>
+    <string name="errors_pagenotavailable">page not available</string>
+    <string name="goodbye">goodbye</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-
 
 </resources>

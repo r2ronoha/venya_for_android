@@ -13,16 +13,24 @@ import android.widget.TextView;
 
 import java.util.Arrays;
 
+import static dev.nohasmith.venya_android_app.MainActivity.booleanFields;
+import static dev.nohasmith.venya_android_app.MainActivity.customerFields;
+import static dev.nohasmith.venya_android_app.MainActivity.listFields;
+import static dev.nohasmith.venya_android_app.MainActivity.nameFields;
+import static dev.nohasmith.venya_android_app.MainActivity.privateFields;
+import static dev.nohasmith.venya_android_app.MainActivity.secretFields;
+import static dev.nohasmith.venya_android_app.MainActivity.upperCaseFields;
+
 /**
  * A simple {@link Fragment} subclass.
  */
 public class SettingsFragment extends Fragment {
-    CustomerSettings customer;
+    FullCustomerSettings customer;
     String sessionid;
 
     //public SettingsFragment() {}
 
-    public SettingsFragment(String sessionid, CustomerSettings customer) {
+    public SettingsFragment(String sessionid, FullCustomerSettings customer) {
         this.customer = customer;
         this.sessionid = sessionid;
     }
@@ -46,38 +54,85 @@ public class SettingsFragment extends Fragment {
         TableLayout tableLayout = (TableLayout)view.findViewById(R.id.customer_table);
         TableRow row;
         TableRow.LayoutParams layoutParams;
-        TextView fieldCell;
-        TextView valueCell;
+        TextView fieldCell = new TextView(getContext());
+        TextView valueCell = new TextView(getContext());
+        TextView optionCell = new TextView(getContext());
+
+        row = new TableRow(getContext());
+        layoutParams = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT);
+        row.setLayoutParams(layoutParams);
+
         int rowCount = 0;
+        fieldCell.setText(getResources().getString(R.string.settings_setting).toUpperCase());
+        valueCell.setText(getResources().getString(R.string.settings_value).toUpperCase());
+        optionCell.setText(getResources().getString(R.string.settings_option).toUpperCase());
+
+        fieldCell.setPadding(10,10,10,10);
+        valueCell.setPadding(10,10,10,10);
+        optionCell.setPadding(10,10,10,10);
+
+        row.addView(fieldCell);
+        row.addView(valueCell);
+        row.addView(optionCell);
+
+        tableLayout.addView(row,rowCount++);
 
         if ( customer != null ) {
-            String [] fields = getResources().getStringArray(R.array.customerFields);
-            String [] privateFields = getResources().getStringArray(R.array.privateFields);
-            String [] booleanFields = getResources().getStringArray(R.array.booleanFields);
-
-            for ( int i=fields.length-1; i>=0; i-- ) {
-                String field = fields[i];
-                if ( customer.getField(field) != null && ! Arrays.asList(privateFields).contains(field) ) {
-                    row = new TableRow(getContext());
+            //for ( int i=customerFields.length-1; i>=0; i-- ) {
+            for ( int i=0; i<customerFields.length; i++ ) {
+                String field = customerFields[i];
+                //if ( customer.getField(field) != null && ! Arrays.asList(privateFields).contains(field) ) {
+                if ( customer.getField(field) != null && ! Arrays.asList(privateFields).contains(field) && customer.getField(field).getFix() == 0 ) {
+                        row = new TableRow(getContext());
                     layoutParams = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT);
                     row.setLayoutParams(layoutParams);
+
                     fieldCell = new TextView(getContext());
-                    fieldCell.setText(field);
+                    fieldCell.setText(Parsing.formatMessage(new String [] {field}));
+                    fieldCell.setPadding(10,10,10,10);
                     row.addView(fieldCell);
 
                     valueCell = new TextView(getContext());
+                    optionCell = new TextView(getContext());
+                    String value;
+                    String option;
+
                     if ( field.equals("address") ) {
                         // iterate through address fields
+                        Address address = (Address)customer.getField(field).getValue();
+                        value = address.formatAddress();
                     } else if ( Arrays.asList(booleanFields).contains(field) ) {
-                        boolean value = (boolean)customer.getField(field);
-                        valueCell.setText(Parsing.getBooleanValue(value));
+                        boolean boolValue = (boolean)customer.getField(field).getValue();
+                        value = (boolValue) ? getResources().getString(R.string.true_value) : getResources().getString(R.string.false_value);
+
                     } else {
-                        String value = (String)customer.getField(field);
-                        valueCell.setText(value);
+                        value = (String)customer.getField(field).getValue();
+                        if ( Arrays.asList(secretFields).contains(field) ) {
+                            value = Parsing.hideValue(value);
+                        }
                     }
-                    valueCell.setPadding(5,5,5,5);
+
+                    if ( Arrays.asList(nameFields).contains(field) ) {
+                        value = Parsing.formatName(value);
+                    } else if ( Arrays.asList(upperCaseFields).contains(field) ) {
+                        value = value.toUpperCase();
+                    }
+                    valueCell.setText(value);
+                    valueCell.setPadding(10,10,10,10);
                     row.addView(valueCell);
-                    tableLayout.addView(row,rowCount);
+
+                    if ( Arrays.asList(listFields).contains(field) ) {
+                        option = getResources().getString(R.string.settings_listoption);
+                    }else if ( Arrays.asList(booleanFields).contains(field) ) {
+                        option = getResources().getString(R.string.settings_booleanoption);
+                    } else {
+                        option = getResources().getString(R.string.settings_stringoption);
+                    }
+                    optionCell.setText(option.toUpperCase());
+                    optionCell.setPadding(10,10,10,10);
+                    row.addView(optionCell);
+
+                    tableLayout.addView(row,rowCount++);
                 }
             }
         }

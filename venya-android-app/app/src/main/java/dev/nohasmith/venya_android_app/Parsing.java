@@ -28,6 +28,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
 
+import static dev.nohasmith.venya_android_app.MainActivity.addressFields;
+import static dev.nohasmith.venya_android_app.MainActivity.customerConstructFields;
+import static dev.nohasmith.venya_android_app.MainActivity.customerFields;
+import static dev.nohasmith.venya_android_app.MainActivity.statusFields;
 import static java.lang.Character.toUpperCase;
 
 public class Parsing {
@@ -65,6 +69,10 @@ public class Parsing {
 
     public static int getResId(Context appContext, String name) {
         return appContext.getResources().getIdentifier(name,"string",appContext.getPackageName());
+    }
+
+    public static String hideValue(String value) {
+        return value.replaceAll(".","*");
     }
 
     public static String streamToString (InputStream is) {
@@ -187,9 +195,11 @@ public class Parsing {
 
     public static CustomerSettings parseCustomerJson(String jsonStr, Context appContext) {
         // Parse a JSON response from Nodejs server and return the customer info as CustomerSettgin class
-        String [] customerFields = appContext.getResources().getStringArray(R.array.customerFields);
-        String [] addressFields = appContext.getResources().getStringArray(R.array.addressFields);
-        String [] statusFields = appContext.getResources().getStringArray(R.array.statusFields);
+        /*
+        customerFields = appContext.getResources().getStringArray(R.array.customerFields);
+        addressFields = appContext.getResources().getStringArray(R.array.addressFields);
+        statusFields = appContext.getResources().getStringArray(R.array.statusFields);
+        */
 
         CustomerSettings customer = null;
         Address customerAddress;
@@ -249,14 +259,16 @@ public class Parsing {
          - errormessage
          - customer info (as CustomerSetting class
           */
+        /*
         String [] customerFields = appContext.getResources().getStringArray(R.array.customerFields);
         String [] addressFields = appContext.getResources().getStringArray(R.array.addressFields);
         String [] statusFields = appContext.getResources().getStringArray(R.array.statusFields);
+        */
 
         HashMap<String,Object> parsedResponse = new HashMap<String, Object>();
         CustomerSettings customer;
         HashMap<String,String> customerConstruct;
-        String [] customerConstructFields = appContext.getResources().getStringArray(R.array.customerCunstructFields);
+        // String [] customerConstructFields = appContext.getResources().getStringArray(R.array.customerCunstructFields);
         Address customerAddress;
         Log.d("[Parsing.parseServerResponse]",serverResponse);
         try {
@@ -341,14 +353,16 @@ public class Parsing {
          - errormessage
          - customer info (as CustomerSetting class
           */
+        /*
         String [] customerFields = appContext.getResources().getStringArray(R.array.customerFields);
         String [] addressFields = appContext.getResources().getStringArray(R.array.addressFields);
         String [] statusFields = appContext.getResources().getStringArray(R.array.statusFields);
+        */
 
         HashMap<String,Object> parsedResponse = new HashMap<String, Object>();
         FullCustomerSettings customer;
         HashMap<String,String> customerConstruct;
-        String [] customerConstructFields = appContext.getResources().getStringArray(R.array.customerCunstructFields);
+        // String [] customerConstructFields = appContext.getResources().getStringArray(R.array.customerCunstructFields);
         Address customerAddress;
         Log.d("[Parsing.parseGetFullCustomerResponseJson]",serverResponse);
         try {

@@ -133,4 +133,6 @@
     <string name="errors_httpexception">Excepción creada al intenar realizar una llamada HTTP</string>
     <string name="menu_close">closing</string>
     <string name="menu_open">open</string>
+    <string name="errors_pagenotavailable">página no disponible</string>
+    <string name="goodbye">adiós</string>
 </resources>

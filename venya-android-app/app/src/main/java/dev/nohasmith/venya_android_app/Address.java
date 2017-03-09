@@ -16,10 +16,10 @@ public class Address implements Serializable{
     private String country;
 
     public Address() {
-        this.street = "N/A";
-        this.postcode = "N/A";
-        this.city = "N/A";
-        this.country = "N/A";
+        this.street = "n/a";
+        this.postcode = "n/a";
+        this.city = "n/a";
+        this.country = "n/a";
     }
 
     public Address(String street, String postcode,String city, String country){
@@ -32,26 +32,26 @@ public class Address implements Serializable{
     public String formatAddress() {
         String formattedAddress;
         List<String> notEmpty = new ArrayList<String>();
-        if ( ! street.equals("N/A") ) {
-            notEmpty.add(street);
+        if ( ! street.toLowerCase().equals("n/a") ) {
+            notEmpty.add(Parsing.formatName(street));
         }
-        if ( ! postcode.equals("N/A") ) {
-            notEmpty.add(postcode);
+        if ( ! postcode.toLowerCase().equals("n/a") ) {
+            notEmpty.add(postcode.toUpperCase());
         }
-        if ( ! city.equals("N/A") ) {
-            notEmpty.add(city);
+        if ( ! city.toLowerCase().equals("n/a") ) {
+            notEmpty.add(Parsing.formatName(city));
         }
-        if ( ! country.equals("N/A") ) {
-            notEmpty.add(country);
+        if ( ! country.toLowerCase().equals("n/a") ) {
+            notEmpty.add(Parsing.formatName(country));
         }
 
         StringBuilder sb = new StringBuilder();
         for ( String s : notEmpty ) {
             sb.append(s);
-            sb.append(" ");
+            sb.append(", ");
         }
-        formattedAddress = sb.toString().replace("\\s+$","");
-        return Parsing.formatName(formattedAddress);
+        formattedAddress = sb.toString().replace(",\\s*$","");
+        return formattedAddress;
     }
 
     public void setField(String field, String value) {

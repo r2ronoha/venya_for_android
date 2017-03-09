@@ -13,6 +13,8 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -38,7 +40,7 @@ public class Home extends AppCompatActivity{
     private int currentPosition = 0;
     ActionBarDrawerToggle menuToggle;
     private DrawerLayout menuLayout;
-    Context homeContext;
+    static Context homeContext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,32 +102,10 @@ public class Home extends AppCompatActivity{
         } else {
             //TextView errorsView = (TextView)findViewById(R.id.homeErrorsView);
             //errorsView.setText(SESSION_ID);
-            Log.d("HOME","Home activity started with sessionid = " + SESSION_ID);
-            Log.d("HOME","customer: " + (String)customer.getFieldElement("firstname","value") + " " + (String)customer.getFieldElement("surname","value"));
+            //Log.d("HOME","Home activity started with sessionid = " + SESSION_ID);
+            //Log.d("HOME","customer: " + (String)customer.getFieldElement("firstname","value") + " " + (String)customer.getFieldElement("surname","value"));
 
             selectItem(currentPosition);
-
-            /*
-            String [] customerFields = getResources().getStringArray(R.array.customerFields);
-            String [] addressFields = getResources().getStringArray(R.array.addressFields);
-            String [] booleanFields = getResources().getStringArray(R.array.booleanFields);
-
-            for ( int i=0; i<customerFields.length; i++ ) {
-                String field = customerFields[i];
-                if ( field.equals("address") ) {
-                    for ( int j=0; j<addressFields.length; j++ ) {
-                        String addrField = addressFields[j];
-                        Log.d("HOME","Address - " + addrField + ": " + customer.getAddress().getField(addrField));
-                    }
-                } else if (Arrays.asList(booleanFields).contains(field)) {
-                    boolean value = (boolean)customer.getField(field);
-                    Log.d("HOME",field + ": " + Boolean.toString(value));
-                } else {
-                    String value = (String)customer.getField(field);
-                    Log.d("HOME",field + ": " + value);
-                }
-            }
-            */
         }
 
     }
@@ -153,44 +133,80 @@ public class Home extends AppCompatActivity{
         switch (position) {
             case 1:
                 //appointments
-                toast.makeText(this,"YOU ARE GOOING TO APPOINTMENTS",Toast.LENGTH_LONG).show();
+                toast.makeText(this,getResources().getString(R.string.errors_pagenotavailable).toUpperCase(),Toast.LENGTH_LONG).show();
                 break;
             case 2:
                 // notifications
-                toast.makeText(this,"YOU ARE GOOING TO NOTIFICATIONS",Toast.LENGTH_LONG).show();
+                toast.makeText(this,getResources().getString(R.string.errors_pagenotavailable).toUpperCase(),Toast.LENGTH_LONG).show();
                 break;
             case 3:
                 // settings
-                toast.makeText(this,"YOU ARE GOOING TO SETTINGS",Toast.LENGTH_LONG).show();
+                toast.makeText(this,getResources().getString(R.string.menu_settings).toUpperCase(),Toast.LENGTH_SHORT).show();
+                fragment = new SettingsFragment(SESSION_ID, customer);
                 break;
             case 4:
                 // logout
-                toast.makeText(this,"YOU ARE BEING LOGGED OUT",Toast.LENGTH_LONG).show();
-                String newSessionid = Parsing.setSessionId(getApplicationContext(),(String)customer.getFieldElement("id","value"),homeContext.getResources().getString(R.string.sessionclosed),"customer");
-                if ( newSessionid.equals(homeContext.getResources().getString(R.string.sessionclosed)) ) {
-                    Log.d("HOME","session closed");
-                    Context intentContext = Home.this;
-                    Intent intent = new Intent(intentContext, MainActivity.class);
-                    intentContext.startActivity(intent);
-                }
+                logout(Home.this,customer);
                 break;
             default:
                 // home
-                toast.makeText(this,"HOME SWEET HOME",Toast.LENGTH_LONG).show();
+                toast.makeText(this,getResources().getString(R.string.home_welcome),Toast.LENGTH_LONG).show();
                 fragment = new HomeFragment(SESSION_ID, customer);
         }
 
         if ( fragment != null ) {
-            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.replace(R.id.content_frame, fragment, "visible_fragment");
-            ft.addToBackStack(null);
-            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-            ft.commit();
+            goToFragment(fragment,position);
+        }
+    }
 
-            setActionBarTitle(position);
+    public void logout(Context intentContext, FullCustomerSettings customer) {
+        Toast toast = new Toast(this);
+        toast.makeText(this,getResources().getString(R.string.goodbye).toUpperCase(),Toast.LENGTH_SHORT).show();
+        String newSessionid = Parsing.setSessionId(getApplicationContext(),(String)customer.getFieldElement("id","value"),homeContext.getResources().getString(R.string.sessionclosed),"customer");
+        if ( newSessionid.equals(homeContext.getResources().getString(R.string.sessionclosed)) ) {
+            Log.d("HOME","session closed");
+            Intent intent = new Intent(intentContext, MainActivity.class);
+            intentContext.startActivity(intent);
+        }
+    }
 
-            menuLayout = (DrawerLayout) findViewById(R.id.menuLayout);
-            menuLayout.closeDrawer(menuList);
+    public void goToFragment(Fragment fragment, int position) {
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.replace(R.id.content_frame, fragment, "visible_fragment");
+        ft.addToBackStack(null);
+        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+        ft.commit();
+
+        setActionBarTitle(position);
+
+        menuLayout = (DrawerLayout) findViewById(R.id.menuLayout);
+        menuLayout.closeDrawer(menuList);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.options_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if ( menuToggle.onOptionsItemSelected(item) ) {
+            return true;
+        }
+
+        switch(item.getItemId()) {
+            case R.id.options_menu_settings:
+                // actions
+                Fragment fragment = new SettingsFragment(SESSION_ID,customer);
+                goToFragment(fragment,3);
+                return true;
+            case R.id.options_menu_logout:
+                // logout
+                logout(Home.this,customer);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 
