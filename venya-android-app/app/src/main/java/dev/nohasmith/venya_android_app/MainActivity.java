@@ -2,6 +2,8 @@ package dev.nohasmith.venya_android_app;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -12,16 +14,17 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import android.util.Log;
+import android.widget.Toast;
 
 import java.util.HashMap;
 
-class MainActivity extends AppCompatActivity {
-    Button submitButton;
+class MainActivity extends AppCompatActivity implements SigninFragment.SigninListener {
+    /*Button submitButton;
     EditText usernameInput;
     EditText passwordInput;
-    TextView errorsView;
+    TextView errorsView;*/
     Context appContext;
-
+    int currentPosition = 0;
 
     public static String [] customerFields;
     public static String [] privateFields;
@@ -42,13 +45,6 @@ class MainActivity extends AppCompatActivity {
         appContext = getApplicationContext();
         Parsing.setLocale(appContext,"es");
 
-        usernameInput = (EditText)findViewById(R.id.usernameInput);
-        passwordInput = (EditText)findViewById(R.id.passwordInput);
-        submitButton = (Button)findViewById(R.id.signinButton);
-
-        errorsView = (TextView)findViewById(R.id.errorsView);
-        errorsView.setText("");
-
         customerFields = getResources().getStringArray(R.array.customerFields);
         privateFields = getResources().getStringArray(R.array.privateFields);
         booleanFields = getResources().getStringArray(R.array.booleanFields);
@@ -60,91 +56,52 @@ class MainActivity extends AppCompatActivity {
         customerConstructFields =  getResources().getStringArray(R.array.customerCunstructFields);
         upperCaseFields =  getResources().getStringArray(R.array.upperCaseFields);
 
-        submitButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                errorsView.setText("");
-                String username = usernameInput.getText().toString();
-                String password = passwordInput.getText().toString();
-                String response = null;
+        setFragment(currentPosition);
+    }
 
-                if ( username.length() == 0 || password.length() == 0 ) {
-                    String missingField = ( username.length() == 0 ) ? "username" : "password";
-                    //Log.d("MainActivity.onClick","username: " + username + "(" + username.length() + ")");
-                    //Log.d("MainActivity.onClick","password: " + password + "(" + password.length() + ")");
-                    errorsView.setText(Parsing.formatMessage(new String[]{missingField, getResources().getString(R.string.errors_required)}));
-                } else if ( username.equals(getResources().getString(R.string.default_username)) ) {
-            /*
-            if he username entered is the system's default, send error
-            that means that the subscriber did not create/activate the account
-             */
-                        // Call signin fragment with error message
-                        errorsView.setText(R.string.errors_notregistered);
-                } else {
-                    // send request to the server to check the credentials
-                    //String reqUrl = "http://" + getResources().getString(R.string.venya_node_server) + ":" + getResources().getString(R.string.venya_node_port) + "/getCustomer?action=login&username=" + username + "&password=" + password;
-                    String reqUrl = "http://" + getResources().getString(R.string.venya_node_server) + ":" + getResources().getString(R.string.venya_node_port) +
-                            "/getFullSubscriberData?type=customer" +
-                            "&action=login" +
-                            "&username=" + username +
-                            "&password=" + password;
-                    //String response = Parsing.getHttpResponse(appContext,reqUrl);
-                    //reqUrl = "http://www.google.com";
-                    MyHttpHandler httpHandler = new MyHttpHandler(appContext);
-                    try {
-                        response = httpHandler.execute(reqUrl).get();
-                    } catch (Exception e) {
-                        Log.d("[MainActivity","Exception calling AsyncTask: " + e);
-                        e.printStackTrace();
-                    }
-                    if ( response == null ) {
-                        Log.e("[MainActivity.OnClick]","NULL response from server");
-                    } else {
-                        Log.d("MainActivity","HTTP response from server: " + response);
-                        HashMap<String, Object> parsedResponse = Parsing.parseGetFullCustomerResponseJson(response, appContext);
-                        String status = (String) parsedResponse.get("status");
+    private void setFragment(int position) {
+        currentPosition = position;
+        Fragment fragment = null;
+        Toast toast = new Toast(this);
 
-                        if ( ! status.equals(getResources().getString(R.string.success_status)) ) {
-                            String errormessage = (String) parsedResponse.get("errormessage");
-                            errorsView.setText(getResources().getString(Parsing.getResId(appContext, errormessage)));
-                        } else {
+        switch (position) {
+            case 1:
+                //appointments
+                toast.makeText(this,getResources().getString(R.string.action_registration).toUpperCase(),Toast.LENGTH_LONG).show();
+                break;
+            case 2:
+                // notifications
+                toast.makeText(this,getResources().getString(R.string.signin_lostusername).toUpperCase(),Toast.LENGTH_LONG).show();
+                break;
+            case 3:
+                // settings
+                toast.makeText(this,getResources().getString(R.string.signin_lostpassword).toUpperCase(),Toast.LENGTH_SHORT).show();
+                //fragment = new SettingsFragment(SESSION_ID, customer);
+                break;
+            default:
+                // home
+                toast.makeText(this,getResources().getString(R.string.signin_button),Toast.LENGTH_LONG).show();
+                fragment = new SigninFragment();
+        }
 
-                            String action = (String) parsedResponse.get("action");
-                            FullCustomerSettings customer = (FullCustomerSettings) parsedResponse.get("customer");
-                            Log.d("MAIN Activity","ID after parsing = " + customer.getId().getValue());
+        if ( fragment != null ) {
+            goToFragment(fragment);
+        }
+    }
 
-                            if ( ! customer.getSessionid().getValue().equals(getResources().getString(R.string.sessionclosed))) {
-                                String errormessage = Parsing.formatMessage(new String [] {getResources().getString(R.string.errors_sessionopened)});
-                                errorsView.setText(errormessage);
-                            } else {
-                                String id = (String)customer.getId().getValue();
-                                //Log.d("MAIN Activity","ID = " + id);
-                                String sessionid = Parsing.randomSessionID(id);
-                                //Log.d("MAIN Activity","session id generated = " + sessionid);
-                                //errorsView.setText(sessionid);
+    public void goToFragment(Fragment fragment) {
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.replace(R.id.main_fragment_layout, fragment, "visible_fragment");
+        ft.addToBackStack(null);
+        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+        ft.commit();
+    }
 
-                                String updatedSessionid = Parsing.setSessionId(appContext,id,sessionid,"customer");
-                                Log.d("MAIN Activity","session id updated = " + updatedSessionid);
-
-                                if ( updatedSessionid == null ) {
-                                    errorsView.setText(getResources().getString(R.string.errors_nullfromserver));
-                                } else if ( ! sessionid.equals(updatedSessionid) ) {
-                                    errorsView.setText(getResources().getString(Parsing.getResId(appContext,updatedSessionid)));
-                                } else {
-                                    //update customer with session id generated
-                                    customer.setField("sessionid",sessionid);
-                                    // call home fragment with action and sessionid
-                                    Context intentContext = MainActivity.this;
-                                    Intent intent = new Intent(intentContext, Home.class);
-                                    intent.putExtra("sessionid", sessionid);
-                                    intent.putExtra("customer", customer);
-                                    intentContext.startActivity(intent);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        });
+    public void signinClicked(String sessionid, FullCustomerSettings customer){
+        Context intentContext = MainActivity.this;
+        Intent intent = new Intent(intentContext, Home.class);
+        intent.putExtra("sessionid", sessionid);
+        intent.putExtra("customer", customer);
+        intentContext.startActivity(intent);
     }
 }
