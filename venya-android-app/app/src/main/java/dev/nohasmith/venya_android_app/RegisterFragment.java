@@ -55,6 +55,8 @@ public class RegisterFragment extends Fragment {
 
     FullCustomerSettings customer;
 
+    Locale locale;
+
     //String lang = "eng";
 
     public RegisterFragment() {
@@ -117,7 +119,7 @@ public class RegisterFragment extends Fragment {
         super.onStart();
         View view = getView();
         Configuration config = getResources().getConfiguration();
-        final Locale locale = Parsing.getLocale(config);
+        locale = Parsing.getLocale(config);
 
         /*HashMap<String,String> languages_from_locale = new HashMap<String,String>();
         languages_from_locale.put("es","esp");
@@ -138,8 +140,8 @@ public class RegisterFragment extends Fragment {
 
         uidInput = (EditText)view.findViewById(R.id.uidInput);
         usernameInput = (EditText)view.findViewById(R.id.usernameInput);
-        surnameInput = (EditText)view.findViewById(R.id.dobInput);
-        dobInput = (EditText)view.findViewById(R.id.emailInput);
+        surnameInput = (EditText)view.findViewById(R.id.surnameInput);
+        dobInput = (EditText)view.findViewById(R.id.dobInput);
         //dobInput.setHint(Parsing.formatMessage(new String[] {getResources().getString(R.string.customer_dob)," - ",getResources().getString(R.string.form_optional)}));
         emailInput = (EditText)view.findViewById(R.id.emailInput);
         confirmEmailInput = (EditText)view.findViewById(R.id.confirmEmail);
@@ -250,6 +252,7 @@ public class RegisterFragment extends Fragment {
                 } else if ( ! Parsing.checkEmailFormat(appContext,email) ) {
                     errorsView.setText(Parsing.formatMessage(new String [] {getResources().getString(R.string.errors_badformat), getResources().getString(R.string.customer_email)} ));
                 } else if ( ! confirmEmail.equals(email) ) {
+                    Log.d("Register","confirm email = \"" + confirmEmail + "\" -- email = \"" + email + "\"");
                     errorsView.setText(Parsing.formatMessage(new String [] {"confirmEmail",getResources().getString(R.string.customer_email),getResources().getString(R.string.errors_notmatch)} ));
                 }
                 // Check password is filled and correctly fomatted and matches the cofirm email value
@@ -292,9 +295,8 @@ public class RegisterFragment extends Fragment {
                         Log.e("RegisterFragment.OnClick]","NULL response from server");
                     } else {
                         Log.d("RegisterFragment", "HTTP response from server: " + response);
-                        HashMap<String, Object> parsedResponse = Parsing.parseGetFullCustomerResponseJson(response, appContext);
+                        HashMap<String, Object> parsedResponse = Parsing.parseGetCustomerResponseJson(response, appContext);
                         String status = (String) parsedResponse.get("status");
-
                         if (!status.equals(getResources().getString(R.string.success_status))) {
                             String errormessage = (String) parsedResponse.get("errormessage");
                             try {
@@ -303,36 +305,67 @@ public class RegisterFragment extends Fragment {
                                 errorsView.setText(getResources().getString(R.string.errors_unknwon) + ": " + errormessage);
                             }
                         } else {
+                            reqUrl = "http://" + getResources().getString(R.string.venya_node_server) + ":" + getResources().getString(R.string.venya_node_port) +
+                                    "/getFullSubscriberData?type=customer" +
+                                    "&action=login" +
+                                    "&username=" + username +
+                                    "&password=" + password;
 
-                            String action = (String) parsedResponse.get("action");
-                            FullCustomerSettings customer = (FullCustomerSettings) parsedResponse.get("customer");
-                            Log.d("MAIN Activity", "ID after parsing = " + customer.getId().getValue());
-
-                            if (!customer.getSessionid().getValue().equals(getResources().getString(R.string.sessionclosed))) {
-                                String errormessage = Parsing.formatMessage(new String[]{getResources().getString(R.string.errors_sessionopened)});
-                                errorsView.setText(errormessage);
+                           httpHandler = new MyHttpHandler(appContext);
+                            try {
+                                response = httpHandler.execute(reqUrl).get();
+                            } catch (Exception e) {
+                                Log.d("RegisterFragment","Exception calling AsyncTask: " + e);
+                                e.printStackTrace();
+                            }
+                            if ( response == null ) {
+                                Log.e("RegisterFragment.OnClick]","NULL response from server at Login");
                             } else {
-                                String id = (String) customer.getId().getValue();
-                                //Log.d("MAIN Activity","ID = " + id);
-                                String sessionid = Parsing.randomSessionID(id);
-                                //Log.d("MAIN Activity","session id generated = " + sessionid);
-                                //errorsView.setText(sessionid);
+                                Log.d("RegisterFragment", "HTTP response from server: " + response);
 
-                                String updatedSessionid = Parsing.setSessionId(appContext, id, sessionid, "customer");
-                                Log.d("RegisterFragment", "session id updated = " + updatedSessionid);
+                                parsedResponse = Parsing.parseGetFullCustomerResponseJson(response, appContext);
+                                status = (String) parsedResponse.get("status");
 
-                                if (updatedSessionid == null) {
-                                    errorsView.setText(getResources().getString(R.string.errors_nullfromserver));
-                                } else if (!sessionid.equals(updatedSessionid)) {
+                                if (!status.equals(getResources().getString(R.string.success_status))) {
+                                    String errormessage = (String) parsedResponse.get("errormessage");
                                     try {
-                                        errorsView.setText(getResources().getString(Parsing.getResId(appContext, "errors_" + updatedSessionid)));
+                                        errorsView.setText(getResources().getString(Parsing.getResId(appContext, "errors_" + errormessage)));
                                     } catch (Exception e) {
-                                        errorsView.setText(getResources().getString(R.string.errors_invalidsessionid));
+                                        errorsView.setText(getResources().getString(R.string.errors_unknwon) + ": " + errormessage);
                                     }
                                 } else {
-                                    //update customer with session id generated
-                                    customer.setField("sessionid", sessionid);
-                                    listener.registerClicked(sessionid, customer);
+
+                                    String action = (String) parsedResponse.get("action");
+                                    FullCustomerSettings customer = (FullCustomerSettings) parsedResponse.get("customer");
+                                    //Log.d("MAIN Activity", "ID after parsing = " + customer.getId().getValue());
+
+                                    if (!customer.getSessionid().getValue().equals(getResources().getString(R.string.sessionclosed))) {
+                                        String errormessage = Parsing.formatMessage(new String[]{getResources().getString(R.string.errors_sessionopened)});
+                                        errorsView.setText(errormessage);
+                                    } else {
+                                        String id = (String) customer.getId().getValue();
+                                        //Log.d("MAIN Activity","ID = " + id);
+                                        String sessionid = Parsing.randomSessionID(id);
+                                        //Log.d("MAIN Activity","session id generated = " + sessionid);
+                                        //errorsView.setText(sessionid);
+
+                                        String updatedSessionid = Parsing.setSessionId(appContext, id, sessionid, "customer");
+                                        Log.d("RegisterFragment", "session id updated = " + updatedSessionid);
+
+                                        if (updatedSessionid == null) {
+                                            errorsView.setText(getResources().getString(R.string.errors_nullfromserver));
+                                        } else if (!sessionid.equals(updatedSessionid)) {
+                                            try {
+                                                errorsView.setText(getResources().getString(Parsing.getResId(appContext, "errors_" + updatedSessionid)));
+                                            } catch (Exception e) {
+                                                errorsView.setText(getResources().getString(R.string.errors_invalidsessionid));
+                                            }
+                                        } else {
+                                            //update customer with session id generated
+                                            customer.setField("sessionid", sessionid);
+                                            listener.registerClicked(sessionid, customer);
+                                        }
+                                    }
                                 }
                             }
                         }

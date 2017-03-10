@@ -23,8 +23,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.Arrays;
+import java.util.Locale;
 
 import static android.app.PendingIntent.getActivity;
+import static dev.nohasmith.venya_android_app.MainActivity.locale_from_language;
+import static dev.nohasmith.venya_android_app.MainActivity.menuOptions;
+import static dev.nohasmith.venya_android_app.MainActivity.menuOptionsTags;
 
 /**
  * Created by arturo on 07/03/2017.
@@ -35,16 +39,17 @@ public class Home extends AppCompatActivity{
     private static String hostname;
     private static String port;
     ActionBar actionBar;
-    private String [] menuOptions;
+    //private String [] menuOptions;
     private ListView menuList;
     private int currentPosition = 0;
     ActionBarDrawerToggle menuToggle;
     private DrawerLayout menuLayout;
-    static Context homeContext;
+    //static Context homeContext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //Parsing.setLocale(this,"es");
         setContentView(R.layout.home);
 
         hostname = getResources().getString(R.string.venya_node_server);
@@ -58,7 +63,7 @@ public class Home extends AppCompatActivity{
         actionBar.setHomeButtonEnabled(true);
 
         // Create menu based on the array from strings
-        menuOptions = getResources().getStringArray(R.array.menuOptions);
+        //menuOptions = getResources().getStringArray(R.array.menuOptions);
         menuList = (ListView)findViewById(R.id.expanded_menu);
         ArrayAdapter<String> menuAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_activated_1,menuOptions);
         menuList.setAdapter(menuAdapter);
@@ -66,7 +71,7 @@ public class Home extends AppCompatActivity{
         menuList.setOnItemClickListener(new MenuItemClickListener());
         menuLayout = (DrawerLayout)findViewById(R.id.menuLayout);
 
-        homeContext = getApplicationContext();
+        //homeContext = getApplicationContext();
         //Activity myActivity = ((AppCompatActivity)getP;
         menuToggle = new ActionBarDrawerToggle((Activity)this, menuLayout, R.string.menu_open, R.string.menu_close) {
             public void onDrawerClosed(View view) {
@@ -111,7 +116,7 @@ public class Home extends AppCompatActivity{
     }
 
     private void setActionBarTitle(int position) {
-        String option = menuOptions[position];
+        String option = menuOptionsTags[position];
         String title;
         title = "menu_" + option;
         int titleID = Parsing.getResId(getApplication(),title);
@@ -162,8 +167,8 @@ public class Home extends AppCompatActivity{
     public void logout(Context intentContext, FullCustomerSettings customer) {
         Toast toast = new Toast(this);
         toast.makeText(this,getResources().getString(R.string.goodbye).toUpperCase(),Toast.LENGTH_SHORT).show();
-        String newSessionid = Parsing.setSessionId(getApplicationContext(),(String)customer.getFieldElement("id","value"),homeContext.getResources().getString(R.string.sessionclosed),"customer");
-        if ( newSessionid.equals(homeContext.getResources().getString(R.string.sessionclosed)) ) {
+        String newSessionid = Parsing.setSessionId(getApplicationContext(),(String)customer.getFieldElement("id","value"),getResources().getString(R.string.sessionclosed),"customer");
+        if ( newSessionid.equals(getResources().getString(R.string.sessionclosed)) ) {
             Log.d("HOME","session closed");
             Intent intent = new Intent(intentContext, MainActivity.class);
             intentContext.startActivity(intent);
@@ -186,6 +191,7 @@ public class Home extends AppCompatActivity{
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.options_menu, menu);
+        //setContentView(R.layout.home);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -200,6 +206,12 @@ public class Home extends AppCompatActivity{
                 // actions
                 Fragment fragment = new SettingsFragment(SESSION_ID,customer);
                 goToFragment(fragment,3);
+                return true;
+            case R.id.options_menu_lang:
+                // actions
+
+                //Parsing.setLocale(this,locale_from_language.get("esp"));
+                selectItem(currentPosition);
                 return true;
             case R.id.options_menu_logout:
                 // logout

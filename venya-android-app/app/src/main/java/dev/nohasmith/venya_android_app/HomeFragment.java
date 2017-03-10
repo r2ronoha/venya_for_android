@@ -70,7 +70,9 @@ public class HomeFragment extends Fragment {
                     layoutParams = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT);
                     row.setLayoutParams(layoutParams);
                     fieldCell = new TextView(getContext());
-                    fieldCell.setText(field);
+
+                    int langFieldId = Parsing.getResId(getContext(),"customer_" + field);
+                    fieldCell.setText(Parsing.formatMessage(new String [] {getResources().getString(langFieldId)}));
                     fieldCell.setPadding(10,10,10,10);
                     row.addView(fieldCell);
 

@@ -24,7 +24,7 @@ class MainActivity extends AppCompatActivity implements LostIdFragment.ToSigninL
     EditText usernameInput;
     EditText passwordInput;
     TextView errorsView;*/
-    Context appContext;
+    //Context appContext;
     int currentPosition = 0;
 
     public static String [] customerFields;
@@ -40,15 +40,18 @@ class MainActivity extends AppCompatActivity implements LostIdFragment.ToSigninL
     public static String [] signinOptions;
     public static String [] dateFields;
     public static String [] securityCheckFields;
+    public static String [] menuOptions;
+    public static String [] menuOptionsTags;
     public static HashMap<String,String> languages_from_locale;
+    public static HashMap<String,String> locale_from_language;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        appContext = getApplicationContext();
-        Parsing.setLocale(appContext,"es");
+        //appContext = getApplicationContext();
+        //Parsing.setLocale(MainActivity.this,"es");
 
         customerFields = getResources().getStringArray(R.array.customerFields);
         privateFields = getResources().getStringArray(R.array.privateFields);
@@ -63,10 +66,16 @@ class MainActivity extends AppCompatActivity implements LostIdFragment.ToSigninL
         signinOptions = getResources().getStringArray(R.array.signinOptions);
         dateFields = getResources().getStringArray(R.array.dateFields);
         securityCheckFields = getResources().getStringArray(R.array.securityCheckFields);
+        menuOptions = getResources().getStringArray(R.array.menuOptions);
+        menuOptionsTags = getResources().getStringArray(R.array.menuOptionsTags);
 
         languages_from_locale = new HashMap<String,String>();
         languages_from_locale.put("es","esp");
-        languages_from_locale.put("en","esp");
+        languages_from_locale.put("en","eng");
+
+        locale_from_language = new HashMap<String,String>();
+        locale_from_language.put("esp","es");
+        locale_from_language.put("eng","en");
 
         setFragment(currentPosition);
     }

@@ -114,6 +114,13 @@
         <item>settings</item>
         <item>logout</item>
     </string-array>
+    <string-array name="menuOptionsTags">
+        <item>home</item>
+        <item>apointments</item>
+        <item>notifications</item>
+        <item>settings</item>
+        <item>logout</item>
+    </string-array>
     <string-array name="signinOptions">
         <item>signin</item>
         <item>register</item>
@@ -297,5 +304,6 @@
     <string name="errors_pagenotavailable">page not available</string>
     <string name="goodbye">goodbye</string>
     <string name="errors_unknwon">unknown error</string>
+    <string name="menu_language">lang</string>
 
 </resources>

@@ -11,7 +11,7 @@
         <item>citas</item>
         <item>notificaciones</item>
         <item>ajustes</item>
-        <item>desconexión></item>
+        <item>desconexión</item>
     </string-array>
     <string name="menu_home">@string/app_name</string>
     <string name="menu_appointments">citas</string>
@@ -139,4 +139,5 @@
     <string name="errors_pagenotavailable">página no disponible</string>
     <string name="goodbye">adiós</string>
     <string name="errors_unknwon">error desconocido</string>
+    <string name="menu_language">lang</string>
 </resources>

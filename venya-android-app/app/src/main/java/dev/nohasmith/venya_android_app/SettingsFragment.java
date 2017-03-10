@@ -89,7 +89,8 @@ public class SettingsFragment extends Fragment {
                     row.setLayoutParams(layoutParams);
 
                     fieldCell = new TextView(getContext());
-                    fieldCell.setText(Parsing.formatMessage(new String [] {field}));
+                    int langFieldId = Parsing.getResId(getContext(),"customer_" + field);
+                    fieldCell.setText(Parsing.formatMessage(new String [] {getResources().getString(langFieldId)}));
                     fieldCell.setPadding(10,10,10,10);
                     row.addView(fieldCell);
 

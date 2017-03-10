@@ -6,6 +6,7 @@ package dev.nohasmith.venya_android_app;
 
 import android.content.Context;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.nfc.Tag;
@@ -533,9 +534,13 @@ public class Parsing {
     public static void setLocale(Context context, String lang) {
         Locale locale = new Locale(lang);
         Locale.setDefault(locale);
-        Configuration config = new Configuration();
+
+        Resources resources = context.getResources();
+
+        Configuration config = resources.getConfiguration();
         config.setLocale(locale);
-        context.createConfigurationContext(config);
+
+        resources.updateConfiguration(config, resources.getDisplayMetrics());
     }
 
     public static boolean checkDateFormat(Context context, String dob) {
