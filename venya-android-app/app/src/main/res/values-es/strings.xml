@@ -18,6 +18,10 @@
     <string name="menu_notifications">notificaciones</string>
     <string name="menu_settings">ajustes</string>
     <string name="menu_logout">desconexión</string>
+    <string name="header_register">Registrate</string>
+    <string name="header_lostid">Recupera tu identificador</string>
+    <string name="header_lostpassword">Recupera tu contraseña</string>
+    <string name="header_lostusername">Recupera tu nombre de usuario</string>
     <!-- <string name="menu_createcustomer">crear nuevo cliente</string> -->
     <string name="action_login">login realizado con éxito</string>
     <string name="action_home">hola</string>
@@ -35,7 +39,7 @@
     <string name="signup_link">Regístrate</string>
     <string name="signin_already">¿Ya tienes una cuenta?</string>
     <string name="signin_lostusername">Nombre de usuario perdido</string>
-    <string name="signin_lostpassword">contraseña perdida</string>
+    <string name="signin_lostpassword">Contraseña perdida</string>
     <string name="home_welcome">bienvenid@</string>
     <string name="home_yourdata">Estos son tus datos</string>
     <string name="address_street">calle</string>
@@ -131,6 +135,7 @@
     <string name="errors_accountalreadycreated">Ya existe una cuenta para este usuario.</string>
     <string name="errors_badrequest">el formato solicitado no está soportado</string>
     <string name="errors_nullfromserver">\"NULL\" recibido del servidor</string>
+    <string name="errors_httptimeout">El servidor no responde. Inténtalo más tarde</string>
     <string name="email_credentialssent">Las credenciales se han enviado a</string>
     <string name="email_emailfailed">No a sido posible enviar el email a</string>
     <string name="errors_httpexception">Excepción creada al intenar realizar una llamada HTTP</string>
@@ -140,4 +145,5 @@
     <string name="goodbye">adiós</string>
     <string name="errors_unknwon">error desconocido</string>
     <string name="menu_language">lang</string>
+    <string name="signin_connecting">Connecting...</string>
 </resources>

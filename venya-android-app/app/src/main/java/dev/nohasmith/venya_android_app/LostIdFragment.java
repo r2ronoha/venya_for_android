@@ -96,8 +96,8 @@ public class LostIdFragment extends Fragment {
         errorsView = (TextView)view.findViewById(R.id.errorsView);
         errorsView.setText("");
 
-        title = (TextView)view.findViewById(R.id.lostIdTitle);
-        title.setText(getResources().getString(R.string.form_enterdetails));
+        //title = (TextView)view.findViewById(R.id.lostIdTitle);
+        //title.setText(getResources().getString(R.string.form_enterdetails));
 
         toSignin = (TextView)view.findViewById(R.id.toSignin);
         String toSigninText = Parsing.formatMessage(new String[] {getResources().getString(R.string.signin_already),getResources().getString(R.string.signin_button)});
@@ -117,13 +117,13 @@ public class LostIdFragment extends Fragment {
             public void onClick(View v) {
                 errorsView.setText("");
                 String surname = surnameInput.getText().toString();
-                String firsname = firstnameInput.getText().toString();
+                String firstname = firstnameInput.getText().toString();
                 String dob = dobInput.getText().toString().replaceAll("\\/","");
                 String response = null;
 
                 if ( ! Parsing.checkRequired(appContext,surname) ) {
                     errorsView.setText(Parsing.formatMessage(new String[]{getResources().getString(R.string.customer_surname), getResources().getString(R.string.errors_required)}));
-                } else if ( ! Parsing.checkRequired(appContext,firsname) ) {
+                } else if ( ! Parsing.checkRequired(appContext,firstname) ) {
                     errorsView.setText(Parsing.formatMessage(new String[]{getResources().getString(R.string.customer_firstname), getResources().getString(R.string.errors_required)}));
                 } else if ( ! Parsing.checkRequired(appContext,dob) ) {
                     errorsView.setText(Parsing.formatMessage(new String[]{getResources().getString(R.string.customer_dob), getResources().getString(R.string.errors_required)}));
@@ -136,7 +136,7 @@ public class LostIdFragment extends Fragment {
                             "/getFullSubscriberData?type=customer" +
                             "&action=getid" +
                             "&surname=" + surname +
-                            "&firstname=" + firsname +
+                            "&firstname=" + firstname +
                             "&dob=" + dob;
                     //String response = Parsing.getHttpResponse(appContext,reqUrl);
                     //reqUrl = "http://www.google.com";

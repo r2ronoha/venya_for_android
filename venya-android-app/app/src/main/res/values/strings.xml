@@ -185,6 +185,10 @@
     <string name="menu_notifications">notifications</string>
     <string name="menu_settings">settings</string>
     <string name="menu_logout">logout</string>
+    <string name="header_register">Create your account</string>
+    <string name="header_lostid">Recover your registration ID</string>
+    <string name="header_lostpassword">Get your password</string>
+    <string name="header_lostusername">Get your username</string>
     <!-- <string name="menu_createcustomer">add new customer</string> -->
     <string name="action_login">login successful</string>
     <string name="action_home">home</string>
@@ -296,6 +300,7 @@
     <string name="errors_accountalreadycreated">An account already exists for this users</string>
     <string name="errors_badrequest">the request is not supported</string>
     <string name="errors_nullfromserver">null response from server</string>
+    <string name="errors_httptimeout">the server is not responding. Please try again later</string>
     <string name="email_credentialssent">Credentials sent to</string>
     <string name="email_emailfailed">failed to send email to</string>
     <string name="errors_httpexception">Exception raised attempting to handle HTTP request</string>
@@ -305,5 +310,9 @@
     <string name="goodbye">goodbye</string>
     <string name="errors_unknwon">unknown error</string>
     <string name="menu_language">lang</string>
+    <string name="signin_connecting">Connecting...</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

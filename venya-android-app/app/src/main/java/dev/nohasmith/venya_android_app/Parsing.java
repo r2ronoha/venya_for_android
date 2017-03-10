@@ -25,6 +25,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -146,24 +147,31 @@ public class Parsing {
                 if ( url == null ) {
                     Log.d("[Parsing.getHttpResponse]", "URL initialised is NULL");
                 } else {
-                    Log.d("[Parsing.getHttpResponse]", "Calling HttpURLConnection");
-                    HttpURLConnection cnx = (HttpURLConnection) url.openConnection();
-                    cnx.setRequestMethod("GET");
-                    if (cnx != null) {
-                        int respCode = cnx.getResponseCode();
-                        InputStream inputStream;
-                        Log.d("[Parsing.getHttpResponse]", "HTTP connection Response code: " + Integer.toString(respCode));
-                        if ( respCode != 200 ){
-                            Log.d("[Parsing.getHttpResponse]", "getting ERROR stream");
-                            inputStream = cnx.getErrorStream();
+                    try {
+                        Log.d("[Parsing.getHttpResponse]", "Calling HttpURLConnection");
+                        HttpURLConnection cnx = (HttpURLConnection) url.openConnection();
+                        cnx.setConnectTimeout(5000);
+                        cnx.setRequestMethod("GET");
+                        if (cnx != null) {
+                            int respCode = cnx.getResponseCode();
+                            InputStream inputStream;
+                            Log.d("[Parsing.getHttpResponse]", "HTTP connection Response code: " + Integer.toString(respCode));
+                            if (respCode != 200) {
+                                Log.d("[Parsing.getHttpResponse]", "getting ERROR stream");
+                                inputStream = cnx.getErrorStream();
+                            } else {
+                                Log.d("[Parsing.getHttpResponse]", "getting INPUT stream");
+                                inputStream = cnx.getInputStream();
+                            }
+                            Log.d("[Parsing.getHttpResponse]", "Parsing response from Input Stream");
+                            response = streamToString(inputStream);
                         } else {
-                            Log.d("[Parsing.getHttpResponse]", "getting INPUT stream");
-                            inputStream = cnx.getInputStream();
+                            Log.d("[Parsing.getHttpResponse]", "NULL cnx after openConnection");
                         }
-                        Log.d("[Parsing.getHttpResponse]", "Parsing response from Input Stream");
-                        response = streamToString(inputStream);
-                    } else {
-                        Log.d("[Parsing.getHttpResponse]", "NULL cnx after openConnection");
+                    } catch (SocketTimeoutException timeout) {
+                        Log.e(TAG,"HTTP Request Timeout");
+                        timeout.printStackTrace();
+                        return "{\"status\" : \"ERROR\", \"errormessage\" : \"httptimeout\" }";
                     }
                 }
             }
@@ -324,7 +332,7 @@ public class Parsing {
                 }
             }
 
-            if ( parsedResponse.get("status").equals(appContext.getResources().getString(R.string.success_status)) ) {
+            if ( parsedResponse.get("status").equals(appContext.getResources().getString(R.string.success_status)) || parsedResponse.get("errormessage").equals("emailfailed")) {
                 customerConstruct = new HashMap<String, String>();
                 for (int i = 0; i < customerConstructFields.length; i++) {
                     try {
@@ -597,5 +605,29 @@ public class Parsing {
         Pattern p = Pattern.compile(phoneFormat);
         Matcher m = p.matcher(phone);
         return m.matches();
+    }
+
+    public static void displayTextView(Context context, TextView errorsView, int errorid) {
+        String displayTextView = Parsing.formatMessage(new String [] {context.getResources().getString(errorid)});
+        errorsView.setText(displayTextView);
+    }
+
+    public static void displayTextView(Context context, TextView errorsView, String errormessage) {
+        String displayTextView = Parsing.formatMessage(new String [] {context.getResources().getString(Parsing.getResId(context, errormessage))});
+        errorsView.setText(displayTextView);
+    }
+
+    public static void displayTextView(Context context, TextView errorsView, String [] errormessage) {
+        String displayTextView = Parsing.formatMessage(errormessage);
+        errorsView.setText(displayTextView);
+    }
+
+    public static void displayTextView(Context context, TextView errorsView, int [] errorids) {
+        String [] errormessage = new String[errorids.length];
+        for ( int i=0; i<errorids.length; i++ ) {
+            errormessage[i] = context.getResources().getString(errorids[i]);
+        }
+        String displayTextView = Parsing.formatMessage(errormessage);
+        errorsView.setText(displayTextView);
     }
 }

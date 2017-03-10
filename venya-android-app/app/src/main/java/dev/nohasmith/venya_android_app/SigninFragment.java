@@ -17,6 +17,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import android.util.Log;
+import android.widget.Toast;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -33,11 +34,26 @@ public class SigninFragment extends Fragment {
     TextView errorsView;
     TextView signinTitle;
     Context appContext;
+    private String usernameReceived;
+    private String passwordReceived;
 
     TextView toRegister;
+    TextView lostUsername;
+    TextView lostPassword;
 
     public SigninFragment() {
         // Required empty public constructor
+    }
+
+    public SigninFragment(String field, String value) {
+        switch(field) {
+            case "username":
+                this.usernameReceived = value;
+                break;
+            case "password":
+                this.passwordReceived = value;
+                break;
+        }
     }
 
     /*
@@ -55,6 +71,16 @@ public class SigninFragment extends Fragment {
         void toRegisterClicked(int position);
     }
     private ToRegisterListener regListener;
+
+    interface ToLostUsernameListener {
+        void toLostUsernameClicked(int position);
+    }
+    private ToLostUsernameListener usernameListener;
+
+    interface ToLostPasswordListener {
+        void toLostPasswordClicked(int position);
+    }
+    private ToLostPasswordListener passwordListener;
     
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -77,6 +103,18 @@ public class SigninFragment extends Fragment {
         } else {
             throw new RuntimeException(context.toString() + " (ToREgisterListener@Signin) must implement OnFragmentInteractionListener");
         }
+
+        if (context instanceof ToLostUsernameListener) {
+            usernameListener = (ToLostUsernameListener)context;
+        } else {
+            throw new RuntimeException(context.toString() + " (ToLostUsernameListener@Signin) must implement OnFragmentInteractionListener");
+        }
+
+        if (context instanceof ToLostPasswordListener) {
+            passwordListener = (ToLostPasswordListener)context;
+        } else {
+            throw new RuntimeException(context.toString() + " (ToLostPasswordListener@Signin) must implement OnFragmentInteractionListener");
+        }
     }
     @Override
     public void onStart() {
@@ -84,28 +122,57 @@ public class SigninFragment extends Fragment {
         View view = getView();
 
         appContext = view.getContext();
-        Parsing.setLocale(appContext,"es");
+        //Parsing.setLocale(appContext,"es");
 
         usernameInput = (EditText)view.findViewById(R.id.usernameInput);
         passwordInput = (EditText)view.findViewById(R.id.passwordInput);
+
+        if ( usernameReceived != null ) {
+            usernameInput.setText(usernameReceived);
+        }
+        if ( passwordReceived != null ) {
+            passwordInput.setText(passwordReceived);
+        }
+
         submitButton = (Button)view.findViewById(R.id.signinButton);
 
         toRegister = (TextView)view.findViewById(R.id.registerLink) ;
-        String toRegisterText = Parsing.formatMessage(new String[] {getResources().getString(R.string.signup_question),getResources().getString(R.string.signup_link)} );
-        toRegister.setText(toRegisterText);
+        Parsing.displayTextView(appContext,toRegister,new int[] {R.string.signup_question,R.string.signup_link});
+
+        lostUsername = (TextView)view.findViewById(R.id.lostUsernameLink);
+        lostPassword = (TextView)view.findViewById(R.id.lostPAsswordLink);
 
         errorsView = (TextView)view.findViewById(R.id.errorsView);
         errorsView.setText("");
 
         signinTitle = (TextView)view.findViewById(R.id.signinTitle);
-        signinTitle.setText(getResources().getString(R.string.signin_title));
+        Parsing.displayTextView(appContext,signinTitle,R.string.signin_title);
+        //signinTitle.setText(getResources().getString(R.string.signin_title));
 
         toRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v){
                 int registerFragmentPosition = Parsing.getIndexOf(signinOptions,"register");
-                Log.d("SigninFragment","index of \"register\" in signinOptions = " + registerFragmentPosition);
+                //Log.d("SigninFragment","index of \"register\" in signinOptions = " + registerFragmentPosition);
                 regListener.toRegisterClicked(registerFragmentPosition);
+            }
+        });
+
+        lostUsername.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v){
+                int usernameFragmentPosition = Parsing.getIndexOf(signinOptions,"lostusername");
+                Log.d("SigninFragment","index of \"lostusername\" in signinOptions = " + usernameFragmentPosition);
+                usernameListener.toLostUsernameClicked(usernameFragmentPosition);
+            }
+        });
+
+        lostPassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v){
+                int passwordFragmentPosition = Parsing.getIndexOf(signinOptions,"lostpassword");
+                Log.d("SigninFragment","index of \"lostpassword\" in signinOptions = " + passwordFragmentPosition);
+                passwordListener.toLostPasswordClicked(passwordFragmentPosition);
             }
         });
 
@@ -117,19 +184,28 @@ public class SigninFragment extends Fragment {
                 String password = passwordInput.getText().toString();
                 String response = null;
 
-                if ( username.length() == 0 || password.length() == 0 ) {
-                    String missingField = ( username.length() == 0 ) ? "username" : "password";
-                    //Log.d("MainActivity.onClick","username: " + username + "(" + username.length() + ")");
-                    //Log.d("MainActivity.onClick","password: " + password + "(" + password.length() + ")");
-                    errorsView.setText(Parsing.formatMessage(new String[]{missingField, getResources().getString(R.string.errors_required)}));
-                } else if ( username.equals(getResources().getString(R.string.default_username)) ) {
-            /*
-            if he username entered is the system's default, send error
-            that means that the subscriber did not create/activate the account
-             */
-                    // Call signin fragment with error message
-                    errorsView.setText(R.string.errors_notregistered);
+                // check that username is not empty and is correctly formatted
+                if ( ! Parsing.checkRequired(appContext,username) ) {
+                    Parsing.displayTextView(appContext,errorsView,new int[]{R.string.customer_username,R.string.errors_required});
+                    //errorsView.setText(Parsing.formatMessage(new String[]{getResources().getString(R.string.customer_username), getResources().getString(R.string.errors_required)}));
+                } else if ( ! Parsing.checkUsernameFormat(appContext,username) ) {
+                    Parsing.displayTextView(appContext,errorsView,new int[] {R.string.errors_badformat,R.string.customer_username});
+                    //errorsView.setText(Parsing.formatMessage(new String [] {getResources().getString(R.string.errors_badformat), getResources().getString(R.string.customer_username)} ));
+                }
+                // check that password is not empty and is correctly formatted
+                else if ( ! Parsing.checkRequired(appContext,password) ) {
+                    Parsing.displayTextView(appContext,errorsView,new int[]{R.string.customer_password,R.string.errors_required});
+                    //errorsView.setText(Parsing.formatMessage(new String[]{getResources().getString(R.string.customer_password), getResources().getString(R.string.errors_required)}));
+                } else if ( ! Parsing.checkPasswordFormat(appContext,password) ) {
+                    Parsing.displayTextView(appContext,errorsView,new int[] {R.string.errors_badformat,R.string.customer_password});
+                    //errorsView.setText(Parsing.formatMessage(new String [] {getResources().getString(R.string.errors_badformat), getResources().getString(R.string.customer_password)} ));
+                }
+                // verify that the username is not the default
+                else if ( username.equals(getResources().getString(R.string.default_username)) ) {
+                    Parsing.displayTextView(appContext,errorsView,R.string.errors_notregistered);
                 } else {
+                    //Toast toast = new Toast(appContext);
+                    //toast.makeText(appContext,getResources().getString(R.string.signin_connecting),Toast.LENGTH_SHORT).show();
                     // send request to the server to check the credentials
                     //String reqUrl = "http://" + getResources().getString(R.string.venya_node_server) + ":" + getResources().getString(R.string.venya_node_port) + "/getCustomer?action=login&username=" + username + "&password=" + password;
                     String reqUrl = "http://" + getResources().getString(R.string.venya_node_server) + ":" + getResources().getString(R.string.venya_node_port) +
@@ -154,8 +230,10 @@ public class SigninFragment extends Fragment {
                         String status = (String) parsedResponse.get("status");
 
                         if ( ! status.equals(getResources().getString(R.string.success_status)) ) {
-                            String errormessage = (String) parsedResponse.get("errormessage");
-                            errorsView.setText(getResources().getString(Parsing.getResId(appContext, "errors_" + errormessage)));
+                            String errormessage = "errors_" + (String) parsedResponse.get("errormessage");
+                            Parsing.displayTextView(appContext,errorsView,errormessage);
+                            //String displayTextView = Parsing.formatMessage(new String [] {getResources().getString(Parsing.getResId(appContext, errormessage))});
+                            //errorsView.setText(displayTextView);
                         } else {
 
                             String action = (String) parsedResponse.get("action");
@@ -163,8 +241,9 @@ public class SigninFragment extends Fragment {
                             Log.d("MAIN Activity","ID after parsing = " + customer.getId().getValue());
 
                             if ( ! customer.getSessionid().getValue().equals(getResources().getString(R.string.sessionclosed))) {
-                                String errormessage = Parsing.formatMessage(new String [] {getResources().getString(R.string.errors_sessionopened)});
-                                errorsView.setText(errormessage);
+                                Parsing.displayTextView(appContext,errorsView,R.string.errors_sessionopened);
+                                //String errormessage = Parsing.formatMessage(new String [] {getResources().getString(R.string.errors_sessionopened)});
+                                //errorsView.setText(errormessage);
                             } else {
                                 String id = (String)customer.getId().getValue();
                                 //Log.d("MAIN Activity","ID = " + id);
@@ -176,25 +255,20 @@ public class SigninFragment extends Fragment {
                                 Log.d("MAIN Activity","session id updated = " + updatedSessionid);
 
                                 if ( updatedSessionid == null ) {
-                                    errorsView.setText(getResources().getString(R.string.errors_nullfromserver));
+                                    Parsing.displayTextView(appContext,errorsView,R.string.errors_nullfromserver);
+                                    //errorsView.setText(getResources().getString(R.string.errors_nullfromserver));
                                 } else if ( ! sessionid.equals(updatedSessionid) ) {
                                     try {
-                                        errorsView.setText(getResources().getString(Parsing.getResId(appContext, "errors_" + updatedSessionid)));
+                                        Parsing.displayTextView(appContext,errorsView,"errors_" + updatedSessionid);
+                                        //errorsView.setText(getResources().getString(Parsing.getResId(appContext, "errors_" + updatedSessionid)));
                                     } catch (Exception e) {
-                                        errorsView.setText(getResources().getString(R.string.errors_invalidsessionid));
+                                        Parsing.displayTextView(appContext,errorsView,R.string.errors_invalidsessionid);
+                                        //errorsView.setText(getResources().getString(R.string.errors_invalidsessionid));
                                     }
                                 } else {
                                     //update customer with session id generated
                                     customer.setField("sessionid",sessionid);
                                     listener.signinClicked(sessionid,customer);
-                                    /*
-                                    // call home fragment with action and sessionid
-                                    Context intentContext = MainActivity.this;
-                                    Intent intent = new Intent(intentContext, Home.class);
-                                    intent.putExtra("sessionid", sessionid);
-                                    intent.putExtra("customer", customer);
-                                    intentContext.startActivity(intent);
-                                    */
                                 }
                             }
                         }

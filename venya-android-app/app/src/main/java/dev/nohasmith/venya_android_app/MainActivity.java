@@ -19,7 +19,24 @@ import android.widget.Toast;
 
 import java.util.HashMap;
 
-class MainActivity extends AppCompatActivity implements LostIdFragment.ToSigninListener, LostIdFragment.LostIdListener, SigninFragment.SigninListener, SigninFragment.ToRegisterListener, RegisterFragment.ToSigninListener, RegisterFragment.GetIdListener, RegisterFragment.RegisterListener{
+class MainActivity extends AppCompatActivity implements
+        SigninFragment.SigninListener,
+        SigninFragment.ToRegisterListener,
+        SigninFragment.ToLostPasswordListener,
+        SigninFragment.ToLostUsernameListener,
+
+        RegisterFragment.ToSigninListener,
+        RegisterFragment.GetIdListener,
+        RegisterFragment.RegisterListener,
+
+        LostUsernameFragment.LostUsernameListener,
+        LostUsernameFragment.ToSigninListener,
+
+        LostPasswordFragment.LostPasswordListener,
+        LostPasswordFragment.ToSigninListener,
+
+        LostIdFragment.LostIdListener,
+        LostIdFragment.ToSigninListener {
     /*Button submitButton;
     EditText usernameInput;
     EditText passwordInput;
@@ -51,7 +68,7 @@ class MainActivity extends AppCompatActivity implements LostIdFragment.ToSigninL
         setContentView(R.layout.activity_main);
 
         //appContext = getApplicationContext();
-        //Parsing.setLocale(MainActivity.this,"es");
+        Parsing.setLocale(MainActivity.this,"es");
 
         customerFields = getResources().getStringArray(R.array.customerFields);
         privateFields = getResources().getStringArray(R.array.privateFields);
@@ -93,17 +110,17 @@ class MainActivity extends AppCompatActivity implements LostIdFragment.ToSigninL
                 break;
             case 2:
                 // lost username
-                toast.makeText(this,getResources().getString(R.string.signin_lostusername).toUpperCase(),Toast.LENGTH_LONG).show();
+                toast.makeText(this,getResources().getString(R.string.signin_lostusername).toUpperCase(),Toast.LENGTH_SHORT).show();
+                fragment = new LostUsernameFragment();
                 break;
             case 3:
                 // lost passwird
                 toast.makeText(this,getResources().getString(R.string.signin_lostpassword).toUpperCase(),Toast.LENGTH_SHORT).show();
-                //fragment = new SettingsFragment(SESSION_ID, customer);
+                fragment = new LostPasswordFragment();
                 break;
             default:
                 // default ==> got to signin
                 toast.makeText(this,getResources().getString(R.string.signin_button),Toast.LENGTH_LONG).show();
-                //fragment = new SigninFragment(getApplicationContext());
                 fragment = new SigninFragment();
         }
 
@@ -146,6 +163,16 @@ class MainActivity extends AppCompatActivity implements LostIdFragment.ToSigninL
         goToFragment(new SigninFragment());
     }
 
+    public void toLostUsernameClicked(int position) {
+        currentPosition = position;
+        goToFragment(new LostUsernameFragment());
+    }
+
+    public void toLostPasswordClicked(int position) {
+        currentPosition = position;
+        goToFragment(new LostPasswordFragment());
+    }
+
     /*
     public void getIdClicked(String url){
         Context intentContext = MainActivity.this;
@@ -160,5 +187,13 @@ class MainActivity extends AppCompatActivity implements LostIdFragment.ToSigninL
 
     public void lostIdClicked(FullCustomerSettings customer) {
         goToFragment(new RegisterFragment(customer));
+    }
+
+    public void lostUsernameClicked(String field, String value) {
+        goToFragment(new SigninFragment(field, value));
+    }
+
+    public void lostPasswordClicked(String field, String value) {
+        goToFragment(new SigninFragment(field, value));
     }
 }

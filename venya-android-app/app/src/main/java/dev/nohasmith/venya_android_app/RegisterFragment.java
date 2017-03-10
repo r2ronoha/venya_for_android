@@ -135,8 +135,8 @@ public class RegisterFragment extends Fragment {
         errorsView = (TextView)view.findViewById(R.id.errorsView);
         errorsView.setText("");
 
-        registerTitle = (TextView)view.findViewById(R.id.registerTitle);
-        registerTitle.setText(getResources().getString(R.string.form_enterdetails));
+        //registerTitle = (TextView)view.findViewById(R.id.registerTitle);
+        //registerTitle.setText(getResources().getString(R.string.form_enterdetails));
 
         uidInput = (EditText)view.findViewById(R.id.uidInput);
         usernameInput = (EditText)view.findViewById(R.id.usernameInput);
