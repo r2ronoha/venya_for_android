@@ -23,25 +23,25 @@ public class Address implements Serializable{
     }
 
     public Address(String street, String postcode,String city, String country){
-        this.street = street;
-        this.postcode = postcode;
-        this.city = city;
-        this.country = country;
+        this.street = ( street.equals("") ) ? "n/a" : street;
+        this.postcode = ( postcode.equals("") ) ? "n/a" : postcode;;
+        this.city = ( city.equals("") ) ? "n/a" : city;;
+        this.country = ( country.equals("") ) ? "n/a" : country;;
     }
 
     public String formatAddress() {
         String formattedAddress;
         List<String> notEmpty = new ArrayList<String>();
-        if ( ! street.toLowerCase().equals("n/a") ) {
+        if ( ! street.toLowerCase().equals("n/a") && ! street.toLowerCase().equals("") ) {
             notEmpty.add(Parsing.formatName(street));
         }
-        if ( ! postcode.toLowerCase().equals("n/a") ) {
+        if ( ! postcode.toLowerCase().equals("n/a") && ! postcode.toLowerCase().equals("") ) {
             notEmpty.add(postcode.toUpperCase());
         }
-        if ( ! city.toLowerCase().equals("n/a") ) {
+        if ( ! city.toLowerCase().equals("n/a") && ! city.toLowerCase().equals("") ) {
             notEmpty.add(Parsing.formatName(city));
         }
-        if ( ! country.toLowerCase().equals("n/a") ) {
+        if ( ! country.toLowerCase().equals("n/a") && ! country.toLowerCase().equals("") ) {
             notEmpty.add(Parsing.formatName(country));
         }
 
@@ -50,7 +50,7 @@ public class Address implements Serializable{
             sb.append(s);
             sb.append(", ");
         }
-        formattedAddress = sb.toString().replace(",\\s*$","");
+        formattedAddress = sb.toString().replaceAll(",\\s*$","");
         return formattedAddress;
     }
 

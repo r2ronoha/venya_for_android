@@ -33,7 +33,25 @@ import static dev.nohasmith.venya_android_app.MainActivity.menuOptionsTags;
 /**
  * Created by arturo on 07/03/2017.
  */
-public class Home extends AppCompatActivity{
+public class Home extends AppCompatActivity implements
+        SettingsFragment.ChangeAddressListener,
+        SettingsFragment.ChangeEmailListener,
+        SettingsFragment.ChangeUsernameListener,
+        SettingsFragment.ChangePasswordListener,
+        SettingsFragment.UpdateBooleanListener,
+
+        ChangeAddressFragment.UpdateAddressListener,
+        ChangeAddressFragment.CancelListener,
+
+        ChangeEmailFragment.UpdateEmailListener,
+        ChangeEmailFragment.CancelListener,
+
+        ChangeUsernameFragment.UpdateUsernameListener,
+        ChangeUsernameFragment.CancelListener,
+
+        ChangePasswordFragment.UpdatePasswordListener,
+        ChangePasswordFragment.CancelListener{
+
     public String SESSION_ID = "closed";
     public FullCustomerSettings customer;
     private static String hostname;
@@ -153,6 +171,26 @@ public class Home extends AppCompatActivity{
                 // logout
                 logout(Home.this,customer);
                 break;
+            case 5:
+                // change address
+                toast.makeText(this,getResources().getString(R.string.menu_changeaddress).toUpperCase(),Toast.LENGTH_SHORT).show();
+                fragment = new ChangeAddressFragment(customer);
+                break;
+            case 6:
+                // change email
+                toast.makeText(this,getResources().getString(R.string.menu_changeemail).toUpperCase(),Toast.LENGTH_SHORT).show();
+                //fragment = new ChangeEmailFragment(customer);
+                break;
+            case 7:
+                // change usernamge
+                toast.makeText(this,getResources().getString(R.string.menu_changeusername).toUpperCase(),Toast.LENGTH_SHORT).show();
+                fragment = new ChangeUsernameFragment(customer);
+                break;
+            case 8:
+                // settings
+                toast.makeText(this,getResources().getString(R.string.menu_changepassword).toUpperCase(),Toast.LENGTH_SHORT).show();
+                //fragment = new ChangePasswordFragment(customer);
+                break;
             default:
                 // home
                 toast.makeText(this,getResources().getString(R.string.home_welcome),Toast.LENGTH_LONG).show();
@@ -240,5 +278,48 @@ public class Home extends AppCompatActivity{
         state.putInt("position", currentPosition);
         state.putParcelable("customer", customer);
         state.putString("sessionid",SESSION_ID);
+    }
+
+    // Listeners from Settings page to go to each settting update page
+    public void changeAddressClicked(FullCustomerSettings customer) {
+        goToFragment(new ChangeAddressFragment(customer),Parsing.getIndexOf(menuOptionsTags,"changeaddress"));
+    }
+
+    public void changeEmailClicked(FullCustomerSettings customer) {
+        goToFragment(new ChangeEmailFragment(customer),Parsing.getIndexOf(menuOptionsTags,"changeemail"));
+    }
+
+    public void changeUsernameClicked(FullCustomerSettings customer) {
+        goToFragment(new ChangeUsernameFragment(customer),Parsing.getIndexOf(menuOptionsTags,"changeusername"));
+    }
+
+    public void changePasswordClicked(FullCustomerSettings customer) {
+        goToFragment(new ChangePasswordFragment(customer),Parsing.getIndexOf(menuOptionsTags,"changepassword"));
+    }
+
+    // Listeners from the settings update pages to go back to settings after update
+    public void updateAddressClicked(FullCustomerSettings customer) {
+        goToFragment(new SettingsFragment(SESSION_ID,customer),Parsing.getIndexOf(menuOptionsTags,"settings"));
+    }
+
+    public void updateEmailClicked(FullCustomerSettings customer) {
+        goToFragment(new SettingsFragment(SESSION_ID,customer),Parsing.getIndexOf(menuOptionsTags,"settings"));
+    }
+
+    public void updateUsernameClicked(FullCustomerSettings customer) {
+        goToFragment(new SettingsFragment(SESSION_ID,customer),Parsing.getIndexOf(menuOptionsTags,"settings"));
+    }
+
+    public void updatePasswordClicked(FullCustomerSettings customer) {
+        goToFragment(new SettingsFragment(SESSION_ID,customer),Parsing.getIndexOf(menuOptionsTags,"settings"));
+    }
+
+    public void updateBooleanClicked(FullCustomerSettings customer) {
+        goToFragment(new SettingsFragment(SESSION_ID,customer),Parsing.getIndexOf(menuOptionsTags,"settings"));
+    }
+
+    // Listener for the cancel button in update settings pages
+    public void cancelClicked(FullCustomerSettings customer) {
+        goToFragment(new SettingsFragment(SESSION_ID,customer),Parsing.getIndexOf(menuOptionsTags,"settings"));
     }
 }

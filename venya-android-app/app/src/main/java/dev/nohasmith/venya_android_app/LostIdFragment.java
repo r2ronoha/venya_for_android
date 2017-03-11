@@ -100,8 +100,7 @@ public class LostIdFragment extends Fragment {
         //title.setText(getResources().getString(R.string.form_enterdetails));
 
         toSignin = (TextView)view.findViewById(R.id.toSignin);
-        String toSigninText = Parsing.formatMessage(new String[] {getResources().getString(R.string.signin_already),getResources().getString(R.string.signin_button)});
-        toSignin.setText(toSigninText);
+        Parsing.displayTextView(appContext,errorsView,new int[]{R.string.signin_already,R.string.signin_button});
         toSignin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v){
@@ -122,13 +121,13 @@ public class LostIdFragment extends Fragment {
                 String response = null;
 
                 if ( ! Parsing.checkRequired(appContext,surname) ) {
-                    errorsView.setText(Parsing.formatMessage(new String[]{getResources().getString(R.string.customer_surname), getResources().getString(R.string.errors_required)}));
+                    Parsing.displayTextView(appContext,errorsView,new int[]{R.string.customer_surname,R.string.errors_required});
                 } else if ( ! Parsing.checkRequired(appContext,firstname) ) {
-                    errorsView.setText(Parsing.formatMessage(new String[]{getResources().getString(R.string.customer_firstname), getResources().getString(R.string.errors_required)}));
+                    Parsing.displayTextView(appContext,errorsView,new int[]{R.string.customer_firstname,R.string.errors_required});
                 } else if ( ! Parsing.checkRequired(appContext,dob) ) {
-                    errorsView.setText(Parsing.formatMessage(new String[]{getResources().getString(R.string.customer_dob), getResources().getString(R.string.errors_required)}));
+                    Parsing.displayTextView(appContext,errorsView,new int[]{R.string.customer_dob,R.string.errors_required});
                 } else if ( ! Parsing.checkDateFormat(appContext,dob) ) {
-                    errorsView.setText(Parsing.formatMessage(new String [] {getResources().getString(R.string.errors_badformat), getResources().getString(R.string.customer_dob)} ));
+                    Parsing.displayTextView(appContext,errorsView,new int[]{R.string.errors_badformat,R.string.customer_dob});
                 } else {
                     // send request to the server to check the credentials
                     //String reqUrl = "http://" + getResources().getString(R.string.venya_node_server) + ":" + getResources().getString(R.string.venya_node_port) + "/getCustomer?action=login&username=" + username + "&password=" + password;
@@ -157,17 +156,16 @@ public class LostIdFragment extends Fragment {
                         if ( ! status.equals(getResources().getString(R.string.success_status)) ) {
                             String errormessage = (String) parsedResponse.get("errormessage");
                             try {
-                                errorsView.setText(getResources().getString(Parsing.getResId(appContext, "errors_" + errormessage)));
+                                Parsing.displayTextView(appContext,errorsView,Parsing.getResId(appContext, "errors_" + errormessage));
                             } catch (Exception e) {
-                                errorsView.setText(getResources().getString(R.string.errors_unknwon));
+                                Parsing.displayTextView(appContext,errorsView,R.string.errors_unknwon);
                             }
                         } else {
                             FullCustomerSettings customer = (FullCustomerSettings) parsedResponse.get("customer");
                             Log.d("LostIdFragment","ID = " + customer.getId().getValue());
 
                             if ( ! customer.getSessionid().getValue().equals(getResources().getString(R.string.sessionclosed))) {
-                                String errormessage = Parsing.formatMessage(new String [] {getResources().getString(R.string.errors_sessionopened)});
-                                errorsView.setText(errormessage);
+                                Parsing.displayTextView(appContext,errorsView,R.string.errors_sessionopened);
                             } else {
                                 listener.lostIdClicked(customer);
                             }

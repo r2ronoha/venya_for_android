@@ -120,6 +120,10 @@
         <item>notifications</item>
         <item>settings</item>
         <item>logout</item>
+        <item>changeaddress</item>
+        <item>changeemail</item>
+        <item>changeusername</item>
+        <item>changepassword</item>
     </string-array>
     <string-array name="signinOptions">
         <item>signin</item>
@@ -185,10 +189,16 @@
     <string name="menu_notifications">notifications</string>
     <string name="menu_settings">settings</string>
     <string name="menu_logout">logout</string>
+    <string name="menu_changeaddress">Update address</string>
+    <string name="menu_changeemail">Update email</string>
+    <string name="menu_changeusername">Update username</string>
+    <string name="menu_changepassword">Update password</string>
     <string name="header_register">Create your account</string>
     <string name="header_lostid">Recover your registration ID</string>
     <string name="header_lostpassword">Get your password</string>
     <string name="header_lostusername">Get your username</string>
+    <string name="header_changeaddress">Update your address</string>
+    <string name="header_changemail">Update your address</string>
     <!-- <string name="menu_createcustomer">add new customer</string> -->
     <string name="action_login">login successful</string>
     <string name="action_home">home</string>
@@ -257,6 +267,7 @@
     <string name="form_old">old</string>
     <string name="form_new">new</string>
     <string name="form_of">of</string>
+    <string name="form_and">and</string>
     <string name="form_confirm">confirm</string>
     <string name="form_oldemail">old email address</string>
     <string name="form_newemail">new email address</string>
@@ -266,6 +277,7 @@
     <string name="form_toprovider">Don\'t have an id? Get an account from your provider.</string>
     <string name="form_getid">ID lost? Get it here</string>
     <string name="form_optional">optional</string>
+    <string name="form_dobhint">DD/MM/YYYY</string>
     <string name="underconstruction">under construction</string>
     <string name="errors_badfields">please double check the following fields</string>
     <string name="errors_required">is required</string>

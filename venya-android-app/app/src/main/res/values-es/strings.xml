@@ -18,6 +18,10 @@
     <string name="menu_notifications">notificaciones</string>
     <string name="menu_settings">ajustes</string>
     <string name="menu_logout">desconexión</string>
+    <string name="menu_changeaddress">Cambia tu dirección</string>
+    <string name="menu_changeemail">Cambia tu email</string>
+    <string name="menu_changeusername">Cambia tu nombre de usuario</string>
+    <string name="menu_changepassword">Cambia tu contraseña</string>
     <string name="header_register">Registrate</string>
     <string name="header_lostid">Recupera tu identificador</string>
     <string name="header_lostpassword">Recupera tu contraseña</string>
@@ -92,6 +96,7 @@
     <string name="form_old">antiguo</string>
     <string name="form_new">nuevo</string>
     <string name="form_of">de</string>
+    <string name="form_and">y</string>
     <string name="form_confirm">confirma</string>
     <string name="form_oldemail">antigua dirección de email</string>
     <string name="form_newemail">nueva dirección de email</string>
@@ -101,6 +106,7 @@
     <string name="form_toprovider">¿No tienes identificador? Créate una cuenta con tu proveedor.</string>
     <string name="form_getid">¿Has perdido to identificador? Recupéralo aquí</string>
     <string name="form_optional">opcional</string>
+    <string name="form_dobhint">DD/MM/AAAA</string>
     <string name="underconstruction">en construcción</string>
     <string name="errors_badfields">por favor, revisa los campos siguientes</string>
     <string name="errors_required">es obligatorio</string>
@@ -146,4 +152,5 @@
     <string name="errors_unknwon">error desconocido</string>
     <string name="menu_language">lang</string>
     <string name="signin_connecting">Connecting...</string>
+    <string name="header_changeaddress">Update your address</string>
 </resources>

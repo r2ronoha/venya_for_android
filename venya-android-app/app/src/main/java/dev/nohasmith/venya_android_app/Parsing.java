@@ -607,6 +607,14 @@ public class Parsing {
         return m.matches();
     }
 
+    public static boolean checkPostCodeFormat(Context context, String postcode) {
+        String postCodeFormat = context.getResources().getString(R.string.postcodeFormat);
+        //return phone.matches(phoneFormat);
+        Pattern p = Pattern.compile(postCodeFormat);
+        Matcher m = p.matcher(postcode);
+        return m.matches();
+    }
+
     public static void displayTextView(Context context, TextView errorsView, int errorid) {
         String displayTextView = Parsing.formatMessage(new String [] {context.getResources().getString(errorid)});
         errorsView.setText(displayTextView);
@@ -629,5 +637,29 @@ public class Parsing {
         }
         String displayTextView = Parsing.formatMessage(errormessage);
         errorsView.setText(displayTextView);
+    }
+
+    public static void setFormHint(Context context, TextView errorsView, int errorid) {
+        String setFormHint = Parsing.formatMessage(new String [] {context.getResources().getString(errorid)});
+        errorsView.setHint(setFormHint);
+    }
+
+    public static void setFormHint(Context context, TextView errorsView, String errormessage) {
+        String setFormHint = Parsing.formatMessage(new String [] {context.getResources().getString(Parsing.getResId(context, errormessage))});
+        errorsView.setHint(setFormHint);
+    }
+
+    public static void setFormHint(Context context, TextView errorsView, String [] errormessage) {
+        String setFormHint = Parsing.formatMessage(errormessage);
+        errorsView.setHint(setFormHint);
+    }
+
+    public static void setFormHint(Context context, TextView errorsView, int [] errorids) {
+        String [] errormessage = new String[errorids.length];
+        for ( int i=0; i<errorids.length; i++ ) {
+            errormessage[i] = context.getResources().getString(errorids[i]);
+        }
+        String setFormHint = Parsing.formatMessage(errormessage);
+        errorsView.setHint(setFormHint);
     }
 }

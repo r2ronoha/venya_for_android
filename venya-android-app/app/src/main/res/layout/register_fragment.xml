@@ -105,7 +105,9 @@
         android:layout_marginEnd="16dp"
         app:layout_constraintRight_toRightOf="parent"
         android:layout_marginStart="16dp"
-        app:layout_constraintLeft_toLeftOf="parent" />
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:singleLine="false"
+        android:selectAllOnFocus="false" />
 
     <EditText
         android:layout_width="wrap_content"

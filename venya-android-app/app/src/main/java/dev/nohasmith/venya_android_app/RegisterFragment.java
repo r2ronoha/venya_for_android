@@ -142,6 +142,7 @@ public class RegisterFragment extends Fragment {
         usernameInput = (EditText)view.findViewById(R.id.usernameInput);
         surnameInput = (EditText)view.findViewById(R.id.surnameInput);
         dobInput = (EditText)view.findViewById(R.id.dobInput);
+        Parsing.setFormHint(appContext,dobInput,new int[] {R.string.customer_dob,R.string.form_dobhint});
         //dobInput.setHint(Parsing.formatMessage(new String[] {getResources().getString(R.string.customer_dob)," - ",getResources().getString(R.string.form_optional)}));
         emailInput = (EditText)view.findViewById(R.id.emailInput);
         confirmEmailInput = (EditText)view.findViewById(R.id.confirmEmail);
@@ -181,8 +182,9 @@ public class RegisterFragment extends Fragment {
         }
 
         toSignin = (TextView)view.findViewById(R.id.signinLink);
-        String toSigninText = Parsing.formatMessage(new String[] {getResources().getString(R.string.signin_already),getResources().getString(R.string.signin_button)});
-        toSignin.setText(toSigninText);
+        Parsing.displayTextView(appContext,toSignin,new int[] {R.string.signin_already,R.string.signin_button});
+        //String toSigninText = Parsing.formatMessage(new String[] {getResources().getString(R.string.signin_already),getResources().getString(R.string.signin_button)});
+        //toSignin.setText(toSigninText);
         toSignin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v){
@@ -216,56 +218,60 @@ public class RegisterFragment extends Fragment {
 
                 String uid = uidInput.getText().toString();
                 String username = usernameInput.getText().toString();
-                String surname = surnameInput.getText().toString();
+                String surname = surnameInput.getText().toString().toLowerCase();
                 String dob = dobInput.getText().toString().replaceAll("\\/","");
-                String email = emailInput.getText().toString();
-                String confirmEmail = confirmEmailInput.getText().toString();
+                String email = emailInput.getText().toString().toLowerCase();
+                String confirmEmail = confirmEmailInput.getText().toString().toLowerCase();
                 String phone = phoneInput.getText().toString();
                 String password = passwordInput.getText().toString();
                 String confirmPassword = confirmPasswordInput.getText().toString();
 
                 // Check user id is filled and correctly fomatted
                 if ( ! Parsing.checkRequired(appContext,uid) ) {
-                    errorsView.setText(Parsing.formatMessage(new String[]{getResources().getString(R.string.customer_uid), getResources().getString(R.string.errors_required)}));
+                    Parsing.displayTextView(appContext,errorsView,new int[] {R.string.customer_uid,R.string.errors_required});
+                    //errorsView.setText(Parsing.formatMessage(new String[]{getResources().getString(R.string.customer_uid), getResources().getString(R.string.errors_required)}));
                 } else if ( ! Parsing.checkUidFormat(appContext,uid) ) {
-                    errorsView.setText(Parsing.formatMessage(new String [] {getResources().getString(R.string.errors_badformat), getResources().getString(R.string.customer_uid)} ));
+                    Parsing.displayTextView(appContext,errorsView,new int[] {R.string.errors_badformat,R.string.customer_uid});
+                    //errorsView.setText(Parsing.formatMessage(new String [] {getResources().getString(R.string.errors_badformat), getResources().getString(R.string.customer_uid)} ));
                 }
                 // Check username is filled and correctly fomatted
                 else if ( ! Parsing.checkRequired(appContext,username) ) {
-                    errorsView.setText(Parsing.formatMessage(new String[]{getResources().getString(R.string.customer_username), getResources().getString(R.string.errors_required)}));
+                    Parsing.displayTextView(appContext,errorsView,new int[] {R.string.customer_username,R.string.errors_required});
+                    //errorsView.setText(Parsing.formatMessage(new String[]{getResources().getString(R.string.customer_username), getResources().getString(R.string.errors_required)}));
                 } else if ( ! Parsing.checkUsernameFormat(appContext,username) ) {
-                    errorsView.setText(Parsing.formatMessage(new String [] {getResources().getString(R.string.errors_badformat), getResources().getString(R.string.customer_username)} ));
+                    Parsing.displayTextView(appContext,errorsView,new int[] {R.string.errors_badformat,R.string.customer_username});
+                    //errorsView.setText(Parsing.formatMessage(new String [] {getResources().getString(R.string.errors_badformat), getResources().getString(R.string.customer_username)} ));
                 }
                 // Check surname is filled
                 else if ( ! Parsing.checkRequired(appContext,surname) ) {
-                    errorsView.setText(Parsing.formatMessage(new String[]{getResources().getString(R.string.customer_surname), getResources().getString(R.string.errors_required)}));
+                    Parsing.displayTextView(appContext,errorsView,new int[] {R.string.customer_surname,R.string.errors_required});
                 }
                 // Check date of birth is filled and correctly fomatted
                 else if ( ! Parsing.checkRequired(appContext,dob) ) {
-                    errorsView.setText(Parsing.formatMessage(new String[]{getResources().getString(R.string.customer_username), getResources().getString(R.string.errors_required)}));
+                    Parsing.displayTextView(appContext,errorsView,new int[] {R.string.customer_dob,R.string.errors_required});
                 } else if ( ! Parsing.checkDateFormat(appContext,dob) ) {
-                    errorsView.setText(Parsing.formatMessage(new String [] {getResources().getString(R.string.errors_badformat), getResources().getString(R.string.customer_dob)} ));
+                    Parsing.displayTextView(appContext,errorsView,new int[] {R.string.errors_badformat,R.string.customer_dob});
                 }
                 // Check email is filled and correctly fomatted and matches the cofirm email value
                 else if ( ! Parsing.checkRequired(appContext,email) ) {
-                    errorsView.setText(Parsing.formatMessage(new String[]{getResources().getString(R.string.customer_email), getResources().getString(R.string.errors_required)}));
+                    Parsing.displayTextView(appContext,errorsView,new int[] {R.string.customer_email,R.string.errors_required});
                 } else if ( ! Parsing.checkEmailFormat(appContext,email) ) {
-                    errorsView.setText(Parsing.formatMessage(new String [] {getResources().getString(R.string.errors_badformat), getResources().getString(R.string.customer_email)} ));
+                    Parsing.displayTextView(appContext,errorsView,new int[] {R.string.errors_badformat,R.string.customer_email});
                 } else if ( ! confirmEmail.equals(email) ) {
                     Log.d("Register","confirm email = \"" + confirmEmail + "\" -- email = \"" + email + "\"");
-                    errorsView.setText(Parsing.formatMessage(new String [] {"confirmEmail",getResources().getString(R.string.customer_email),getResources().getString(R.string.errors_notmatch)} ));
+                    Parsing.displayTextView(appContext,errorsView,new int[] {R.string.form_confirm,R.string.form_and,R.string.customer_email,R.string.errors_notmatch});
                 }
                 // Check password is filled and correctly fomatted and matches the cofirm email value
                 else if ( ! Parsing.checkRequired(appContext,password) ) {
-                    errorsView.setText(Parsing.formatMessage(new String[]{getResources().getString(R.string.customer_password), getResources().getString(R.string.errors_required)}));
+                    Parsing.displayTextView(appContext,errorsView,new int[] {R.string.customer_password,R.string.errors_required});
                 } else if ( ! Parsing.checkPasswordFormat(appContext,password) ) {
-                    errorsView.setText(Parsing.formatMessage(new String [] {getResources().getString(R.string.errors_badformat), getResources().getString(R.string.customer_password)} ));
+                    Parsing.displayTextView(appContext,errorsView,new int[] {R.string.errors_badformat,R.string.customer_password});
                 } else if ( ! confirmPassword.equals(password) ) {
-                    errorsView.setText(Parsing.formatMessage(new String [] {"confirmPassword",getResources().getString(R.string.customer_password),getResources().getString(R.string.errors_notmatch)} ));
+                    Parsing.displayTextView(appContext,errorsView,new int[] {R.string.form_confirm,R.string.form_and,R.string.customer_password,R.string.errors_notmatch});
                 }
                 // if engtered, check phone format is valid
                 else if ( ! phone.equals("") && ! Parsing.checkPhoneFormat(appContext,phone) ) {
-                    errorsView.setText(Parsing.formatMessage(new String [] {getResources().getString(R.string.errors_badformat), getResources().getString(R.string.customer_phone)} ));
+                    Parsing.displayTextView(appContext,errorsView,new int[] {R.string.errors_badformat,R.string.customer_phone});
                 }
 
                 if ( errorsView.getText().equals("") ) {
@@ -300,9 +306,9 @@ public class RegisterFragment extends Fragment {
                         if (!status.equals(getResources().getString(R.string.success_status))) {
                             String errormessage = (String) parsedResponse.get("errormessage");
                             try {
-                                errorsView.setText(getResources().getString(Parsing.getResId(appContext, "errors_" + errormessage)));
+                                Parsing.displayTextView(appContext,errorsView,Parsing.getResId(appContext, "errors_" + errormessage));
                             } catch (Exception e) {
-                                errorsView.setText(getResources().getString(R.string.errors_unknwon) + ": " + errormessage);
+                                Parsing.displayTextView(appContext,errorsView,new String[] {getResources().getString(R.string.errors_unknwon),":",errormessage});
                             }
                         } else {
                             reqUrl = "http://" + getResources().getString(R.string.venya_node_server) + ":" + getResources().getString(R.string.venya_node_port) +
@@ -329,9 +335,9 @@ public class RegisterFragment extends Fragment {
                                 if (!status.equals(getResources().getString(R.string.success_status))) {
                                     String errormessage = (String) parsedResponse.get("errormessage");
                                     try {
-                                        errorsView.setText(getResources().getString(Parsing.getResId(appContext, "errors_" + errormessage)));
+                                        Parsing.displayTextView(appContext,errorsView,Parsing.getResId(appContext, "errors_" + errormessage));
                                     } catch (Exception e) {
-                                        errorsView.setText(getResources().getString(R.string.errors_unknwon) + ": " + errormessage);
+                                        Parsing.displayTextView(appContext,errorsView,new String[] {getResources().getString(R.string.errors_unknwon),": ",errormessage});
                                     }
                                 } else {
 
@@ -340,8 +346,9 @@ public class RegisterFragment extends Fragment {
                                     //Log.d("MAIN Activity", "ID after parsing = " + customer.getId().getValue());
 
                                     if (!customer.getSessionid().getValue().equals(getResources().getString(R.string.sessionclosed))) {
-                                        String errormessage = Parsing.formatMessage(new String[]{getResources().getString(R.string.errors_sessionopened)});
-                                        errorsView.setText(errormessage);
+                                        Parsing.displayTextView(appContext,errorsView,R.string.errors_sessionopened);
+                                        //String errormessage = Parsing.formatMessage(new String[]{getResources().getString(R.string.errors_sessionopened)});
+                                        //errorsView.setText(errormessage);
                                     } else {
                                         String id = (String) customer.getId().getValue();
                                         //Log.d("MAIN Activity","ID = " + id);
@@ -353,12 +360,12 @@ public class RegisterFragment extends Fragment {
                                         Log.d("RegisterFragment", "session id updated = " + updatedSessionid);
 
                                         if (updatedSessionid == null) {
-                                            errorsView.setText(getResources().getString(R.string.errors_nullfromserver));
+                                            Parsing.displayTextView(appContext,errorsView,R.string.errors_nullfromserver);
                                         } else if (!sessionid.equals(updatedSessionid)) {
                                             try {
-                                                errorsView.setText(getResources().getString(Parsing.getResId(appContext, "errors_" + updatedSessionid)));
+                                                Parsing.displayTextView(appContext,errorsView,Parsing.getResId(appContext, "errors_" + updatedSessionid));
                                             } catch (Exception e) {
-                                                errorsView.setText(getResources().getString(R.string.errors_invalidsessionid));
+                                                Parsing.displayTextView(appContext,errorsView,R.string.errors_invalidsessionid);
                                             }
                                         } else {
                                             //update customer with session id generated
