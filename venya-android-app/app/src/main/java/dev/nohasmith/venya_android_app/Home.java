@@ -2,8 +2,11 @@ package dev.nohasmith.venya_android_app;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.content.res.Resources;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -26,6 +29,7 @@ import java.util.Arrays;
 import java.util.Locale;
 
 import static android.app.PendingIntent.getActivity;
+import static dev.nohasmith.venya_android_app.MainActivity.appLanguage;
 import static dev.nohasmith.venya_android_app.MainActivity.locale_from_language;
 import static dev.nohasmith.venya_android_app.MainActivity.menuOptions;
 import static dev.nohasmith.venya_android_app.MainActivity.menuOptionsTags;
@@ -38,6 +42,7 @@ public class Home extends AppCompatActivity implements
         SettingsFragment.ChangeEmailListener,
         SettingsFragment.ChangeUsernameListener,
         SettingsFragment.ChangePasswordListener,
+        SettingsFragment.ChangeLanguageListener,
         SettingsFragment.UpdateBooleanListener,
 
         ChangeAddressFragment.UpdateAddressListener,
@@ -50,7 +55,10 @@ public class Home extends AppCompatActivity implements
         ChangeUsernameFragment.CancelListener,
 
         ChangePasswordFragment.UpdatePasswordListener,
-        ChangePasswordFragment.CancelListener{
+        ChangePasswordFragment.CancelListener,
+
+        ChangeLanguageFragment.UpdateLanguageListener,
+        ChangeLanguageFragment.CancelListener{
 
     public String SESSION_ID = "closed";
     public FullCustomerSettings customer;
@@ -73,6 +81,23 @@ public class Home extends AppCompatActivity implements
         hostname = getResources().getString(R.string.venya_node_server);
         port = getResources().getString(R.string.venya_node_port);
 
+        // Check if the screen has been rotated (there was an option already selected) and we set it back
+        if ( savedInstanceState != null ) {
+            currentPosition = savedInstanceState.getInt("position");
+            customer = (FullCustomerSettings)savedInstanceState.getParcelable("customer");
+            SESSION_ID = savedInstanceState.getString("sessionid");
+            setActionBarTitle(currentPosition);
+        } else {
+
+            Log.d("HOME", "Getting Extras");
+            SESSION_ID = (String) getIntent().getExtras().get("sessionid");
+            customer = (FullCustomerSettings) getIntent().getParcelableExtra("customer");
+        }
+
+        appLanguage = (String) customer.getLanguage().getValue();
+        Parsing.setLocale(this,locale_from_language.get(appLanguage));
+        menuOptions = getResources().getStringArray(R.array.menuOptions);
+
         Toolbar toolbar = (Toolbar)findViewById(R.id.venya_toolbar);
         setSupportActionBar(toolbar);
 
@@ -81,7 +106,7 @@ public class Home extends AppCompatActivity implements
         actionBar.setHomeButtonEnabled(true);
 
         // Create menu based on the array from strings
-        //menuOptions = getResources().getStringArray(R.array.menuOptions);
+        //menuOptions super.attachBaseContext(MyContextWrapper.wrapContext(newBase,appLanguage));= getResources().getStringArray(R.array.menuOptions);
         menuList = (ListView)findViewById(R.id.expanded_menu);
         ArrayAdapter<String> menuAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_activated_1,menuOptions);
         menuList.setAdapter(menuAdapter);
@@ -104,19 +129,6 @@ public class Home extends AppCompatActivity implements
         };
         menuLayout.addDrawerListener(menuToggle);
 
-        // Check if the screen has been rotated (there was an option already selected) and we set it back
-        if ( savedInstanceState != null ) {
-            currentPosition = savedInstanceState.getInt("position");
-            customer = (FullCustomerSettings)savedInstanceState.getParcelable("customer");
-            SESSION_ID = savedInstanceState.getString("sessionid");
-            setActionBarTitle(currentPosition);
-        } else {
-
-            Log.d("HOME", "Getting Extras");
-            SESSION_ID = (String) getIntent().getExtras().get("sessionid");
-            customer = (FullCustomerSettings) getIntent().getParcelableExtra("customer");
-        }
-
         if ( SESSION_ID == null || customer == null) {
             Toast toast = new Toast(this);
             String failed = ( customer == null ) ? "customer" : "sessionid";
@@ -127,6 +139,8 @@ public class Home extends AppCompatActivity implements
             //errorsView.setText(SESSION_ID);
             //Log.d("HOME","Home activity started with sessionid = " + SESSION_ID);
             //Log.d("HOME","customer: " + (String)customer.getFieldElement("firstname","value") + " " + (String)customer.getFieldElement("surname","value"));
+            String lang = (String) customer.getLanguage().getValue();
+            Parsing.setLocale(this,locale_from_language.get(lang));
 
             selectItem(currentPosition);
         }
@@ -179,7 +193,7 @@ public class Home extends AppCompatActivity implements
             case 6:
                 // change email
                 toast.makeText(this,getResources().getString(R.string.menu_changeemail).toUpperCase(),Toast.LENGTH_SHORT).show();
-                //fragment = new ChangeEmailFragment(customer);
+                fragment = new ChangeEmailFragment(customer);
                 break;
             case 7:
                 // change usernamge
@@ -187,9 +201,14 @@ public class Home extends AppCompatActivity implements
                 fragment = new ChangeUsernameFragment(customer);
                 break;
             case 8:
-                // settings
+                // change password
                 toast.makeText(this,getResources().getString(R.string.menu_changepassword).toUpperCase(),Toast.LENGTH_SHORT).show();
-                //fragment = new ChangePasswordFragment(customer);
+                fragment = new ChangePasswordFragment(customer);
+                break;
+            case 9:
+                // change language
+                toast.makeText(this,getResources().getString(R.string.menu_changelanguage).toUpperCase(),Toast.LENGTH_SHORT).show();
+                fragment = new ChangeLanguageFragment(customer);
                 break;
             default:
                 // home
@@ -210,6 +229,11 @@ public class Home extends AppCompatActivity implements
             Log.d("HOME","session closed");
             Intent intent = new Intent(intentContext, MainActivity.class);
             intentContext.startActivity(intent);
+        } else {
+            Log.e("HOME.logout","Failed to close session. Sending to logout with error message");
+            Intent intent = new Intent(intentContext, MainActivity.class);
+            intent.putExtra("error",getResources().getString(R.string.errors_invalidsessionid));
+            intentContext.startActivity(intent);
         }
     }
 
@@ -225,7 +249,30 @@ public class Home extends AppCompatActivity implements
         menuLayout = (DrawerLayout) findViewById(R.id.menuLayout);
         menuLayout.closeDrawer(menuList);
     }
+/*
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu){
+        invalidateOptionsMenu();
+        return super.onPrepareOptionsMenu(menu);
+    }
+*/
+    /*
+    @Override
+    protected void onResume() {
+        invalidateOptionsMenu();
 
+        /*Bundle instanceState = new Bundle();
+        instanceState.putString("sessionid",SESSION_ID);
+        instanceState.putInt("position",currentPosition);
+        instanceState.putParcelable("customer",customer);
+
+        onCreate(instanceState);
+        //onCreate(null);
+        super.onResume();
+        super.recreate();
+        //
+    }
+*/
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.options_menu, menu);
@@ -241,18 +288,13 @@ public class Home extends AppCompatActivity implements
 
         switch(item.getItemId()) {
             case R.id.options_menu_settings:
-                // actions
                 Fragment fragment = new SettingsFragment(SESSION_ID,customer);
-                goToFragment(fragment,3);
+                goToFragment(fragment,Parsing.getIndexOf(menuOptionsTags,"settings"));
                 return true;
             case R.id.options_menu_lang:
-                // actions
-
-                //Parsing.setLocale(this,locale_from_language.get("esp"));
-                selectItem(currentPosition);
+                changeLanguageClicked(customer);
                 return true;
             case R.id.options_menu_logout:
-                // logout
                 logout(Home.this,customer);
                 return true;
             default:
@@ -297,6 +339,10 @@ public class Home extends AppCompatActivity implements
         goToFragment(new ChangePasswordFragment(customer),Parsing.getIndexOf(menuOptionsTags,"changepassword"));
     }
 
+    public void changeLanguageClicked(FullCustomerSettings customer) {
+        goToFragment(new ChangeLanguageFragment(customer),Parsing.getIndexOf(menuOptionsTags,"changelanguage"));
+    }
+
     // Listeners from the settings update pages to go back to settings after update
     public void updateAddressClicked(FullCustomerSettings customer) {
         goToFragment(new SettingsFragment(SESSION_ID,customer),Parsing.getIndexOf(menuOptionsTags,"settings"));
@@ -314,6 +360,19 @@ public class Home extends AppCompatActivity implements
         goToFragment(new SettingsFragment(SESSION_ID,customer),Parsing.getIndexOf(menuOptionsTags,"settings"));
     }
 
+    public void updateLanguageClicked(FullCustomerSettings customer) {
+        appLanguage = (String)customer.getLanguage().getValue();
+
+        Parsing.setLocale(this,locale_from_language.get((String)customer.getLanguage().getValue()));
+
+        invalidateOptionsMenu();
+        menuOptions = getResources().getStringArray(R.array.menuOptions);
+        ArrayAdapter<String> menuAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_activated_1,menuOptions);
+        menuList.setAdapter(menuAdapter);
+
+        goToFragment(new SettingsFragment(SESSION_ID,customer),Parsing.getIndexOf(menuOptionsTags,"settings"));
+    }
+
     public void updateBooleanClicked(FullCustomerSettings customer) {
         goToFragment(new SettingsFragment(SESSION_ID,customer),Parsing.getIndexOf(menuOptionsTags,"settings"));
     }
@@ -322,4 +381,12 @@ public class Home extends AppCompatActivity implements
     public void cancelClicked(FullCustomerSettings customer) {
         goToFragment(new SettingsFragment(SESSION_ID,customer),Parsing.getIndexOf(menuOptionsTags,"settings"));
     }
+
+
+/*
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(MyContextWrapper.wrapContext(newBase,appLanguage));
+    }
+    */
 }

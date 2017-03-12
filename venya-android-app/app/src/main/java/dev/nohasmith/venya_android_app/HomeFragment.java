@@ -7,12 +7,14 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
 import java.util.Arrays;
 
+import static android.R.attr.left;
 import static dev.nohasmith.venya_android_app.MainActivity.booleanFields;
 import static dev.nohasmith.venya_android_app.MainActivity.customerFields;
 import static dev.nohasmith.venya_android_app.MainActivity.dateFields;
@@ -25,6 +27,10 @@ import static dev.nohasmith.venya_android_app.MainActivity.secretFields;
 public class HomeFragment extends Fragment {
     FullCustomerSettings customer;
     String sessionid;
+
+    public HomeFragment() {
+
+    }
 
     public HomeFragment(String sessionid, FullCustomerSettings customer) {
         this.customer = customer;
@@ -41,7 +47,17 @@ public class HomeFragment extends Fragment {
         //sessionid = (String)savedInstanceState.get("sessionid");
         return inflater.inflate(R.layout.home_fragment, container, false);
     }
+/*
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
+        if ( savedInstanceState != null ) {
+            customer = (FullCustomerSettings)savedInstanceState.getParcelable("customer");
+            sessionid = savedInstanceState.getString("sessionid");
+        }
+    }
+*/
     @Override
     public void onStart() {
         super.onStart();
@@ -51,7 +67,9 @@ public class HomeFragment extends Fragment {
         TableRow row;
         TableRow.LayoutParams layoutParams;
         TextView fieldCell;
-        TextView valueCell;
+        View valueCell;
+        TextView textCell;
+        ImageView imageCell;
         int rowCount = 0;
 
         if ( customer != null ) {
@@ -77,26 +95,33 @@ public class HomeFragment extends Fragment {
                     row.addView(fieldCell);
 
                     CustomerField fullField = customer.getField(field);
-                    valueCell = new TextView(getContext());
+                    valueCell = new View(getContext());
+                    textCell = new TextView(getContext());
+                    imageCell = new ImageView(getContext());
                     if ( field.equals("address") ) {
                         // iterate through address fields
                         Address address = (Address)fullField.getValue();
                         String addrStr = address.formatAddress();
-                        valueCell.setText(addrStr);
+                        textCell.setText(addrStr);
                     } else if ( Arrays.asList(booleanFields).contains(field) ) {
                         boolean value = (boolean)fullField.getValue();
-                        valueCell.setText(Parsing.getBooleanValue(value));
+                        textCell.setText(Parsing.getBooleanValue(value));
                     } else if ( Arrays.asList(dateFields).contains(field) ){
                         String date = Parsing.formatDate((String)fullField.getValue());
-                        valueCell.setText(date);
+                        textCell.setText(date);
+                    } else if ( field.equals("language") ) {
+                        String lang = (String)fullField.getValue();
+                        imageCell.setImageResource(Parsing.getResId(getContext(),lang,"drawable"));
                     } else {
                             String value = (String)fullField.getValue();
                             if ( Arrays.asList(secretFields).contains(field) ) {
                                 value = Parsing.hideValue(value);
                             }
-                            valueCell.setText(value);
+                            textCell.setText(value);
                     }
+                    valueCell = ( field.equals("language") ) ? imageCell : textCell;
                     valueCell.setPadding(10,10,10,10);
+                    valueCell.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
                     row.addView(valueCell);
                     tableLayout.addView(row,rowCount++);
                 }

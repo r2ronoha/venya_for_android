@@ -27,6 +27,7 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
@@ -76,12 +77,25 @@ public class Parsing {
         //return toUpperCase(message.charAt(0)) + message.substring(1);
     }
 
+    public static String encode(String value) {
+        try {
+            return URLEncoder.encode(value,"UTF-8");
+        } catch (Exception e) {
+            Log.e("Parsing.encode","Failed to encode \"" + value + "\". Replacing white spaces with \"-\"");
+            return value.replaceAll("\\s","-");
+        }
+    }
+
     public static String formatDate(String date) {
         return date.replaceAll("^([0-9]{2})([0-9]{2})([0-9]+)","$1/$2/$3");
     }
 
     public static int getResId(Context appContext, String name) {
         return appContext.getResources().getIdentifier(name,"string",appContext.getPackageName());
+    }
+
+    public static int getResId(Context appContext, String name, String folder) {
+        return appContext.getResources().getIdentifier(name,folder,appContext.getPackageName());
     }
 
     public static String hideValue(String value) {
@@ -544,11 +558,18 @@ public class Parsing {
         Locale.setDefault(locale);
 
         Resources resources = context.getResources();
-
         Configuration config = resources.getConfiguration();
-        config.setLocale(locale);
 
-        resources.updateConfiguration(config, resources.getDisplayMetrics());
+        if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.N ) {
+            config.setLocale(locale);
+        } else {
+            config.locale = locale;
+        }
+        //if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1 ){
+            //context.createConfigurationContext(config);
+        //} else {
+                resources.updateConfiguration(config,resources.getDisplayMetrics());
+        //}
     }
 
     public static boolean checkDateFormat(Context context, String dob) {

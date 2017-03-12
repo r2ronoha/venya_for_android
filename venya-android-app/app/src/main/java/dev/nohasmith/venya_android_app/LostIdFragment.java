@@ -1,6 +1,7 @@
 package dev.nohasmith.venya_android_app;
 
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.res.TypedArrayUtils;
@@ -18,6 +19,7 @@ import android.widget.TextView;
 
 import android.util.Log;
 
+import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -87,7 +89,7 @@ public class LostIdFragment extends Fragment {
         View view = getView();
 
         appContext = view.getContext();
-        Parsing.setLocale(appContext,"es");
+        //Parsing.setLocale(appContext,"es");
 
         surnameInput = (EditText)view.findViewById(R.id.surnameLostId);
         firstnameInput = (EditText)view.findViewById(R.id.firstnameLostId);
@@ -100,7 +102,7 @@ public class LostIdFragment extends Fragment {
         //title.setText(getResources().getString(R.string.form_enterdetails));
 
         toSignin = (TextView)view.findViewById(R.id.toSignin);
-        Parsing.displayTextView(appContext,errorsView,new int[]{R.string.signin_already,R.string.signin_button});
+        Parsing.displayTextView(appContext,toSignin,new int[]{R.string.signin_already,R.string.signin_button});
         toSignin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v){
@@ -115,8 +117,23 @@ public class LostIdFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 errorsView.setText("");
-                String surname = surnameInput.getText().toString();
-                String firstname = firstnameInput.getText().toString();
+                String surname = Parsing.encode(surnameInput.getText().toString());
+                /*try {
+                    surname = URLEncoder.encode(surname,"UTF-8");
+                } catch (Exception e) {
+                    Log.d("LostId","Failed to encode " + surname);
+                    surname = surname.replaceAll("\\s","-");
+                }*/
+
+                String firstname = Parsing.encode(firstnameInput.getText().toString());
+                /*
+                try {
+                    firstname = URLEncoder.encode(firstname,"UTF-8");
+                } catch (Exception e) {
+                    Log.e("LostId","Failed to encode " + firstname);
+                    firstname = firstname.replaceAll("\\s","-");
+                }
+                */
                 String dob = dobInput.getText().toString().replaceAll("\\/","");
                 String response = null;
 

@@ -61,6 +61,11 @@ public class SettingsFragment extends Fragment {
     }
     private ChangePasswordListener passwordListener;
 
+    interface ChangeLanguageListener {
+        void changeLanguageClicked(FullCustomerSettings customer);
+    }
+    private ChangeLanguageListener languageListener;
+
     interface UpdateBooleanListener {
         void updateBooleanClicked(FullCustomerSettings customer);
     }
@@ -105,6 +110,12 @@ public class SettingsFragment extends Fragment {
             booleanListener = (UpdateBooleanListener) context;
         } else {
             throw new RuntimeException(context.toString() + " (UpdateBooleanListener@Settings) must implement OnFragmentInteractionListener");
+        }
+
+        if (context instanceof ChangeLanguageListener) {
+            languageListener = (ChangeLanguageListener)context;
+        } else {
+            throw new RuntimeException(context.toString() + " (ChangeLanguageListener@Settings) must implement OnFragmentInteractionListener");
         }
     }
 
@@ -166,9 +177,8 @@ public class SettingsFragment extends Fragment {
                         Address address = (Address)customer.getField(field).getValue();
                         value = address.formatAddress();
                     } else if ( Arrays.asList(booleanFields).contains(field) ) {
-                        boolean boolValue = (boolean)customer.getField(field).getValue();
+                        boolean boolValue = (boolean) customer.getField(field).getValue();
                         value = (boolValue) ? getResources().getString(R.string.true_value) : getResources().getString(R.string.false_value);
-
                     } else {
                         value = (String)customer.getField(field).getValue();
                         if ( Arrays.asList(secretFields).contains(field) ) {
@@ -247,6 +257,13 @@ public class SettingsFragment extends Fragment {
                                 }
                             });
                             break;
+                        case "language":
+                            optionCell.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    languageListener.changeLanguageClicked(customer);
+                                }
+                            });
                     }
 
                     row.addView(optionCell);

@@ -280,10 +280,11 @@ public class RegisterFragment extends Fragment {
                     if ( lang == null ) {
                         lang = getResources().getString(R.string.default_lang);
                     }
+
                     String reqUrl = "http://" + getResources().getString(R.string.venya_node_server) + ":" + getResources().getString(R.string.venya_node_port) +
                             "/register?type=customer" +
                             "&id=" + uid +
-                            "&surname=" + surname +
+                            "&surname=" + Parsing.encode(surname) +
                             "&dob=" + dob +
                             "&email=" + email +
                             "&phone=" + phone +

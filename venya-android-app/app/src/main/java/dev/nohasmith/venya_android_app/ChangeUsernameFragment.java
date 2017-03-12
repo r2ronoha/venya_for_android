@@ -185,7 +185,8 @@ public class ChangeUsernameFragment extends Fragment {
                             CustomerSettings updatedCustomer = (CustomerSettings) parsedResponse.get("customer");
                             String updatedUsername = updatedCustomer.getUsername();
                             int fix = customer.getUsername().getFix();
-                            customer.setUsername(new CustomerField("String",updatedUsername,fix));
+                            //customer.setUsername(new CustomerField("String",updatedUsername,fix));
+                            customer.setField("username",updatedUsername);
                             //Log.d("ChangeUsernameFragment","ID = " + customer.getId());
                             updateListener.updateUsernameClicked(customer);
                         }

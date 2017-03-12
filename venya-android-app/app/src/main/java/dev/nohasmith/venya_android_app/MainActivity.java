@@ -59,8 +59,12 @@ class MainActivity extends AppCompatActivity implements
     public static String [] securityCheckFields;
     public static String [] menuOptions;
     public static String [] menuOptionsTags;
+    public static String [] supportedLanguages;
     public static HashMap<String,String> languages_from_locale;
     public static HashMap<String,String> locale_from_language;
+
+    public static String venyaUrl;
+    public static String appLanguage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +72,9 @@ class MainActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_main);
 
         //appContext = getApplicationContext();
-        Parsing.setLocale(MainActivity.this,"es");
+        //Parsing.setLocale(MainActivity.this,"es");
+
+        venyaUrl = "http://" + getResources().getString(R.string.venya_node_server) + ":" + getResources().getString(R.string.venya_node_port);
 
         customerFields = getResources().getStringArray(R.array.customerFields);
         privateFields = getResources().getStringArray(R.array.privateFields);
@@ -85,14 +91,20 @@ class MainActivity extends AppCompatActivity implements
         securityCheckFields = getResources().getStringArray(R.array.securityCheckFields);
         menuOptions = getResources().getStringArray(R.array.menuOptions);
         menuOptionsTags = getResources().getStringArray(R.array.menuOptionsTags);
+        supportedLanguages = getResources().getStringArray(R.array.languages);
 
         languages_from_locale = new HashMap<String,String>();
         languages_from_locale.put("es","esp");
         languages_from_locale.put("en","eng");
+        languages_from_locale.put("fr","fra");
 
         locale_from_language = new HashMap<String,String>();
         locale_from_language.put("esp","es");
         locale_from_language.put("eng","en");
+        locale_from_language.put("fra","fr");
+
+
+        appLanguage = languages_from_locale.get(Parsing.getLocale(getResources().getConfiguration()));
 
         setFragment(currentPosition);
     }

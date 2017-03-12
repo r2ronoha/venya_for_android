@@ -22,6 +22,7 @@
     <string name="menu_changeemail">Cambia tu email</string>
     <string name="menu_changeusername">Cambia tu nombre de usuario</string>
     <string name="menu_changepassword">Cambia tu contraseña</string>
+    <string name="menu_changelanguage">Elige tu idioma</string>
     <string name="header_register">Registrate</string>
     <string name="header_lostid">Recupera tu identificador</string>
     <string name="header_lostpassword">Recupera tu contraseña</string>
@@ -90,7 +91,7 @@
     <string name="settings_option">opción</string>
     <string name="settings_stringoption">editar</string>
     <string name="settings_booleanoption">on/off</string>
-    <string name="settings_listoption">seleccionar</string>
+    <string name="settings_listoption">cambiar</string>
     <string name="settings_updatesuccess">cambiado con éxito</string>
     <string name="form_page">página</string>
     <string name="form_old">antiguo</string>

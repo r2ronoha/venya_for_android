@@ -106,6 +106,7 @@
     <string-array name="languages">
         <item>esp</item>
         <item>eng</item>
+        <item>fra</item>
     </string-array>
     <string-array name="menuOptions">
         <item>home</item>
@@ -124,6 +125,7 @@
         <item>changeemail</item>
         <item>changeusername</item>
         <item>changepassword</item>
+        <item>changelanguage</item>
     </string-array>
     <string-array name="signinOptions">
         <item>signin</item>
@@ -193,12 +195,11 @@
     <string name="menu_changeemail">Update email</string>
     <string name="menu_changeusername">Update username</string>
     <string name="menu_changepassword">Update password</string>
+    <string name="menu_changelanguage">Select a language</string>
     <string name="header_register">Create your account</string>
     <string name="header_lostid">Recover your registration ID</string>
     <string name="header_lostpassword">Get your password</string>
     <string name="header_lostusername">Get your username</string>
-    <string name="header_changeaddress">Update your address</string>
-    <string name="header_changemail">Update your address</string>
     <!-- <string name="menu_createcustomer">add new customer</string> -->
     <string name="action_login">login successful</string>
     <string name="action_home">home</string>
@@ -261,7 +262,7 @@
     <string name="settings_option">option</string>
     <string name="settings_stringoption">edit</string>
     <string name="settings_booleanoption">on/off</string>
-    <string name="settings_listoption">select</string>
+    <string name="settings_listoption">change</string>
     <string name="settings_updatesuccess">successfully updated</string>
     <string name="form_page">page</string>
     <string name="form_old">old</string>
