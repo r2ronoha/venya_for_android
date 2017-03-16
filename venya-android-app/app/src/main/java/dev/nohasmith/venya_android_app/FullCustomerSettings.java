@@ -416,4 +416,9 @@ public class FullCustomerSettings implements Parcelable{
         HashMap<String,Provider> providersList = (HashMap<String, Provider>) this.providers.getValue();
         providersList.put(providerDetails.getId(),providerDetails);
     }
+
+    public void removeProvider(String providerid) {
+        HashMap<String,Provider> providersList = (HashMap<String, Provider>) this.providers.getValue();
+        providersList.remove(providerid);
+    }
 }

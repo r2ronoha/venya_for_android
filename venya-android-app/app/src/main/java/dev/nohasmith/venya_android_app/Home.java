@@ -2,12 +2,10 @@ package dev.nohasmith.venya_android_app;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.content.res.Resources;
-import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
@@ -22,11 +20,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
-
-import java.util.Arrays;
-import java.util.Locale;
 
 import static android.app.PendingIntent.getActivity;
 import static dev.nohasmith.venya_android_app.MainActivity.appLanguage;
@@ -62,7 +56,9 @@ public class Home extends AppCompatActivity implements
         ChangeLanguageFragment.CancelListener,
 
         ChangePhoneFragment.UpdatePhoneListener,
-        ChangePhoneFragment.CancelListener {
+        ChangePhoneFragment.CancelListener,
+
+        UnsubscribeConfirmationFragment.ConfirmDialogListener {
 
     public String SESSION_ID = "closed";
     public FullCustomerSettings customer;
@@ -404,6 +400,29 @@ public class Home extends AppCompatActivity implements
     // Listener for the cancel button in update settings pages
     public void cancelClicked(FullCustomerSettings customer) {
         goToFragment(new SettingsFragment(SESSION_ID,customer),Parsing.getIndexOf(menuOptionsTags,"settings"));
+    }
+
+    // Listener for unsubscribe provider confirmation dialog
+
+
+    @Override
+    public void onDialogPositiveClick(DialogFragment dialog, Context context, String providerid, String sessionid) {
+        if ( Parsing.unsubscribeProvider(context,providerid,sessionid) ) {
+            //update custoemr
+            customer.removeProvider(providerid);
+        } else {
+            Toast toast = new Toast(getApplicationContext());
+            toast.makeText(getApplicationContext(),getResources().getString(R.string.errors_failedupdate),Toast.LENGTH_SHORT);
+        }
+        // call the customer's providers fragment with updated customer
+        goToFragment(new CustomerProvidersFragment(sessionid,customer),Parsing.getIndexOf(menuOptionsTags,"providers"));
+    }
+
+    @Override
+    public void onDialogNegativeClick(DialogFragment dialog) {
+        Toast toast = new Toast(getApplicationContext());
+        toast.makeText(getApplicationContext(),getResources().getString(R.string.form_cancel),Toast.LENGTH_SHORT).show();
+        goToFragment(new CustomerProvidersFragment(SESSION_ID,customer),Parsing.getIndexOf(menuOptionsTags,"providers"));
     }
 
 

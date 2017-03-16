@@ -347,5 +347,8 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="form_details">details</string>
     <string name="deactivate">unregister</string>
+    <string name="form_confirm_delete_provider">Are you sure you want to unsubscribe? You\'ll need to contact your provider to come back</string>
+    <string name="errors_failedupdate">Update failure</string>
+    <string name="errors_notsubscribed">you are not subscriber to any provider\'s service</string>
 
 </resources>

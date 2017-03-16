@@ -160,4 +160,7 @@
     <string name="signin_connecting">Conexion en cours...</string>
     <string name="form_details">détails</string>
     <string name="deactivate">desinscrire</string>
+    <string name="form_confirm_delete_provider">Etes-vous sure de voulois vour desinscrire? Vous devrez recontacter ce spécialiste ppur le réactver</string>
+    <string name="errors_failedupdate">Echec de mis à jour</string>
+    <string name="errors_notsubscribed">vous n\'êtes inscrit avec aucun spécialiste</string>
 </resources>

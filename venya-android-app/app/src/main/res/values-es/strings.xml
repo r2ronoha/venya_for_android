@@ -162,4 +162,7 @@
     <string name="header_changeaddress">Actualiza tu direcció</string>
     <string name="form_details">detalles</string>
     <string name="deactivate">borrarse</string>
+    <string name="form_confirm_delete_provider">¿Estás seguro que quieres borrarte del servicio? NEcesitarás contactar a tu proveedor para reactivarlo.</string>
+    <string name="errors_failedupdate">Error durante actualización</string>
+    <string name="errors_notsubscribed">no estás suscrito con ningún proveedor</string>
 </resources>
