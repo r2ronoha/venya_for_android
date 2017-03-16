@@ -10,6 +10,7 @@
         <item>inicio</item>
         <item>citas</item>
         <item>notificaciones</item>
+        <item>mis proveedores</item>
         <item>ajustes</item>
         <item>desconexión</item>
     </string-array>
@@ -17,12 +18,14 @@
     <string name="menu_appointments">citas</string>
     <string name="menu_notifications">notificaciones</string>
     <string name="menu_settings">ajustes</string>
+    <string name="menu_providers">mis proveedores</string>
     <string name="menu_logout">desconexión</string>
     <string name="menu_changeaddress">Cambia tu dirección</string>
     <string name="menu_changeemail">Cambia tu email</string>
     <string name="menu_changeusername">Cambia tu nombre de usuario</string>
     <string name="menu_changepassword">Cambia tu contraseña</string>
     <string name="menu_changelanguage">Elige tu idioma</string>
+    <string name="menu_changephone">Actualiza tu teléfono</string>
     <string name="header_register">Registrate</string>
     <string name="header_lostid">Recupera tu identificador</string>
     <string name="header_lostpassword">Recupera tu contraseña</string>
@@ -66,6 +69,7 @@
     <string name="customer_times">horas preferidas</string>
     <string name="customer_language">idioma</string>
     <string name="customer_notifications">notificaciones</string>
+    <string name="customer_providers">mis proveedores</string>
     <string name="customer_location">localización</string>
     <string name="customer_oldpassword">antigua contraseña</string>
     <string name="customer_oldusername">antiguo nombre de usuario</string>
@@ -73,7 +77,7 @@
     <string name="customer_sessionid">ID de la sesión</string>
     <string name="provider_id">id</string>
     <string name="provider_type">tipo</string>
-    <string name="provider_name">nombre/compañía</string>
+    <string name="provider_name">compañía</string>
     <string name="provider_address">dirección</string>
     <string name="provider_email">email</string>
     <string name="provider_username">nombre de usuario</string>
@@ -143,6 +147,8 @@
     <string name="errors_badrequest">el formato solicitado no está soportado</string>
     <string name="errors_nullfromserver">\"NULL\" recibido del servidor</string>
     <string name="errors_httptimeout">El servidor no responde. Inténtalo más tarde</string>
+	<string name="errors_unknownprovider">El proveedor no existe</string>
+	<string name="errors_noprovider">No estás registrado con ningún proveedor</string>
     <string name="email_credentialssent">Las credenciales se han enviado a</string>
     <string name="email_emailfailed">No a sido posible enviar el email a</string>
     <string name="errors_httpexception">Excepción creada al intenar realizar una llamada HTTP</string>
@@ -152,6 +158,8 @@
     <string name="goodbye">adiós</string>
     <string name="errors_unknwon">error desconocido</string>
     <string name="menu_language">lang</string>
-    <string name="signin_connecting">Connecting...</string>
-    <string name="header_changeaddress">Update your address</string>
+    <string name="signin_connecting">Connectando...</string>
+    <string name="header_changeaddress">Actualiza tu direcció</string>
+    <string name="form_details">detalles</string>
+    <string name="deactivate">borrarse</string>
 </resources>

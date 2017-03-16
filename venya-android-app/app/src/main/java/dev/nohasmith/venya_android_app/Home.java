@@ -44,6 +44,7 @@ public class Home extends AppCompatActivity implements
         SettingsFragment.ChangePasswordListener,
         SettingsFragment.ChangeLanguageListener,
         SettingsFragment.UpdateBooleanListener,
+        SettingsFragment.ChangePhoneListener,
 
         ChangeAddressFragment.UpdateAddressListener,
         ChangeAddressFragment.CancelListener,
@@ -58,7 +59,10 @@ public class Home extends AppCompatActivity implements
         ChangePasswordFragment.CancelListener,
 
         ChangeLanguageFragment.UpdateLanguageListener,
-        ChangeLanguageFragment.CancelListener{
+        ChangeLanguageFragment.CancelListener,
+
+        ChangePhoneFragment.UpdatePhoneListener,
+        ChangePhoneFragment.CancelListener {
 
     public String SESSION_ID = "closed";
     public FullCustomerSettings customer;
@@ -139,6 +143,8 @@ public class Home extends AppCompatActivity implements
             //errorsView.setText(SESSION_ID);
             //Log.d("HOME","Home activity started with sessionid = " + SESSION_ID);
             //Log.d("HOME","customer: " + (String)customer.getFieldElement("firstname","value") + " " + (String)customer.getFieldElement("surname","value"));
+
+            //set locale to customers profile language
             String lang = (String) customer.getLanguage().getValue();
             Parsing.setLocale(this,locale_from_language.get(lang));
 
@@ -177,42 +183,52 @@ public class Home extends AppCompatActivity implements
                 toast.makeText(this,getResources().getString(R.string.errors_pagenotavailable).toUpperCase(),Toast.LENGTH_LONG).show();
                 break;
             case 3:
+                // show providers
+                toast.makeText(this,getResources().getString(R.string.zone_provider).toUpperCase(),Toast.LENGTH_SHORT).show();
+                fragment = new CustomerProvidersFragment(SESSION_ID,customer);
+                break;
+            case 4:
                 // settings
                 toast.makeText(this,getResources().getString(R.string.menu_settings).toUpperCase(),Toast.LENGTH_SHORT).show();
                 fragment = new SettingsFragment(SESSION_ID, customer);
                 break;
-            case 4:
+            case 5:
                 // logout
                 logout(Home.this,customer);
                 break;
-            case 5:
+            case 6:
                 // change address
                 toast.makeText(this,getResources().getString(R.string.menu_changeaddress).toUpperCase(),Toast.LENGTH_SHORT).show();
                 fragment = new ChangeAddressFragment(customer);
                 break;
-            case 6:
+            case 7:
                 // change email
                 toast.makeText(this,getResources().getString(R.string.menu_changeemail).toUpperCase(),Toast.LENGTH_SHORT).show();
                 fragment = new ChangeEmailFragment(customer);
                 break;
-            case 7:
+            case 8:
                 // change usernamge
                 toast.makeText(this,getResources().getString(R.string.menu_changeusername).toUpperCase(),Toast.LENGTH_SHORT).show();
                 fragment = new ChangeUsernameFragment(customer);
                 break;
-            case 8:
+            case 9:
                 // change password
                 toast.makeText(this,getResources().getString(R.string.menu_changepassword).toUpperCase(),Toast.LENGTH_SHORT).show();
                 fragment = new ChangePasswordFragment(customer);
                 break;
-            case 9:
+            case 10:
                 // change language
                 toast.makeText(this,getResources().getString(R.string.menu_changelanguage).toUpperCase(),Toast.LENGTH_SHORT).show();
                 fragment = new ChangeLanguageFragment(customer);
                 break;
+            case 11:
+                // change language
+                toast.makeText(this,getResources().getString(R.string.menu_changephone).toUpperCase(),Toast.LENGTH_SHORT).show();
+                fragment = new ChangePhoneFragment(customer);
+                break;
             default:
                 // home
-                toast.makeText(this,getResources().getString(R.string.home_welcome),Toast.LENGTH_LONG).show();
+                toast.makeText(this,getResources().getString(R.string.home_welcome),Toast.LENGTH_SHORT).show();
                 fragment = new HomeFragment(SESSION_ID, customer);
         }
 
@@ -343,6 +359,10 @@ public class Home extends AppCompatActivity implements
         goToFragment(new ChangeLanguageFragment(customer),Parsing.getIndexOf(menuOptionsTags,"changelanguage"));
     }
 
+    public void changePhoneClicked(FullCustomerSettings customer) {
+        goToFragment(new ChangePhoneFragment(customer),Parsing.getIndexOf(menuOptionsTags,"changephone"));
+    }
+
     // Listeners from the settings update pages to go back to settings after update
     public void updateAddressClicked(FullCustomerSettings customer) {
         goToFragment(new SettingsFragment(SESSION_ID,customer),Parsing.getIndexOf(menuOptionsTags,"settings"));
@@ -357,6 +377,10 @@ public class Home extends AppCompatActivity implements
     }
 
     public void updatePasswordClicked(FullCustomerSettings customer) {
+        goToFragment(new SettingsFragment(SESSION_ID,customer),Parsing.getIndexOf(menuOptionsTags,"settings"));
+    }
+
+    public void updatePhoneClicked(FullCustomerSettings customer) {
         goToFragment(new SettingsFragment(SESSION_ID,customer),Parsing.getIndexOf(menuOptionsTags,"settings"));
     }
 

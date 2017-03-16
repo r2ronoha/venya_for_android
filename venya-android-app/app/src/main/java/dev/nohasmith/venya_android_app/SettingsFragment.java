@@ -61,6 +61,11 @@ public class SettingsFragment extends Fragment {
     }
     private ChangePasswordListener passwordListener;
 
+    interface ChangePhoneListener {
+        void changePhoneClicked(FullCustomerSettings customer);
+    }
+    private ChangePhoneListener phoneListener;
+
     interface ChangeLanguageListener {
         void changeLanguageClicked(FullCustomerSettings customer);
     }
@@ -116,6 +121,12 @@ public class SettingsFragment extends Fragment {
             languageListener = (ChangeLanguageListener)context;
         } else {
             throw new RuntimeException(context.toString() + " (ChangeLanguageListener@Settings) must implement OnFragmentInteractionListener");
+        }
+
+        if (context instanceof ChangePhoneListener) {
+            phoneListener = (ChangePhoneListener)context;
+        } else {
+            throw new RuntimeException(context.toString() + " (ChangePhoneListener@Settings) must implement OnFragmentInteractionListener");
         }
     }
 
@@ -264,6 +275,15 @@ public class SettingsFragment extends Fragment {
                                     languageListener.changeLanguageClicked(customer);
                                 }
                             });
+                            break;
+                        case "phone":
+                            optionCell.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    phoneListener.changePhoneClicked(customer);
+                                }
+                            });
+                            break;
                     }
 
                     row.addView(optionCell);

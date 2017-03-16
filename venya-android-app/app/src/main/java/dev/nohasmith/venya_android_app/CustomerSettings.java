@@ -31,6 +31,7 @@ public class CustomerSettings implements Parcelable{
     private String language;
     private boolean notifications;
     private boolean location;
+    private HashMap<String,Provider> providers;
 
     public CustomerSettings(Context appContext) {
         this.id = "N/A";
@@ -48,6 +49,7 @@ public class CustomerSettings implements Parcelable{
         this.times = "N/A";
         this.notifications = true;
         this.location = true;
+        this.providers = new HashMap<String,Provider>();
     }
 
     public CustomerSettings(Context appContext, String id, String firstname, String surname, String dob) {
@@ -66,6 +68,7 @@ public class CustomerSettings implements Parcelable{
         this.times = "N/A";
         this.notifications = true;
         this.location = true;
+        this.providers = new HashMap<String,Provider>();
     }
 
     // SETTERS
@@ -108,6 +111,10 @@ public class CustomerSettings implements Parcelable{
 
     public void setLocation(boolean location) {
         this.location = location;
+    }
+
+    public void setProviders(HashMap<String,Object> provider) {
+        this.providers = providers;
     }
 
     // GETTERS
@@ -160,7 +167,7 @@ public class CustomerSettings implements Parcelable{
         return this.times;
     }
 
-    public String setPhone() {
+    public String getPhone() {
         return this.phone;
     }
     public boolean getNotifications () {
@@ -169,6 +176,10 @@ public class CustomerSettings implements Parcelable{
 
     public boolean getlocation () {
         return this.location;
+    }
+
+    public HashMap<String,Provider> getProviders () {
+        return this.providers;
     }
 
     public boolean verifySessionId (String sessionid) {
@@ -211,6 +222,9 @@ public class CustomerSettings implements Parcelable{
             case "times":
                 this.times = (String)value;
                 break;
+            case "providers":
+                this.providers = (HashMap<String,Provider>)value;
+                break;
         }
     }
 
@@ -230,6 +244,7 @@ public class CustomerSettings implements Parcelable{
         this.times = in.readString();
         this.notifications = Boolean.parseBoolean(in.readString());
         this.location = Boolean.parseBoolean(in.readString());
+        this.providers = (HashMap<String,Provider>)in.readSerializable();
     }
 
     @Override
@@ -254,6 +269,7 @@ public class CustomerSettings implements Parcelable{
         dest.writeString(times);
         dest.writeString(Boolean.toString(notifications));
         dest.writeString(Boolean.toString(location));
+        dest.writeSerializable(providers);
     }
 
     public static final Parcelable.Creator<CustomerSettings> CREATOR = new Creator<CustomerSettings>() {
@@ -300,8 +316,14 @@ public class CustomerSettings implements Parcelable{
                 return this.location;
             case "times":
                 return this.times;
+            case "providers":
+                return this.providers;
             default:
                 return null;
         }
+    }
+
+    public void addProvider(Provider providerDetails) {
+        this.providers.put(providerDetails.getId(),providerDetails);
     }
 }

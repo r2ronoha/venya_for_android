@@ -156,11 +156,13 @@ public class ChangeAddressFragment extends Fragment {
                     try {
                         response = httpHandler.execute(reqUrl).get();
                     } catch (Exception e) {
+                        Parsing.displayTextView(appContext,errorsView,R.string.errors_httpexception);
                         Log.e("ChangeAddressFragment","Exception calling AsyncTask: " + e);
                         e.printStackTrace();
                     }
                     if ( response == null ) {
                         Log.e("LostPasswordFragmen.OnClick]","NULL response from server");
+                        Parsing.displayTextView(appContext,errorsView,R.string.errors_nullfromserver);
                     } else {
                         //Log.d("ChangeAddressFragment","HTTP response from server: " + response);
                         HashMap<String, Object> parsedResponse = Parsing.parseGetCustomerResponseJson(response, appContext);

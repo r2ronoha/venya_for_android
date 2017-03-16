@@ -13,13 +13,17 @@ import android.widget.TableRow;
 import android.widget.TextView;
 
 import java.util.Arrays;
+import java.util.HashMap;
 
 import static android.R.attr.left;
+import static dev.nohasmith.venya_android_app.MainActivity.appLanguage;
 import static dev.nohasmith.venya_android_app.MainActivity.booleanFields;
 import static dev.nohasmith.venya_android_app.MainActivity.customerFields;
 import static dev.nohasmith.venya_android_app.MainActivity.dateFields;
 import static dev.nohasmith.venya_android_app.MainActivity.privateFields;
+import static dev.nohasmith.venya_android_app.MainActivity.providerFields;
 import static dev.nohasmith.venya_android_app.MainActivity.secretFields;
+import static dev.nohasmith.venya_android_app.MainActivity.venyaUrl;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -98,32 +102,61 @@ public class HomeFragment extends Fragment {
                     valueCell = new View(getContext());
                     textCell = new TextView(getContext());
                     imageCell = new ImageView(getContext());
-                    if ( field.equals("address") ) {
-                        // iterate through address fields
-                        Address address = (Address)fullField.getValue();
-                        String addrStr = address.formatAddress();
-                        textCell.setText(addrStr);
-                    } else if ( Arrays.asList(booleanFields).contains(field) ) {
-                        boolean value = (boolean)fullField.getValue();
-                        textCell.setText(Parsing.getBooleanValue(value));
-                    } else if ( Arrays.asList(dateFields).contains(field) ){
-                        String date = Parsing.formatDate((String)fullField.getValue());
-                        textCell.setText(date);
-                    } else if ( field.equals("language") ) {
-                        String lang = (String)fullField.getValue();
-                        imageCell.setImageResource(Parsing.getResId(getContext(),lang,"drawable"));
-                    } else {
-                            String value = (String)fullField.getValue();
-                            if ( Arrays.asList(secretFields).contains(field) ) {
+                    if ( field.equals("providers") ) {
+                        // display the name of the active providers
+                        HashMap<String, Provider> providers = (HashMap<String,Provider>)fullField.getValue();
+
+                        TableLayout providersTable = new TableLayout(getContext());
+                        TableRow.LayoutParams providersParams = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT);
+                        int provCount = 0;
+
+                        for ( String providerid : providers.keySet() ) {
+                            if ( providers.get(providerid).isActive() ){
+                                String url = venyaUrl +
+                                        "/getProvider?" +
+                                        "action=getproviderdetails" +
+                                        "&id=" + providerid;
+                                Provider providerDetails = Parsing.getProviderDetails(getContext(),url);
+
+                                TableRow provRow = new TableRow(getContext());
+                                TextView provView = new TextView(getContext());
+                                String providerName = providerDetails.getName();
+                                provView.setText(providerName);
+                                provView.setPadding(5,5,5,5);
+                                provRow.addView(provView);
+                                providersTable.addView(provRow,provCount++);
+
+                            }
+                        }
+                        row.addView(providersTable);
+                    }else {
+                        if (field.equals("address")) {
+                            // iterate through address fields
+                            Address address = (Address) fullField.getValue();
+                            String addrStr = address.formatAddress();
+                            textCell.setText(addrStr);
+                        } else if (Arrays.asList(booleanFields).contains(field)) {
+                            boolean value = (boolean) fullField.getValue();
+                            textCell.setText(Parsing.getBooleanValue(value));
+                        } else if (Arrays.asList(dateFields).contains(field)) {
+                            String date = Parsing.formatDate((String) fullField.getValue());
+                            textCell.setText(date);
+                        } else if (field.equals("language")) {
+                            String lang = (String) fullField.getValue();
+                            imageCell.setImageResource(Parsing.getResId(getContext(), lang, "drawable"));
+                        } else {
+                            String value = (String) fullField.getValue();
+                            if (Arrays.asList(secretFields).contains(field)) {
                                 value = Parsing.hideValue(value);
                             }
                             textCell.setText(value);
+                        }
+                        valueCell = (field.equals("language")) ? imageCell : textCell;
+                        valueCell.setPadding(10, 10, 10, 10);
+                        valueCell.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
+                        row.addView(valueCell);
                     }
-                    valueCell = ( field.equals("language") ) ? imageCell : textCell;
-                    valueCell.setPadding(10,10,10,10);
-                    valueCell.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
-                    row.addView(valueCell);
-                    tableLayout.addView(row,rowCount++);
+                    tableLayout.addView(row, rowCount++);
                 }
             }
         }

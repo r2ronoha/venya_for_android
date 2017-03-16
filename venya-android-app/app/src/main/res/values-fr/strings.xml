@@ -10,6 +10,7 @@
         <item>home</item>
         <item>RDV</item>
         <item>notifications</item>
+        <item>mes spécialistes</item>
         <item>configuration</item>
         <item>déconnexion</item>
     </string-array>
@@ -17,12 +18,14 @@
     <string name="menu_appointments">RDV</string>
     <string name="menu_notifications">notifications</string>
     <string name="menu_settings">configuration</string>
+    <string name="menu_providers">mes spécialistes</string>
     <string name="menu_logout">desconnexion</string>
     <string name="menu_changeaddress">changez votre adresse</string>
     <string name="menu_changeemail">changez votre email</string>
     <string name="menu_changeusername">Changez votre nom d\'utilisateur</string>
     <string name="menu_changepassword">Changez votre mot de passe</string>
     <string name="menu_changelanguage">Choisissez votre langue</string>
+    <string name="menu_changephone">Actualisez votre téléphone</string>
     <string name="header_register">Inscrivez vous</string>
     <string name="header_lostid">Rétrouvez votre ID d\'imscription</string>
     <string name="header_lostpassword">Récupérez votre mot de pas</string>
@@ -65,14 +68,15 @@
     <string name="customer_times">heures préférées</string>
     <string name="customer_language">langue</string>
     <string name="customer_notifications">notifications</string>
+    <string name="customer_providers">mes spécialistes</string>
     <string name="customer_location">localisation</string>
     <string name="customer_oldpassword">ancien mot de passe</string>
     <string name="customer_oldusername">ancien nom d\'utilisateur</string>
     <string name="customer_oldemail">ancien email</string>
     <string name="customer_sessionid">ID de la session</string>
     <string name="provider_id">id</string>
-    <string name="provider_type">tipo</string>
-    <string name="provider_name">nombre/compañía</string>
+    <string name="provider_type">type</string>
+    <string name="provider_name">compagnie</string>
     <string name="provider_address">adresse</string>
     <string name="provider_email">email</string>
     <string name="provider_username">nom d\'utilisateur</string>
@@ -142,6 +146,8 @@
     <string name="errors_badrequest">el formato solicitado no está soportado</string>
     <string name="errors_nullfromserver">\"NULL\" recibido del servidor</string>
     <string name="errors_httptimeout">El servidor no responde. Inténtalo más tarde</string>
+	<string name="errors_unknownprovider">Le spécialiste n\'existe pas</string>
+	<string name="errors_noprovider">Vous n\'estes inscrit chez aucun spécialiste</string>
     <string name="email_credentialssent">Les crédentiels ont été envoyées à </string>
     <string name="email_emailfailed">On n\'a pas pu envoyer l\'email</string>
     <string name="errors_httpexception">Except en performant une requete HTTP</string>
@@ -151,5 +157,7 @@
     <string name="goodbye">au revoir</string>
     <string name="errors_unknwon">erreur unconnue</string>
     <string name="menu_language">lang</string>
-    <string name="signin_connecting">Connecting...</string>
+    <string name="signin_connecting">Conexion en cours...</string>
+    <string name="form_details">détails</string>
+    <string name="deactivate">desinscrire</string>
 </resources>

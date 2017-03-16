@@ -30,6 +30,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -37,7 +38,10 @@ import java.util.regex.Pattern;
 import static dev.nohasmith.venya_android_app.MainActivity.addressFields;
 import static dev.nohasmith.venya_android_app.MainActivity.customerConstructFields;
 import static dev.nohasmith.venya_android_app.MainActivity.customerFields;
+import static dev.nohasmith.venya_android_app.MainActivity.providerFields;
 import static dev.nohasmith.venya_android_app.MainActivity.statusFields;
+import static dev.nohasmith.venya_android_app.MainActivity.venyaUrl;
+import static java.lang.Character.PARAGRAPH_SEPARATOR;
 import static java.lang.Character.toUpperCase;
 
 public class Parsing {
@@ -205,6 +209,103 @@ public class Parsing {
         return response;
     }
 
+    public static Provider getProviderDetails (Context context, String url) {
+        String myTAG = TAG + ".getProviderDetails";
+        MyHttpHandler httpHandler = new MyHttpHandler(context);
+        String response = null;
+
+        try {
+            response = httpHandler.execute(url).get();
+        } catch (Exception e) {
+            Log.e(myTAG,"Exception while running HTTP Async task");
+            e.printStackTrace();
+            return null;
+        }
+
+        if ( response == null ) {
+            Log.e(myTAG,"NULL response from server");
+            return null;
+        } else {
+            Log.d(myTAG,"Server response = " + response);
+            HashMap<String,Object> responseParsed = parseGetProviderResponseJson(response, context);
+            String id = (String)responseParsed.get("id");
+            Provider provider = new Provider(id);
+
+            for ( int i=0; i<providerFields.length; i++ ) {
+                String field = providerFields[i];
+                if ( ! field.equals("id") ) {
+                    //Log.d(myTAG,"field \"" + field + "\"");
+                    Object value = responseParsed.get(field);
+                    //String isAddress = ( value instanceof Address ) ? "value is Address" : "value is NOT address";
+                    //Log.d(myTAG,"field : \"" + field + "\". " + isAddress);
+                    provider.setField(field,value);
+                }
+            }
+            return provider;
+        }
+    }
+
+    public static HashMap<String, Object> parseGetProviderResponseJson(String serverResponse, Context appContext) {
+        /*
+         parse a JSON response from the Nodejs server and return a HAsh Map with
+         - action
+         - status
+         - errormessage
+         - customer info (as CustomerSetting class
+          */
+
+        String myTAG = TAG + ".parseGetProviderResp";
+        HashMap<String,Object> parsedResponse = new HashMap<String, Object>();
+        Log.d(myTAG,serverResponse);
+        try {
+            JSONObject jsonObject = new JSONObject(serverResponse);
+
+            for (int i=0; i<statusFields.length; i++) {
+                try {
+                    String field = statusFields[i];
+                    String value = jsonObject.getString(field);
+                    parsedResponse.put(field,value);
+                } catch (Exception e) {
+                    Log.d(myTAG,"Unable to parse field " + statusFields[i]);
+                }
+            }
+
+            if ( parsedResponse.get("status").equals(appContext.getResources().getString(R.string.success_status)) || parsedResponse.get("errormessage").equals("emailfailed")) {
+                Iterator<String> providerKeys = jsonObject.keys();
+                for ( int i=0; i<providerFields.length; i++) {
+                    String field = providerFields[i];
+                    Object value;
+                    try {
+                        if (field.equals("address")) {
+                            //Log.d(myTAG,"Parsing Provider's address");
+                            JSONObject addrJson = jsonObject.getJSONObject(field);
+                            Address providerAddress = new Address();
+                            for (int j = 0; j < addressFields.length; j++) {
+                                String addrField = addressFields[j];
+                                String addrValue = addrJson.getString(addrField);
+                                providerAddress.setField(addrField, addrValue);
+                            }
+                            //value = providerAddress.formatAddress();
+                            value = providerAddress;
+
+                        } else {
+                            value = (jsonObject.has(field)) ? jsonObject.get(field) : "n/a";
+                        }
+                        parsedResponse.put(field, value);
+                    } catch (Exception e) {
+                        Log.d(myTAG, "Unable to parse field " + field);
+                        e.printStackTrace();
+                    }
+                }
+            }
+        } catch (final JSONException e) {
+            Log.e(myTAG,"Json parsing error" + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return parsedResponse;
+    }
+
     public static String randomSessionID(){
         int min = R.integer.sessionidMin;
         int max = R.integer.sessionidMax;
@@ -321,11 +422,7 @@ public class Parsing {
          - errormessage
          - customer info (as CustomerSetting class
           */
-        /*
-        String [] customerFields = appContext.getResources().getStringArray(R.array.customerFields);
-        String [] addressFields = appContext.getResources().getStringArray(R.array.addressFields);
-        String [] statusFields = appContext.getResources().getStringArray(R.array.statusFields);
-        */
+        String myTAG = TAG + ".parseGetCustomer";
 
         HashMap<String,Object> parsedResponse = new HashMap<String, Object>();
         CustomerSettings customer;
@@ -342,7 +439,7 @@ public class Parsing {
                     String value = jsonObject.getString(field);
                     parsedResponse.put(field,value);
                 } catch (Exception e) {
-                    Log.d(TAG,"Unable to parse field " + statusFields[i]);
+                    Log.d(myTAG,"Unable to parse field " + statusFields[i]);
                 }
             }
 
@@ -355,7 +452,7 @@ public class Parsing {
                         String value = jsonObject.getString(field);
                         customerConstruct.put(field, value);
                     } catch (Exception e) {
-                        Log.d(TAG, "Failed to parse " + customerConstructFields[i]);
+                        Log.d(myTAG, "Failed to parse " + customerConstructFields[i]);
                         e.printStackTrace();
                     }
                 }
@@ -380,6 +477,31 @@ public class Parsing {
                                     customerAddress.setField(addrField, value);
                                 }
                                 customer.setField(field, customerAddress);
+                            } else if ( field.equals("providers") ) {
+                                JSONObject myProviders = jsonObject.getJSONObject(("providers"));
+                                Iterator<String> providersIds = myProviders.keys();
+
+                                while ( providersIds.hasNext() ) {
+                                    String providerid = providersIds.next();
+                                    boolean isActve = myProviders.getBoolean(providerid);
+                                    String url = venyaUrl +
+                                            "/getProvider?" +
+                                            "action=getproviderdetails" +
+                                            "&id=" + providerid;
+                                    Provider providerDetails = Parsing.getProviderDetails(appContext,url);
+
+                                    if ( providerDetails == null ) {
+                                        Log.e(myTAG,"NULL response to getProvider " + providerid);
+                                    } else {
+                                        providerDetails.setActive(isActve);
+                                        for (int k = 0; k < providerFields.length; k++) {
+                                            String provField = providerFields[k];
+                                            Object value = providerDetails.getField(provField);
+                                            providerDetails.setField(provField,value);
+                                        }
+                                    }
+                                    customer.addProvider(providerDetails);
+                                }
                             } else {
                                 String[] booleanFields = appContext.getResources().getStringArray(R.array.booleanFields);
                                 if (Arrays.asList(booleanFields).contains(field)) {
@@ -394,14 +516,14 @@ public class Parsing {
                             }
                         }
                     } catch (Exception e) {
-                        Log.d(TAG, "Unable to parse field " + customerFields[i]);
+                        Log.d(myTAG, "Unable to parse field " + customerFields[i]);
                         e.printStackTrace();
                     }
                 }
                 parsedResponse.put("customer",customer);
             }
         } catch (final JSONException e) {
-            Log.e(TAG,"Json parsing error" + e.getMessage());
+            Log.e(myTAG,"Json parsing error" + e.getMessage());
             e.printStackTrace();
         }
 
@@ -421,6 +543,7 @@ public class Parsing {
         String [] addressFields = appContext.getResources().getStringArray(R.array.addressFields);
         String [] statusFields = appContext.getResources().getStringArray(R.array.statusFields);
         */
+        String myTAG = TAG + ".parseGetFullCustomer";
 
         HashMap<String,Object> parsedResponse = new HashMap<String, Object>();
         FullCustomerSettings customer;
@@ -437,7 +560,7 @@ public class Parsing {
                     String value = jsonObject.getString(field);
                     parsedResponse.put(field,value);
                 } catch (Exception e) {
-                    Log.d(TAG,"Unable to parse field " + statusFields[i]);
+                    Log.d(myTAG,"Unable to parse field " + statusFields[i]);
                 }
             }
 
@@ -457,7 +580,7 @@ public class Parsing {
                         }
                         customerConstruct.put(field, value);
                     } catch (Exception e) {
-                        Log.d(TAG, "Failed to parse " + customerConstructFields[i]);
+                        Log.d(myTAG, "Failed to parse " + customerConstructFields[i]);
                         e.printStackTrace();
                     }
                 }
@@ -484,6 +607,31 @@ public class Parsing {
                                     customerAddress.setField(addrField, value);
                                 }
                                 customer.setField(field, customerAddress);
+                            } else if ( field.equals("providers") ) {
+                                JSONObject myProviders = fieldJson.getJSONObject("value");
+                                Iterator<String> providersIds = myProviders.keys();
+
+                                while ( providersIds.hasNext() ) {
+                                    String providerid = providersIds.next();
+                                    boolean isActve = myProviders.getBoolean(providerid);
+                                    String url = venyaUrl +
+                                            "/getProvider?" +
+                                            "action=getproviderdetails" +
+                                            "&id=" + providerid;
+                                    Provider providerDetails = Parsing.getProviderDetails(appContext,url);
+
+                                    if ( providerDetails == null ) {
+                                        Log.e(myTAG,"NULL response to getProvider " + providerid);
+                                    } else {
+                                        providerDetails.setActive(isActve);
+                                        for (int k = 0; k < providerFields.length; k++) {
+                                            String provField = providerFields[k];
+                                            Object value = providerDetails.getField(provField);
+                                            providerDetails.setField(provField,value);
+                                        }
+                                    }
+                                    customer.addProvider(providerDetails);
+                                }
                             } else {
                                 String[] booleanFields = appContext.getResources().getStringArray(R.array.booleanFields);
                                 if (Arrays.asList(booleanFields).contains(field)) {
@@ -498,14 +646,14 @@ public class Parsing {
                             }
                         }
                     } catch (Exception e) {
-                        Log.d(TAG, "Unable to parse field " + customerFields[i]);
+                        Log.d(myTAG, "Unable to parse field " + customerFields[i]);
                         e.printStackTrace();
                     }
                 }
                 parsedResponse.put("customer",customer);
             }
         } catch (final JSONException e) {
-            Log.e(TAG,"Json parsing error" + e.getMessage());
+            Log.e(myTAG,"Json parsing error" + e.getMessage());
             e.printStackTrace();
         }
 
@@ -642,7 +790,13 @@ public class Parsing {
     }
 
     public static void displayTextView(Context context, TextView errorsView, String errormessage) {
-        String displayTextView = Parsing.formatMessage(new String [] {context.getResources().getString(Parsing.getResId(context, errormessage))});
+        String displayTextView;
+        try {
+            displayTextView = Parsing.formatMessage(new String[]{context.getResources().getString(Parsing.getResId(context, errormessage))});
+        }catch (Exception e) {
+            Log.e(TAG + ".displayTextView","Coudl not find id for errormessge \"" + errormessage + "\"");
+            displayTextView = errormessage;
+        }
         errorsView.setText(displayTextView);
     }
 
@@ -682,5 +836,56 @@ public class Parsing {
         }
         String setFormHint = Parsing.formatMessage(errormessage);
         errorsView.setHint(setFormHint);
+    }
+
+    public static boolean unsubscribeProvider(Context appContext, String providerid, String sessionid) {
+        String myTAG = TAG + ".unsubscribeProvider";
+        MyHttpHandler handler = new MyHttpHandler(appContext);
+        String response;
+
+        String url = venyaUrl +
+                "/updateSetting?" +
+                "action=update" +
+                "&type=customer" +
+                "&sessionid=" + sessionid +
+                "&field=providers" +
+                "&newvalue=" + providerid + "=" + false;
+
+        try {
+            response = handler.execute(url).get();
+        } catch (Exception e) {
+            Log.e(myTAG,"Exception while running HTTP Async request");
+            e.printStackTrace();
+            return false;
+        }
+
+        HashMap<String,Object> parsedResponse = new HashMap<String,Object>();
+        try {
+            JSONObject jsonObject = new JSONObject(response);
+
+            for (int i = 0; i < statusFields.length; i++) {
+                try {
+                    String field = statusFields[i];
+                    String value = jsonObject.getString(field);
+                    parsedResponse.put(field, value);
+                } catch (Exception e) {
+                    Log.d(myTAG, "Unable to parse field " + statusFields[i]);
+                    //return false;
+                }
+            }
+            String status = (String)parsedResponse.get("status");
+            if ( ! status.equals(appContext.getResources().getString(R.string.success_status)) ) {
+                String errormessage = (String)parsedResponse.get("errormessage");
+                Log.e(myTAG,"Provider unsubscription error: " + appContext.getResources().getString(Parsing.getResId(appContext,"errors_" + errormessage)));
+                return false;
+            } else {
+                Log.d(myTAG,"Successful unsubscription");
+                return true;
+            }
+        } catch (Exception e) {
+            Log.e(myTAG,"Failed to parse HTTP server response");
+            e.printStackTrace();
+            return false;
+        }
     }
 }

@@ -3,8 +3,8 @@
     <!-- <string name="venya_node_server">venya.es</string> -->
 
     <!-- APPLICATION CONSTANTS -->
-    <!-- <string name="venya_node_server">192.168.99.100</string>-->
-    <string name="venya_node_server">venya.es</string>
+    <string name="venya_node_server">192.168.99.100</string>
+    <!-- <string name="venya_node_server">venya.es</string> -->
     <string name="venya_node_port">8888</string>
 
     <string name="default_username">changeme</string>
@@ -57,6 +57,7 @@
         <item>notifications</item>
         <item>location</item>
         <item>sessionid</item>
+        <item>providers</item>
     </string-array>
     <string-array name="customerCunstructFields">
         <item>id</item>
@@ -87,6 +88,7 @@
         <item>address</item>
         <item>firstname</item>
         <item>surname</item>
+        <item>name</item>
     </string-array>
     <string-array name="privateFields">
         <item>id</item>
@@ -104,6 +106,13 @@
         <item>customer</item>
         <item>provider</item>
     </string-array>
+    <string-array name="providerFields">
+        <item>id</item>
+        <item>name</item>
+        <item>email</item>
+        <item>address</item>
+        <item>phone</item>
+    </string-array>
     <string-array name="languages">
         <item>esp</item>
         <item>eng</item>
@@ -113,6 +122,7 @@
         <item>home</item>
         <item>apointments</item>
         <item>notifications</item>
+        <item>providers</item>
         <item>settings</item>
         <item>logout</item>
     </string-array>
@@ -120,6 +130,7 @@
         <item>home</item>
         <item>apointments</item>
         <item>notifications</item>
+        <item>providers</item>
         <item>settings</item>
         <item>logout</item>
         <item>changeaddress</item>
@@ -127,6 +138,7 @@
         <item>changeusername</item>
         <item>changepassword</item>
         <item>changelanguage</item>
+        <item>changephone</item>
     </string-array>
     <string-array name="signinOptions">
         <item>signin</item>
@@ -190,6 +202,7 @@
     <string name="menu_home">@string/app_name</string>
     <string name="menu_appointments">appointments</string>
     <string name="menu_notifications">notifications</string>
+    <string name="menu_providers">my providers</string>
     <string name="menu_settings">settings</string>
     <string name="menu_logout">logout</string>
     <string name="menu_changeaddress">Update address</string>
@@ -197,6 +210,7 @@
     <string name="menu_changeusername">Update username</string>
     <string name="menu_changepassword">Update password</string>
     <string name="menu_changelanguage">Select a language</string>
+    <string name="menu_changephone">Update phone</string>
     <string name="header_register">Create your account</string>
     <string name="header_lostid">Recover your registration ID</string>
     <string name="header_lostpassword">Get your password</string>
@@ -238,6 +252,7 @@
     <string name="customer_times">preferred times</string>
     <string name="customer_language">language</string>
     <string name="customer_notifications">notifications</string>
+    <string name="customer_providers">my providers</string>
     <string name="customer_location">location</string>
     <string name="customer_oldpassword">old password</string>
     <string name="customer_oldusername">old username</string>
@@ -315,6 +330,8 @@
     <string name="errors_badrequest">the request is not supported</string>
     <string name="errors_nullfromserver">null response from server</string>
     <string name="errors_httptimeout">the server is not responding. Please try again later</string>
+    <string name="errors_unknownprovider">the provider does not exist</string>
+    <string name="errors_noprovider">your are not registered with any provider</string>
     <string name="email_credentialssent">Credentials sent to</string>
     <string name="email_emailfailed">failed to send email to</string>
     <string name="errors_httpexception">Exception raised attempting to handle HTTP request</string>
@@ -328,5 +345,7 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="form_details">details</string>
+    <string name="deactivate">unregister</string>
 
 </resources>

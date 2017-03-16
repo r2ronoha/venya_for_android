@@ -2,6 +2,7 @@ package dev.nohasmith.venya_android_app;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import android.content.Context;
 import android.os.Parcel;
@@ -32,6 +33,7 @@ public class FullCustomerSettings implements Parcelable{
     private CustomerField language;
     private CustomerField notifications;
     private CustomerField location;
+    private CustomerField providers;
 
     private String [] customerFields;
     private String [] booleanFields;
@@ -58,23 +60,7 @@ public class FullCustomerSettings implements Parcelable{
         this.times = new CustomerField("String","N/A",0);
         this.notifications = new CustomerField("boolean",true,0);
         this.location = new CustomerField("boolean",true,0);
-
-        /*
-        this.id = new CustomerField("id","String","0a0a0a0a0a0a0a0a0a0a0a0a",1);
-        this.sessionid = new CustomerField("sessionid","String","closed",0);
-        this.firstname = new CustomerField("firstname","String","N/A",1);
-        this.surname = new CustomerField("surname","String","N/A",1);
-
-        this.email = new CustomerField("email","String",appContext.getResources().getString(R.string.default_email),0);
-        this.language = new CustomerField("language","String",appContext.getResources().getString(R.string.default_lang),0);
-        this.username = new CustomerField("username","String",appContext.getResources().getString(R.string.default_username),0);
-        this.password = new CustomerField("password","String",appContext.getResources().getString(R.string.default_password),0);
-        this.address = new CustomerField("address","Address",new Address(),0);
-        this.phone = new CustomerField("phone","String","N/A",0);
-        this.times = new CustomerField("times","String","N/A",0);
-        this.notifications = new CustomerField("notifications","boolean",true,0);
-        this.location = new CustomerField("location","boolean",true,0);
-        */
+		this.providers = new CustomerField("providers",new HashMap<String,Provider>(),1);
     }
 
     public FullCustomerSettings(Context appContext, String id, String firstname, String surname, String dob) {
@@ -98,6 +84,7 @@ public class FullCustomerSettings implements Parcelable{
         times = new CustomerField("String","N/A",0);
         notifications = new CustomerField("boolean",true,0);
         location = new CustomerField("boolean",true,0);
+		providers = new CustomerField("providers",new HashMap<String,Provider>(),1);
     }
 
     public void setField(String field, Object value) {
@@ -132,6 +119,9 @@ public class FullCustomerSettings implements Parcelable{
             case "times":
                 this.times.setValue(value);
                 break;
+			case "providers":
+				this.providers.setValue(value);
+				break;
         }
     }
 
@@ -167,6 +157,8 @@ public class FullCustomerSettings implements Parcelable{
                 return this.location;
             case "times":
                 return this.times;
+			case "providers":
+				return this.providers;
             default:
                 return null;
         }
@@ -221,6 +213,9 @@ public class FullCustomerSettings implements Parcelable{
             case "times":
                 customerField = this.times;
                 break;
+			case "providers":
+				customerField = this.providers;
+				break;
             default:
                 return null;
         }
@@ -257,6 +252,7 @@ public class FullCustomerSettings implements Parcelable{
         this.times = (CustomerField)in.readSerializable();
         this.notifications = (CustomerField)in.readSerializable();
         this.location = (CustomerField)in.readSerializable();
+		this.providers = (CustomerField)in.readSerializable();
     }
 
     @Override
@@ -281,6 +277,7 @@ public class FullCustomerSettings implements Parcelable{
         dest.writeSerializable(times);
         dest.writeSerializable(notifications);
         dest.writeSerializable(location);
+		dest.writeSerializable(providers);
     }
 
     public static final Parcelable.Creator<FullCustomerSettings> CREATOR = new Creator<FullCustomerSettings>() {
@@ -331,6 +328,10 @@ public class FullCustomerSettings implements Parcelable{
 
     public void setNotifications (CustomerField notifications) {
         this.notifications = notifications;
+    }
+
+    public void setProviders (CustomerField providers) {
+        this.providers = providers;
     }
 
     public void setLocation(CustomerField location) {
@@ -399,11 +400,20 @@ public class FullCustomerSettings implements Parcelable{
         return this.location;
     }
 
+    public CustomerField getProviders () {
+        return this.providers;
+    }
+
     public boolean verifySessionId (String sessionid) {
         if ( this.sessionid.getValue().equals(sessionid) ) {
             return true;
         } else {
             return false;
         }
+    }
+
+    public void addProvider(Provider providerDetails) {
+        HashMap<String,Provider> providersList = (HashMap<String, Provider>) this.providers.getValue();
+        providersList.put(providerDetails.getId(),providerDetails);
     }
 }

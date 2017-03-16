@@ -6,6 +6,12 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:popupWindowStyle">@style/VenyaPopUpMenu</item>
+    </style>
+    <!-- Base application theme. -->
+    <style name="VenyaPopUpMenu" parent="Widget.AppCompat.Light.PopupMenu">
+        <!-- Customize your theme here. -->
+        <item name="android:background">@color/venya_menu</item>
     </style>
 
 </resources>

@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/venya_background">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/venya_toolbar"
@@ -23,7 +24,8 @@
         android:id="@+id/menuLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/venya_toolbar">
+        android:layout_below="@id/venya_toolbar"
+        android:background="@color/venya_background">
 
         <ScrollView
             android:layout_width="match_parent"
@@ -32,7 +34,7 @@
             <FrameLayout
                 android:id="@+id/content_frame"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"></FrameLayout>
+                android:layout_height="match_parent"></FrameLayout>
         </ScrollView>
 
         <ListView
@@ -43,7 +45,7 @@
             android:choiceMode="singleChoice"
             android:divider="@color/colorAccent"
             android:dividerHeight="0dp"
-            android:background="#ffffff"></ListView>
+            android:background="@color/venya_menu"></ListView>
 
     </android.support.v4.widget.DrawerLayout>
 <!--
