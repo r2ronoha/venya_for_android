@@ -70,6 +70,9 @@ public class CustomerProvidersFragment extends Fragment{
         errorsView = (TextView)view.findViewById(R.id.errorsView);
         errorsView.setText("");
 
+        TextView title = (TextView)view.findViewById(R.id.providersTitle);
+        Parsing.displayTextView(appContext,title,R.string.menu_providers);
+
         HashMap<String,Provider> customerProviders = (HashMap<String, Provider>) customer.getProviders().getValue();
         int activeProvidersCount = 0;
         for ( String providerid : customerProviders.keySet() ){

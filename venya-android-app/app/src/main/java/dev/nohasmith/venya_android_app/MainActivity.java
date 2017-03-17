@@ -61,6 +61,7 @@ class MainActivity extends AppCompatActivity implements
     public static String [] menuOptionsTags;
     public static String [] supportedLanguages;
     public static String [] providerFields;
+    public static String [] appointmentFields;
     public static HashMap<String,String> languages_from_locale;
     public static HashMap<String,String> locale_from_language;
 
@@ -94,6 +95,7 @@ class MainActivity extends AppCompatActivity implements
         menuOptionsTags = getResources().getStringArray(R.array.menuOptionsTags);
         supportedLanguages = getResources().getStringArray(R.array.languages);
         providerFields = getResources().getStringArray(R.array.providerFields);
+        appointmentFields = getResources().getStringArray(R.array.appointmentFields);
 
         languages_from_locale = new HashMap<String,String>();
         languages_from_locale.put("es","esp");

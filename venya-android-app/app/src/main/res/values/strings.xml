@@ -113,6 +113,14 @@
         <item>address</item>
         <item>phone</item>
     </string-array>
+    <string-array name="appointmentFields">
+        <item>id</item>
+        <item>customerid</item>
+        <item>providerid</item>
+        <item>date</item>
+        <item>status</item>
+        <item>delay</item>
+    </string-array>
     <string-array name="languages">
         <item>esp</item>
         <item>eng</item>
@@ -128,7 +136,7 @@
     </string-array>
     <string-array name="menuOptionsTags">
         <item>home</item>
-        <item>apointments</item>
+        <item>appointments</item>
         <item>notifications</item>
         <item>providers</item>
         <item>settings</item>
@@ -139,6 +147,7 @@
         <item>changepassword</item>
         <item>changelanguage</item>
         <item>changephone</item>
+        <item>appointmentdetails</item>
     </string-array>
     <string-array name="signinOptions">
         <item>signin</item>
@@ -211,6 +220,7 @@
     <string name="menu_changepassword">Update password</string>
     <string name="menu_changelanguage">Select a language</string>
     <string name="menu_changephone">Update phone</string>
+    <string name="menu_appointmentdetails">Appointment details</string>
     <string name="header_register">Create your account</string>
     <string name="header_lostid">Recover your registration ID</string>
     <string name="header_lostpassword">Get your password</string>
@@ -342,13 +352,19 @@
     <string name="errors_unknwon">unknown error</string>
     <string name="menu_language">lang</string>
     <string name="signin_connecting">Connecting...</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="form_details">details</string>
     <string name="deactivate">unregister</string>
     <string name="form_confirm_delete_provider">Are you sure you want to unsubscribe? You\'ll need to contact your provider to come back</string>
     <string name="errors_failedupdate">Update failure</string>
     <string name="errors_notsubscribed">you are not subscriber to any provider\'s service</string>
+    <string name="menu_date">date</string>
+    <string name="menu_time">time</string>
+    <string name="appointment_provider">provider</string>
+    <string name="appointment_date">date</string>
+    <string name="appointment_time">time</string>
+    <string name="appointment_delay">delay</string>
+    <string name="appointment_status">status</string>
+    <string name="appointment_display">view</string>
+    <string name="header_appointmentdetails">appointment details</string>
 
 </resources>

@@ -29,6 +29,7 @@ import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
@@ -36,6 +37,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static dev.nohasmith.venya_android_app.MainActivity.addressFields;
+import static dev.nohasmith.venya_android_app.MainActivity.appointmentFields;
 import static dev.nohasmith.venya_android_app.MainActivity.customerConstructFields;
 import static dev.nohasmith.venya_android_app.MainActivity.customerFields;
 import static dev.nohasmith.venya_android_app.MainActivity.providerFields;
@@ -209,10 +211,15 @@ public class Parsing {
         return response;
     }
 
-    public static Provider getProviderDetails (Context context, String url) {
+    public static Provider getProviderDetails (Context context, String providerid) {
         String myTAG = TAG + ".getProviderDetails";
         MyHttpHandler httpHandler = new MyHttpHandler(context);
         String response = null;
+
+        String url = venyaUrl +
+                "/getProvider?" +
+                "action=getproviderdetails" +
+                "&id=" + providerid;
 
         try {
             response = httpHandler.execute(url).get();
@@ -484,11 +491,7 @@ public class Parsing {
                                 while ( providersIds.hasNext() ) {
                                     String providerid = providersIds.next();
                                     boolean isActve = myProviders.getBoolean(providerid);
-                                    String url = venyaUrl +
-                                            "/getProvider?" +
-                                            "action=getproviderdetails" +
-                                            "&id=" + providerid;
-                                    Provider providerDetails = Parsing.getProviderDetails(appContext,url);
+                                    Provider providerDetails = Parsing.getProviderDetails(appContext,providerid);
 
                                     if ( providerDetails == null ) {
                                         Log.e(myTAG,"NULL response to getProvider " + providerid);
@@ -614,11 +617,11 @@ public class Parsing {
                                 while ( providersIds.hasNext() ) {
                                     String providerid = providersIds.next();
                                     boolean isActve = myProviders.getBoolean(providerid);
-                                    String url = venyaUrl +
+                                    /*String url = venyaUrl +
                                             "/getProvider?" +
                                             "action=getproviderdetails" +
-                                            "&id=" + providerid;
-                                    Provider providerDetails = Parsing.getProviderDetails(appContext,url);
+                                            "&id=" + providerid;*/
+                                    Provider providerDetails = Parsing.getProviderDetails(appContext,providerid);
 
                                     if ( providerDetails == null ) {
                                         Log.e(myTAG,"NULL response to getProvider " + providerid);
@@ -887,5 +890,159 @@ public class Parsing {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public HashMap<String,Object> insertAppointment(Context context, Appointment appointment) {
+        String myTAG = TAG + ".insertAppointment";
+        String customerid = appointment.getCustomerid();
+        String providerid = appointment.getProviderid();
+        long date = appointment.getDate();
+        HashMap<String,Object> insertResponse = new HashMap<String,Object>();
+        JSONObject JSONresp;
+
+        String url = venyaUrl +
+                "/insertAppointment" +
+                "?action=insertappointment" +
+                "&customerid=" + customerid +
+                "&providerid=" + providerid +
+                "&date=" + date;
+
+        MyHttpHandler httpHandler = new MyHttpHandler(context);
+        String response = null;
+        try {
+            response = httpHandler.execute(url).get();
+        } catch (Exception e) {
+            Log.e(myTAG,"Exception while performing HTTP Async task");
+        }
+
+        if ( response == null ) {
+            Log.e(myTAG,"NULL response from server");
+        } else {
+            try {
+                JSONresp = new JSONObject(response);
+            } catch (Exception e) {
+                Log.e(myTAG,"FAiled to parse response from server");
+                return null;
+            }
+            HashMap<String,String> status = new HashMap<String,String>();
+
+            for ( int i=0; i<statusFields.length; i++ ) {
+                String field = statusFields[i];
+                try {
+                    status.put(field,JSONresp.getString(field));
+                } catch (Exception e) {
+                    Log.e(myTAG,"Failed to parse field " + field);
+                }
+            }
+
+            if ( ! ((String)status.get("status")).equals(context.getResources().getString(R.string.success_status)) ) {
+                insertResponse.put("status",status.get("status"));
+                try {
+                    insertResponse.put("errormessage",status.get("errormessage"));
+                } catch (Exception e) {
+                    Log.e(myTAG,"Failed to get errormessage of unsuccessful insertion");
+                }
+            } else {
+                String appointmentid = null;
+                try {
+                    appointmentid = JSONresp.getString("id");
+                } catch (Exception e) {
+                    Log.e(myTAG,"Failed to get appointment id from successful insetion response");
+                }
+                insertResponse.put("appointmentid",appointmentid);
+            }
+        }
+
+        return insertResponse;
+    }
+
+    public static HashMap<String,Object> getCustomerAppointments(Context context,String customerid) {
+        String myTAG = TAG + ".getCustomerAppointments";
+        HashMap<String,Object> appointmentsList = new HashMap<String, Object>();
+
+        MyHttpHandler httpHandler = new MyHttpHandler(context);
+        String response = null;
+        JSONObject JSONresp;
+
+        String url = venyaUrl +
+                "/getCustomerAppointments" +
+                "?action=getcustomerappointments" +
+                "&customerid=" + customerid;
+
+        try {
+            response = httpHandler.execute(url).get();
+        } catch (Exception e) {
+            Log.e(myTAG,"Exception while performing HTTP Async task");
+        }
+
+        if ( response == null ) {
+            Log.e(myTAG,"NULL response from server");
+        } else {
+            try {
+                JSONresp = new JSONObject(response);
+            } catch (Exception e) {
+                Log.e(myTAG,"FAiled to parse response from server");
+                return null;
+            }
+            HashMap<String,String> status = new HashMap<String,String>();
+
+            for ( int i=0; i<statusFields.length; i++ ) {
+                String field = statusFields[i];
+                try {
+                    status.put(field,JSONresp.getString(field));
+                } catch (Exception e) {
+                    Log.e(myTAG,"Failed to parse field " + field);
+                }
+            }
+
+            if ( ! ((String)status.get("status")).equals(context.getResources().getString(R.string.success_status)) ) {
+                appointmentsList.put("status",status.get("status"));
+                try {
+                    appointmentsList.put("errormessage",status.get("errormessage"));
+                } catch (Exception e) {
+                    Log.e(myTAG,"Failed to get errormessage of unsuccessful insertion");
+                }
+            } else {
+                try {
+                    JSONObject appList = JSONresp.getJSONObject("appointments");
+                    Iterator<String> appListKeys = appList.keys();
+                    while ( appListKeys.hasNext() ) {
+                        String appId = appListKeys.next();
+                        Appointment appointment = new Appointment();
+                        try {
+                            JSONObject myApp = appList.getJSONObject(appId);
+                            for ( int j=0; j<appointmentFields.length; j++ ) {
+                                String appField = appointmentFields[j];
+                                String respField = ( appField.equals("id")) ? "_id" : appField;
+                                try {
+                                    switch (appField) {
+                                        case "date":
+                                            long date = new Long((String)myApp.get(respField));
+                                            appointment.setDate(date);
+                                            break;
+                                        case "delay":
+                                            long delay = new Long((int)myApp.get(respField));
+                                            appointment.setDelay(delay);
+                                            break;
+                                        default:
+                                            appointment.setField(appField,myApp.get(respField));
+                                    }
+                                } catch (Exception fx) {
+                                    Log.e(myTAG,"Failed to add field \"" + appField + "\" to appointment class");
+                                    fx.printStackTrace();
+                                }
+                            }
+                            appointmentsList.put(appId,appointment);
+                        } catch (Exception ex) {
+                            Log.e(myTAG,"failed to get details of appointment id " + appId);
+                        }
+                    }
+                } catch (Exception e) {
+                    Log.e(myTAG,"Failed to get appointments list from response");
+                }
+            }
+        }
+
+        return appointmentsList;
     }
 }

@@ -34,6 +34,7 @@ public class FullCustomerSettings implements Parcelable{
     private CustomerField notifications;
     private CustomerField location;
     private CustomerField providers;
+    private CustomerField appointments;
 
     private String [] customerFields;
     private String [] booleanFields;
@@ -61,6 +62,7 @@ public class FullCustomerSettings implements Parcelable{
         this.notifications = new CustomerField("boolean",true,0);
         this.location = new CustomerField("boolean",true,0);
 		this.providers = new CustomerField("providers",new HashMap<String,Provider>(),1);
+        this.appointments = new CustomerField("appointments",new HashMap<String,Appointment>(),1);
     }
 
     public FullCustomerSettings(Context appContext, String id, String firstname, String surname, String dob) {
@@ -85,6 +87,7 @@ public class FullCustomerSettings implements Parcelable{
         notifications = new CustomerField("boolean",true,0);
         location = new CustomerField("boolean",true,0);
 		providers = new CustomerField("providers",new HashMap<String,Provider>(),1);
+        this.appointments = new CustomerField("appointments",new HashMap<String,Appointment>(),1);
     }
 
     public void setField(String field, Object value) {
@@ -122,6 +125,9 @@ public class FullCustomerSettings implements Parcelable{
 			case "providers":
 				this.providers.setValue(value);
 				break;
+            case "appointments":
+                this.appointments.setValue(value);
+                break;
         }
     }
 
@@ -159,6 +165,8 @@ public class FullCustomerSettings implements Parcelable{
                 return this.times;
 			case "providers":
 				return this.providers;
+            case "appointments":
+                return this.appointments;
             default:
                 return null;
         }
@@ -216,6 +224,9 @@ public class FullCustomerSettings implements Parcelable{
 			case "providers":
 				customerField = this.providers;
 				break;
+            case "appointments":
+                customerField = this.appointments;
+                break;
             default:
                 return null;
         }
@@ -253,6 +264,7 @@ public class FullCustomerSettings implements Parcelable{
         this.notifications = (CustomerField)in.readSerializable();
         this.location = (CustomerField)in.readSerializable();
 		this.providers = (CustomerField)in.readSerializable();
+        this.appointments = (CustomerField)in.readSerializable();
     }
 
     @Override
@@ -278,6 +290,7 @@ public class FullCustomerSettings implements Parcelable{
         dest.writeSerializable(notifications);
         dest.writeSerializable(location);
 		dest.writeSerializable(providers);
+        dest.writeSerializable(appointments);
     }
 
     public static final Parcelable.Creator<FullCustomerSettings> CREATOR = new Creator<FullCustomerSettings>() {
@@ -332,6 +345,10 @@ public class FullCustomerSettings implements Parcelable{
 
     public void setProviders (CustomerField providers) {
         this.providers = providers;
+    }
+
+    public void setAppointments(CustomerField appointments) {
+        this.appointments = appointments;
     }
 
     public void setLocation(CustomerField location) {
@@ -404,6 +421,10 @@ public class FullCustomerSettings implements Parcelable{
         return this.providers;
     }
 
+    public CustomerField getAppointments() {
+        return appointments;
+    }
+
     public boolean verifySessionId (String sessionid) {
         if ( this.sessionid.getValue().equals(sessionid) ) {
             return true;
@@ -419,6 +440,20 @@ public class FullCustomerSettings implements Parcelable{
 
     public void removeProvider(String providerid) {
         HashMap<String,Provider> providersList = (HashMap<String, Provider>) this.providers.getValue();
-        providersList.remove(providerid);
+        Provider provider = providersList.get(providerid);
+        provider.setActive(false);
+        providersList.put(providerid,provider);
+    }
+
+    public void addAppointment(Appointment appointment) {
+        HashMap<String,Appointment> appointmentsList = (HashMap<String,Appointment>) this.appointments.getValue();
+        appointmentsList.put(appointment.getId(),appointment);
+    }
+
+    public void updateAppointment(String appointmentid, String field, Object value) {
+        HashMap<String,Appointment> apppointmentsList = (HashMap<String, Appointment>) this.appointments.getValue();
+        Appointment appointment = apppointmentsList.get(appointmentid);
+        appointment.setField(field,value);
+        apppointmentsList.put(appointmentid,appointment);
     }
 }

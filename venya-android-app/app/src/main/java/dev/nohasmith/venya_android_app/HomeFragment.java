@@ -112,11 +112,7 @@ public class HomeFragment extends Fragment {
 
                         for ( String providerid : providers.keySet() ) {
                             if ( providers.get(providerid).isActive() ){
-                                String url = venyaUrl +
-                                        "/getProvider?" +
-                                        "action=getproviderdetails" +
-                                        "&id=" + providerid;
-                                Provider providerDetails = Parsing.getProviderDetails(getContext(),url);
+                                Provider providerDetails = Parsing.getProviderDetails(getContext(),providerid);
 
                                 TableRow provRow = new TableRow(getContext());
                                 TextView provView = new TextView(getContext());

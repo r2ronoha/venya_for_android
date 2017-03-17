@@ -268,6 +268,14 @@ public class SigninFragment extends Fragment {
                                 } else {
                                     //update customer with session id generated
                                     customer.setField("sessionid",sessionid);
+
+                                    // get appointments for the customer
+                                    HashMap<String,Object> appList = Parsing.getCustomerAppointments(appContext,(String)customer.getId().getValue());
+                                    for ( String appId : appList.keySet() ) {
+                                        Log.d("Signing.getCustomerAppointments","processing appointment id " + appId);
+                                        Appointment appointment = (Appointment)appList.get(appId);
+                                        customer.addAppointment(appointment);
+                                    }
                                     listener.signinClicked(sessionid,customer);
                                 }
                             }

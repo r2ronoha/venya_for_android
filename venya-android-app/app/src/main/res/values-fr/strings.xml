@@ -26,6 +26,7 @@
     <string name="menu_changepassword">Changez votre mot de passe</string>
     <string name="menu_changelanguage">Choisissez votre langue</string>
     <string name="menu_changephone">Actualisez votre téléphone</string>
+    <string name="menu_appointmentdetails">Détails du rdv</string>
     <string name="header_register">Inscrivez vous</string>
     <string name="header_lostid">Rétrouvez votre ID d\'imscription</string>
     <string name="header_lostpassword">Récupérez votre mot de pas</string>
@@ -163,4 +164,13 @@
     <string name="form_confirm_delete_provider">Etes-vous sure de voulois vour desinscrire? Vous devrez recontacter ce spécialiste ppur le réactver</string>
     <string name="errors_failedupdate">Echec de mis à jour</string>
     <string name="errors_notsubscribed">vous n\'êtes inscrit avec aucun spécialiste</string>
+    <string name="menu_date">date</string>
+    <string name="menu_time">heure</string>
+    <string name="appointment_provider">spécialiste</string>
+    <string name="appointment_date">date</string>
+    <string name="appointment_time">heure</string>
+    <string name="appointment_delay">retard</string>
+    <string name="appointment_status">statut</string>
+    <string name="appointment_display">ouvrir</string>
+    <string name="header_appointmentdetails">détails du rdv</string>
 </resources>

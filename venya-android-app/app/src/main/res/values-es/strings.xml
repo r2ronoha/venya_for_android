@@ -26,6 +26,7 @@
     <string name="menu_changepassword">Cambia tu contraseña</string>
     <string name="menu_changelanguage">Elige tu idioma</string>
     <string name="menu_changephone">Actualiza tu teléfono</string>
+    <string name="menu_appointmentdetails">Detalles de la cita</string>
     <string name="header_register">Registrate</string>
     <string name="header_lostid">Recupera tu identificador</string>
     <string name="header_lostpassword">Recupera tu contraseña</string>
@@ -165,4 +166,13 @@
     <string name="form_confirm_delete_provider">¿Estás seguro que quieres borrarte del servicio? NEcesitarás contactar a tu proveedor para reactivarlo.</string>
     <string name="errors_failedupdate">Error durante actualización</string>
     <string name="errors_notsubscribed">no estás suscrito con ningún proveedor</string>
+    <string name="menu_date">fecha</string>
+    <string name="menu_time">hora</string>
+    <string name="appointment_provider">proveedor</string>
+    <string name="appointment_date">fecha</string>
+    <string name="appointment_time">hora</string>
+    <string name="appointment_delay">retraso</string>
+    <string name="appointment_status">estado</string>
+    <string name="appointment_display">ver</string>
+    <string name="header_appointmentdetails">Detalles de la cita</string>
 </resources>

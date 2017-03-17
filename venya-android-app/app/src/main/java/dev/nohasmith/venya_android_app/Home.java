@@ -58,7 +58,10 @@ public class Home extends AppCompatActivity implements
         ChangePhoneFragment.UpdatePhoneListener,
         ChangePhoneFragment.CancelListener,
 
-        UnsubscribeConfirmationFragment.ConfirmDialogListener {
+        UnsubscribeConfirmationFragment.ConfirmDialogListener,
+
+        AppointmentsFragment.AppointmentListener,
+        AppointmentsFragment.NewAppointmentListener {
 
     public String SESSION_ID = "closed";
     public FullCustomerSettings customer;
@@ -172,7 +175,12 @@ public class Home extends AppCompatActivity implements
         switch (position) {
             case 1:
                 //appointments
-                toast.makeText(this,getResources().getString(R.string.errors_pagenotavailable).toUpperCase(),Toast.LENGTH_LONG).show();
+                toast.makeText(this,getResources().getString(R.string.menu_appointments).toUpperCase(),Toast.LENGTH_SHORT).show();
+                fragment = new AppointmentsFragment();
+                Bundle args = fragment.getArguments();
+                if ( args == null ) { args = new Bundle(); }
+                args.putParcelable("customer",customer);
+                fragment.setArguments(args);
                 break;
             case 2:
                 // notifications
@@ -222,6 +230,17 @@ public class Home extends AppCompatActivity implements
                 toast.makeText(this,getResources().getString(R.string.menu_changephone).toUpperCase(),Toast.LENGTH_SHORT).show();
                 fragment = new ChangePhoneFragment(customer);
                 break;
+            case 12:
+                // see appointment details
+                toast.makeText(this,getResources().getString(R.string.menu_changephone).toUpperCase(),Toast.LENGTH_SHORT).show();
+                fragment = new AppointmentDetailsFragment();
+                /*Bundle args = fragment.getArguments();
+                if ( args == null ) { args = new Bundle(); }
+                args.putParcelable("customer",customer);
+                //args.putSerializable("appointment,");
+                fragment.setArguments(args);
+                */
+                break;
             default:
                 // home
                 toast.makeText(this,getResources().getString(R.string.home_welcome),Toast.LENGTH_SHORT).show();
@@ -250,6 +269,20 @@ public class Home extends AppCompatActivity implements
     }
 
     public void goToFragment(Fragment fragment, int position) {
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.replace(R.id.content_frame, fragment, "visible_fragment");
+        ft.addToBackStack(null);
+        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+        ft.commit();
+
+        setActionBarTitle(position);
+
+        menuLayout = (DrawerLayout) findViewById(R.id.menuLayout);
+        menuLayout.closeDrawer(menuList);
+    }
+
+    public void goToFragment(Fragment fragment, Bundle bundle, int position) {
+        fragment.setArguments(bundle);
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.content_frame, fragment, "visible_fragment");
         ft.addToBackStack(null);
@@ -395,6 +428,19 @@ public class Home extends AppCompatActivity implements
 
     public void updateBooleanClicked(FullCustomerSettings customer) {
         goToFragment(new SettingsFragment(SESSION_ID,customer),Parsing.getIndexOf(menuOptionsTags,"settings"));
+    }
+
+    @Override
+    public void appointmentClicked(FullCustomerSettings customer, String appointmentId) {
+        // display all appointment details
+        Bundle args = new Bundle();
+        args.putParcelable("customer",customer);
+        args.putString("appointmentid",appointmentId);
+        goToFragment(new AppointmentDetailsFragment(),args,Parsing.getIndexOf(menuOptionsTags,"appointmentdetails"));
+    }
+
+    public void newAppointmentClicked(FullCustomerSettings customer) {
+        // got to create appointment fragment
     }
 
     // Listener for the cancel button in update settings pages
