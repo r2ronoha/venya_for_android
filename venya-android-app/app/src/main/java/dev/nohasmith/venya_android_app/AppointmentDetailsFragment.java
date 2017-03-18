@@ -3,6 +3,7 @@ package dev.nohasmith.venya_android_app;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -32,20 +33,34 @@ public class AppointmentDetailsFragment extends Fragment {
         // Required empty public constructor
     }
 
+    /*
     interface AppointmentUpdateListener {
         void appointmentUpdateClicked(FullCustomerSettings customer, Appointment appointment);
     }
     AppointmentUpdateListener updateListener;
+    */
+    interface CancelAppointmentListener {
+        void cancelAppointmentClicked(FullCustomerSettings customer);
+    }
+    CancelAppointmentListener cancelListener;
 
     @Override
     public void onAttach(Context context) {
         String myTAG = TAG + ".onAttach";
         super.onAttach(context);
 
+        /*
         if ( context instanceof AppointmentUpdateListener ) {
             updateListener = (AppointmentUpdateListener)context;
         } else {
             Log.e(myTAG,context.toString() + " must implement AppointmentUpdateListener");
+        }
+        */
+
+        if ( context instanceof CancelAppointmentListener ) {
+            cancelListener = (CancelAppointmentListener)context;
+        } else {
+            Log.e(myTAG,context.toString() + " must implement CancelAppointmentListener");
         }
     }
 
@@ -53,18 +68,18 @@ public class AppointmentDetailsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.table_errors_button_fragment, container, false);
+        return inflater.inflate(R.layout.apointment_details_fragment, container, false);
     }
 
     @Override
     public void onStart(){
         super.onStart();
         View view = getView();
-        Context appContext = getContext();
+        final Context appContext = getContext();
 
         String myTAG = TAG +".onStart";
 
-        TextView errorsView = (TextView)view.findViewById(R.id.errorsView);
+        final TextView errorsView = (TextView)view.findViewById(R.id.errorsView);
         errorsView.setText("");
 
         TextView title = (TextView)view.findViewById(R.id.tableFragmentTitle);
@@ -84,13 +99,50 @@ public class AppointmentDetailsFragment extends Fragment {
             HashMap<String,Appointment> appointments = (HashMap<String,Appointment>)customer.getAppointments().getValue();
             appointment = appointments.get(appointmentid);
 
-            Button updateButton = (Button) view.findViewById(R.id.createButtom);
-            updateButton.setText(getResources().getString(R.string.form_submit));
+            final Button updateButton = (Button) view.findViewById(R.id.updateButtom);
+            updateButton.setText(getResources().getString(R.string.form_update));
+            updateButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //updateListener.appointmentUpdateClicked(customer,appointment);
+                    showUpdateTimeDialog(customer,appointment);
+                }
+            });
+
+            final Button cancelButton = (Button) view.findViewById(R.id.cancelButtom);
+            cancelButton.setText(getResources().getString(R.string.form_cancel));
+            cancelButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    appointment.setStatus("cancelled");
+                    HashMap<String,Object> updateResult = Parsing.updateAppointment(appContext,customer,appointment);
+                    String status = (String)updateResult.get("status");
+
+                    if ( ! status.equals(getResources().getString(R.string.success_status)) ) {
+                        String errormessage = (String)updateResult.get("errormessage");
+                        Parsing.displayTextView(appContext,errorsView,"errors_" + errormessage);
+                    } else {
+                        cancelListener.cancelAppointmentClicked(customer);
+                    }
+
+                }
+            });
 
             TableLayout appTable = (TableLayout) view.findViewById(R.id.my_table);
             int rowCount = 0;
 
-            TableRow.LayoutParams layoutParams = new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT);
+            TableRow.LayoutParams rowLayoutParams = new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT);
+
+            TableRow.LayoutParams titleLayoutParams = new TableRow.LayoutParams();
+            titleLayoutParams.width = 0;
+            titleLayoutParams.weight = 1;
+            titleLayoutParams.setMargins(1,1,1,1);
+
+            TableRow.LayoutParams valueLayoutParams = new TableRow.LayoutParams();
+            valueLayoutParams.width = 0;
+            valueLayoutParams.weight = 2;
+            valueLayoutParams.setMargins(1,1,1,1);
+
             TableRow row;
 
             for (int i = 0; i < appointmentFields.length; i++) {
@@ -99,109 +151,100 @@ public class AppointmentDetailsFragment extends Fragment {
                 TextView valueCell;
 
                 if (!field.equals("id") && !field.equals("customerid")) {
-                    //titleCell.setPadding(10,10,10,10);
-                    //valueCell.setPadding(10,10,10,10);
 
                     try {
                         switch (field) {
                             case "providerid":
-                                row = new TableRow(appContext);
-                                row.setLayoutParams(layoutParams);
-                                titleCell = new TextView(appContext);
-                                valueCell = new TextView(appContext);
-                                titleCell.setPadding(10, 10, 10, 10);
-                                valueCell.setPadding(10, 10, 10, 10);
-
                                 HashMap<String, Provider> customerProviders = (HashMap<String, Provider>) customer.getProviders().getValue();
                                 Provider provider = customerProviders.get(appointment.getProviderid());
-                                // create a row for the provider's name
+
+                                //PROVIDER'S NAME RO
+                                row = new TableRow(appContext);
+                                row.setLayoutParams(rowLayoutParams);
+;
                                 String name = provider.getName();
-                                titleCell.setText(Parsing.formatName(getResources().getString(R.string.appointment_provider).toUpperCase()));
+                                titleCell = new TextView(appContext);
+                                Parsing.setCellFormat(appContext,titleCell,titleLayoutParams,Parsing.formatName(getResources().getString(R.string.appointment_provider).toUpperCase()),10,R.color.venya_table_title_cell);
                                 row.addView(titleCell);
 
-                                valueCell.setText(Parsing.formatName(name));
+                                valueCell = new TextView(appContext);
+                                Parsing.setCellFormat(appContext,valueCell,valueLayoutParams,Parsing.formatName(name),10,R.color.venya_table_value_cell);
                                 row.addView(valueCell);
 
                                 appTable.addView(row, 0);
 
-                                // create a row for the provider's address
-                                String address = provider.getAddress().formatAddress();
+                                // PROVIDER'S ADDRESS ROW
                                 row = new TableRow(appContext);
-                                row.setLayoutParams(layoutParams);
+                                row.setLayoutParams(rowLayoutParams);
 
                                 titleCell = new TextView(appContext);
-                                titleCell.setText(Parsing.formatName(getResources().getString(R.string.customer_address).toUpperCase()));
-                                titleCell.setPadding(10, 10, 10, 10);
+                                Parsing.setCellFormat(appContext,titleCell,titleLayoutParams,getResources().getString(R.string.customer_address).toUpperCase(),10,R.color.venya_table_title_cell);
                                 row.addView(titleCell);
 
                                 valueCell = new TextView(appContext);
-                                valueCell.setText(address);
-                                valueCell.setPadding(10, 10, 10, 10);
+                                Parsing.setCellFormat(appContext,valueCell,valueLayoutParams,provider.getAddress().formatAddress(),10,R.color.venya_table_value_cell);
                                 row.addView(valueCell);
 
                                 appTable.addView(row, 1);
                                 break;
 
                             case "date":
+                                // DATE ROW
                                 row = new TableRow(appContext);
-                                row.setLayoutParams(layoutParams);
-                                titleCell = new TextView(appContext);
-                                valueCell = new TextView(appContext);
-                                titleCell.setPadding(10, 10, 10, 10);
-                                valueCell.setPadding(10, 10, 10, 10);
+                                row.setLayoutParams(rowLayoutParams);
 
                                 Log.d(myTAG,"Date : " + appointment.getField("date"));
-                                String date = DateFormat.getDateInstance().format(appointment.getDate());
-                                titleCell.setText(Parsing.formatName(getResources().getString(R.string.appointment_date).toUpperCase()));
+
+                                titleCell = new TextView(appContext);
+                                Parsing.setCellFormat(appContext,titleCell,titleLayoutParams,Parsing.formatName(getResources().getString(R.string.appointment_date).toUpperCase()),10,R.color.venya_table_title_cell);
                                 row.addView(titleCell);
-                                valueCell.setText(date);
+
+                                valueCell = new TextView(appContext);
+                                String date = DateFormat.getDateInstance().format(appointment.getDate());
+                                Parsing.setCellFormat(appContext,valueCell,valueLayoutParams,date,10,R.color.venya_table_value_cell);
                                 row.addView(valueCell);
                                 appTable.addView(row, 2);
 
+                                // TIME ROW
                                 row = new TableRow(appContext);
-                                row.setLayoutParams(layoutParams);
-                                String time = DateFormat.getTimeInstance().format(appointment.getDate());
+                                row.setLayoutParams(rowLayoutParams);
+
                                 titleCell = new TextView(appContext);
-                                titleCell.setText(Parsing.formatName(getResources().getString(R.string.appointment_time)));
-                                titleCell.setPadding(10, 10, 10, 10);
+                                Parsing.setCellFormat(appContext,titleCell,titleLayoutParams,Parsing.formatName(getResources().getString(R.string.appointment_time)),10,R.color.venya_table_title_cell);
                                 row.addView(titleCell);
 
                                 valueCell = new TextView(appContext);
-                                valueCell.setText(time);
-                                valueCell.setPadding(10, 10, 10, 10);
+                                String time = DateFormat.getTimeInstance().format(appointment.getDate());
+                                Parsing.setCellFormat(appContext,valueCell,valueLayoutParams,time,10,R.color.venya_table_value_cell);
                                 row.addView(valueCell);
 
                                 appTable.addView(row, 3);
+                                row.setLayoutParams(rowLayoutParams);
                                 break;
 
                             case "status":
                                 row = new TableRow(appContext);
-                                row.setLayoutParams(layoutParams);
                                 titleCell = new TextView(appContext);
-                                valueCell = new TextView(appContext);
-                                titleCell.setPadding(10, 10, 10, 10);
-                                valueCell.setPadding(10, 10, 10, 10);
-
-                                titleCell.setText(getResources().getString(R.string.appointment_status));
+                                Parsing.setCellFormat(appContext,titleCell,titleLayoutParams,getResources().getString(R.string.appointment_status),10,R.color.venya_table_title_cell);
                                 row.addView(titleCell);
-                                valueCell.setText(appointment.getStatus());
+
+                                valueCell = new TextView(appContext);
+                                Parsing.setCellFormat(appContext,valueCell,valueLayoutParams,appointment.getStatus(),10,R.color.venya_table_value_cell);
                                 row.addView(valueCell);
                                 appTable.addView(row, 4);
                                 break;
 
                             case "delay":
                                 row = new TableRow(appContext);
-                                row.setLayoutParams(layoutParams);
-                                titleCell = new TextView(appContext);
-                                valueCell = new TextView(appContext);
-                                titleCell.setPadding(10, 10, 10, 10);
-                                valueCell.setPadding(10, 10, 10, 10);
+                                row.setLayoutParams(rowLayoutParams);
 
-                                titleCell.setText(getResources().getString(R.string.appointment_delay));
+                                titleCell = new TextView(appContext);
+                                Parsing.setCellFormat(appContext,titleCell,titleLayoutParams,getResources().getString(R.string.appointment_delay),10,R.color.venya_table_title_cell);
                                 row.addView(titleCell);
                                 // convert delay (long milliseconds to minutes string)
+                                valueCell = new TextView(appContext);
                                 long delayMin = (appointment.getDelay() / 1000) / 60;
-                                valueCell.setText(Long.toString(delayMin) + " min");
+                                Parsing.setCellFormat(appContext,valueCell,valueLayoutParams,Long.toString(delayMin) + " min",10,R.color.venya_table_value_cell);
                                 row.addView(valueCell);
 
                                 appTable.addView(row, 5);
@@ -216,6 +259,19 @@ public class AppointmentDetailsFragment extends Fragment {
         } else {
             Parsing.displayTextView(appContext,errorsView,R.string.errors_httpexception);
         }
+    }
+
+    private void showUpdateTimeDialog(FullCustomerSettings customer, Appointment appointment) {
+        //DialogFragment dialog = new UpdateAppointmentTimeDialog();
+        DialogFragment dialog = new UpdateAppointmentDateDialog();
+
+        Bundle args = dialog.getArguments();
+        if ( args == null ) { args = new Bundle(); }
+        args.putParcelable("customer",customer);
+        args.putSerializable("appointment",appointment);
+        dialog.setArguments(args);
+
+        dialog.show(getActivity().getSupportFragmentManager(),"UpdateAppointmentTimeDialog");
     }
 
 }

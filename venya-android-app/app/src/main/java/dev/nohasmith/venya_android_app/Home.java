@@ -22,6 +22,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.util.HashMap;
+
 import static android.app.PendingIntent.getActivity;
 import static dev.nohasmith.venya_android_app.MainActivity.appLanguage;
 import static dev.nohasmith.venya_android_app.MainActivity.locale_from_language;
@@ -58,10 +60,17 @@ public class Home extends AppCompatActivity implements
         ChangePhoneFragment.UpdatePhoneListener,
         ChangePhoneFragment.CancelListener,
 
-        UnsubscribeConfirmationFragment.ConfirmDialogListener,
+        UnsubscribeConfirmationDialog.ConfirmDialogListener,
 
         AppointmentsFragment.AppointmentListener,
-        AppointmentsFragment.NewAppointmentListener {
+        AppointmentsFragment.NewAppointmentListener,
+        //AppointmentDetailsFragment.AppointmentUpdateListener,
+        AppointmentDetailsFragment.CancelAppointmentListener,
+
+        UpdateAppointmentTimeDialog.ConfirmUpdateListener,
+
+        NewAppointmentSelectTimeDialog.NewAppointmentListener{
+    String TAG = this.getClass().getName();
 
     public String SESSION_ID = "closed";
     public FullCustomerSettings customer;
@@ -73,13 +82,15 @@ public class Home extends AppCompatActivity implements
     private int currentPosition = 0;
     ActionBarDrawerToggle menuToggle;
     private DrawerLayout menuLayout;
-    //static Context homeContext;
+    Context appContext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        String myTAG = TAG + ".onCreate";
         super.onCreate(savedInstanceState);
         //Parsing.setLocale(this,"es");
         setContentView(R.layout.home);
+        appContext = getApplicationContext();
 
         hostname = getResources().getString(R.string.venya_node_server);
         port = getResources().getString(R.string.venya_node_port);
@@ -92,7 +103,7 @@ public class Home extends AppCompatActivity implements
             setActionBarTitle(currentPosition);
         } else {
 
-            Log.d("HOME", "Getting Extras");
+            Log.d(myTAG, "Getting Extras");
             SESSION_ID = (String) getIntent().getExtras().get("sessionid");
             customer = (FullCustomerSettings) getIntent().getParcelableExtra("customer");
         }
@@ -117,7 +128,7 @@ public class Home extends AppCompatActivity implements
         menuList.setOnItemClickListener(new MenuItemClickListener());
         menuLayout = (DrawerLayout)findViewById(R.id.menuLayout);
 
-        //homeContext = getApplicationContext();
+        //homeContext = appContext;
         //Activity myActivity = ((AppCompatActivity)getP;
         menuToggle = new ActionBarDrawerToggle((Activity)this, menuLayout, R.string.menu_open, R.string.menu_close) {
             public void onDrawerClosed(View view) {
@@ -135,13 +146,13 @@ public class Home extends AppCompatActivity implements
         if ( SESSION_ID == null || customer == null) {
             Toast toast = new Toast(this);
             String failed = ( customer == null ) ? "customer" : "sessionid";
-            Log.d("HOME","Failed To Parse " + failed);
+            Log.d(myTAG,"Failed To Parse " + failed);
             toast.makeText(this,"Failed To Parse " + failed,Toast.LENGTH_LONG).show();
         } else {
             //TextView errorsView = (TextView)findViewById(R.id.homeErrorsView);
             //errorsView.setText(SESSION_ID);
-            //Log.d("HOME","Home activity started with sessionid = " + SESSION_ID);
-            //Log.d("HOME","customer: " + (String)customer.getFieldElement("firstname","value") + " " + (String)customer.getFieldElement("surname","value"));
+            //Log.d(myTAG,"Home activity started with sessionid = " + SESSION_ID);
+            //Log.d(myTAG,"customer: " + (String)customer.getFieldElement("firstname","value") + " " + (String)customer.getFieldElement("surname","value"));
 
             //set locale to customers profile language
             String lang = (String) customer.getLanguage().getValue();
@@ -241,6 +252,10 @@ public class Home extends AppCompatActivity implements
                 fragment.setArguments(args);
                 */
                 break;
+            case 13:
+                // update appointment fragment
+                toast.makeText(this,getResources().getString(R.string.menu_updateappointment).toUpperCase(),Toast.LENGTH_SHORT);
+                fragment = new UpdateAppointmentTimeDialog();
             default:
                 // home
                 toast.makeText(this,getResources().getString(R.string.home_welcome),Toast.LENGTH_SHORT).show();
@@ -253,15 +268,16 @@ public class Home extends AppCompatActivity implements
     }
 
     public void logout(Context intentContext, FullCustomerSettings customer) {
+        String myTAG = TAG + ".logout";
         Toast toast = new Toast(this);
         toast.makeText(this,getResources().getString(R.string.goodbye).toUpperCase(),Toast.LENGTH_SHORT).show();
-        String newSessionid = Parsing.setSessionId(getApplicationContext(),(String)customer.getFieldElement("id","value"),getResources().getString(R.string.sessionclosed),"customer");
+        String newSessionid = Parsing.setSessionId(appContext,(String)customer.getFieldElement("id","value"),getResources().getString(R.string.sessionclosed),"customer");
         if ( newSessionid.equals(getResources().getString(R.string.sessionclosed)) ) {
-            Log.d("HOME","session closed");
+            Log.d(myTAG,"session closed");
             Intent intent = new Intent(intentContext, MainActivity.class);
             intentContext.startActivity(intent);
         } else {
-            Log.e("HOME.logout","Failed to close session. Sending to logout with error message");
+            Log.e(myTAG,"Failed to close session. Sending to logout with error message");
             Intent intent = new Intent(intentContext, MainActivity.class);
             intent.putExtra("error",getResources().getString(R.string.errors_invalidsessionid));
             intentContext.startActivity(intent);
@@ -283,6 +299,7 @@ public class Home extends AppCompatActivity implements
 
     public void goToFragment(Fragment fragment, Bundle bundle, int position) {
         fragment.setArguments(bundle);
+
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.content_frame, fragment, "visible_fragment");
         ft.addToBackStack(null);
@@ -457,8 +474,8 @@ public class Home extends AppCompatActivity implements
             //update custoemr
             customer.removeProvider(providerid);
         } else {
-            Toast toast = new Toast(getApplicationContext());
-            toast.makeText(getApplicationContext(),getResources().getString(R.string.errors_failedupdate),Toast.LENGTH_SHORT);
+            Toast toast = new Toast(appContext);
+            toast.makeText(appContext,getResources().getString(R.string.errors_failedupdate),Toast.LENGTH_SHORT);
         }
         // call the customer's providers fragment with updated customer
         goToFragment(new CustomerProvidersFragment(sessionid,customer),Parsing.getIndexOf(menuOptionsTags,"providers"));
@@ -466,9 +483,89 @@ public class Home extends AppCompatActivity implements
 
     @Override
     public void onDialogNegativeClick(DialogFragment dialog) {
-        Toast toast = new Toast(getApplicationContext());
-        toast.makeText(getApplicationContext(),getResources().getString(R.string.form_cancel),Toast.LENGTH_SHORT).show();
+        Toast toast = new Toast(appContext);
+        toast.makeText(appContext,getResources().getString(R.string.form_cancel),Toast.LENGTH_SHORT).show();
         goToFragment(new CustomerProvidersFragment(SESSION_ID,customer),Parsing.getIndexOf(menuOptionsTags,"providers"));
+    }
+
+    // Listener to insert the new appointment after provider, date and time have been confirmed
+    @Override
+    public void newAppointmentClicked(FullCustomerSettings customer, Appointment appointment) {
+        HashMap<String,Object> response = Parsing.insertAppointment(appContext,appointment);
+        Fragment fragment = new AppointmentsFragment();
+
+        Bundle args = fragment.getArguments();
+        if ( args == null ) { args = new Bundle(); }
+        args.putParcelable("customer",customer);
+        args.putSerializable("appointment",appointment);
+
+        String status = (String)response.get("status");
+        if ( ! status.equals(getResources().getString(R.string.success_status)) ) {
+            String errormessage = (String)response.get("errormessage");
+            args.putString("errormessage",errormessage);
+        } else {
+            customer.addAppointment(appointment);
+            args.putParcelable("customer",customer);
+        }
+
+        goToFragment(fragment,args,Parsing.getIndexOf(menuOptionsTags,"appointments"));
+    }
+
+    // Listener to go to update appoitment fragment from fragment details fragment
+    /*
+    @Override
+    public void appointmentUpdateClicked(FullCustomerSettings customer, Appointment appointment) {
+        Fragment newFragment = new UpdateAppointmentTimeDialog();
+        Bundle args = newFragment.getArguments();
+        if ( args == null ) { args = new Bundle(); }
+        args.putParcelable("customer",customer);
+        args.putSerializable("appointment",appointment);
+        goToFragment(newFragment,args,Parsing.getIndexOf(menuOptionsTags,"updateappointment"));
+    }
+    */
+
+    @Override
+    public void cancelAppointmentClicked(FullCustomerSettings customer) {
+        Toast toast = new Toast(appContext);
+        toast.makeText(appContext,getResources().getString(R.string.appointment_cancelled).toUpperCase(),Toast.LENGTH_SHORT);
+
+        Bundle args = new Bundle();
+        args.putParcelable("customer",customer);
+
+        goToFragment(new AppointmentsFragment(),args,Parsing.getIndexOf(menuOptionsTags,"appointments"));
+    }
+
+    // Listener for appointment change of date
+    @Override
+    public void confirmNewDatePositiveClick(DialogFragment fragment, FullCustomerSettings customer, Appointment appointment) {
+        String myTAG = TAG + ".confirmNewDatePositiveClick";
+
+        Fragment newFragment = new AppointmentsFragment();
+        Bundle args = newFragment.getArguments();
+        if ( args == null ) { args = new Bundle(); }
+
+        HashMap<String,Object> updateResult = Parsing.updateAppointment(appContext,customer,appointment);
+        String status = (String)updateResult.get("status");
+        if ( ! status.equals(getResources().getString(R.string.success_status)) ) {
+            String errormessage = (String)updateResult.get("errormessage");
+            args.putString("errormessage",errormessage);
+        }
+        FullCustomerSettings newCustomer = (FullCustomerSettings)updateResult.get("customer");
+        args.putParcelable("customer",newCustomer);
+
+        goToFragment(newFragment,args,Parsing.getIndexOf(menuOptionsTags,"appointments"));
+    }
+
+    public void confirmNewDateNegativeClick(DialogFragment fragment, FullCustomerSettings customer) {
+        Toast toast = new Toast(appContext);
+        toast.makeText(appContext,getResources().getString(R.string.form_cancel),Toast.LENGTH_SHORT).show();
+
+        Fragment newFragment = new AppointmentsFragment();
+        Bundle args = newFragment.getArguments();
+        if ( args == null ) { args = new Bundle(); }
+        args.putParcelable("customer",customer);
+
+        goToFragment(newFragment,args,Parsing.getIndexOf(menuOptionsTags,"appointments"));
     }
 
 

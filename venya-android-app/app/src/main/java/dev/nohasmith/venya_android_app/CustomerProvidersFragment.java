@@ -5,7 +5,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -178,7 +177,7 @@ public class CustomerProvidersFragment extends Fragment{
 
     public void showConfirmationDialog(String message, String providerid, String sessionid) {
         //String myTAG = TAG + ".showConfDialog";
-        DialogFragment dialog = new UnsubscribeConfirmationFragment();
+        DialogFragment dialog = new UnsubscribeConfirmationDialog();
 
         Bundle dialogBundle = dialog.getArguments();
         if ( dialogBundle == null ) {
@@ -189,7 +188,7 @@ public class CustomerProvidersFragment extends Fragment{
         dialogBundle.putString("sessionid",sessionid);
         dialog.setArguments(dialogBundle);
 
-        dialog.show(getActivity().getSupportFragmentManager(), "UnsubscribeConfirmationFragment");
+        dialog.show(getActivity().getSupportFragmentManager(), "UnsubscribeConfirmationDialog");
 
     }
 }

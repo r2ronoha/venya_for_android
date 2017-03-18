@@ -4,7 +4,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="dev.nohasmith.venya_android_app.MainActivity"
+    tools:context="dev.nohasmith.venya_android_app.Home"
     android:background="@color/venya_background">
 
     <TextView

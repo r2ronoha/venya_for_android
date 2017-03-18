@@ -173,4 +173,12 @@
     <string name="appointment_status">statut</string>
     <string name="appointment_display">ouvrir</string>
     <string name="header_appointmentdetails">détails du rdv</string>
+    <string name="menu_updateappointment">Changez votre rdv</string>
+    <string name="menu_newappointment">Nouveau rdv</string>
+    <string name="form_update">modifier</string>
+    <string name="setnewdate">choisissez une date</string>
+    <string name="appointment_cancelled">Appointment Cancelled</string>
+    <string name="menu_selectprovider">Choisissez un spécialiste</string>
+    <string name="menu_settime">choisissez une heure</string>
+    <string name="errors_repsonseparseerror">Il n\'a pas été possible d\'interpréter la réponse du server</string>
 </resources>

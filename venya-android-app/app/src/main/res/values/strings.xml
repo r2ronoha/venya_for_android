@@ -148,6 +148,7 @@
         <item>changelanguage</item>
         <item>changephone</item>
         <item>appointmentdetails</item>
+        <item>updateappointment</item>
     </string-array>
     <string-array name="signinOptions">
         <item>signin</item>
@@ -366,5 +367,16 @@
     <string name="appointment_status">status</string>
     <string name="appointment_display">view</string>
     <string name="header_appointmentdetails">appointment details</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="menu_updateappointment">Update your Appointment</string>
+    <string name="menu_newappointment">New Appointment</string>
+    <string name="form_update">update</string>
+    <string name="setnewdate">select a new date</string>
+    <string name="appointment_cancelled">Appointment Cancelled</string>
+    <string name="menu_selectprovider">Choose a provider</string>
+    <string name="menu_settime">select time</string>
+    <string name="errors_repsonseparseerror">Failed to interprete response fomr server</string>
 
 </resources>

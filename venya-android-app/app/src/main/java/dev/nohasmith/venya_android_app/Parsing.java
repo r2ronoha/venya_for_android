@@ -12,6 +12,7 @@ import android.net.NetworkInfo;
 import android.nfc.Tag;
 import android.os.Build;
 import android.util.Log;
+import android.widget.TableRow;
 import android.widget.TextView;
 
 import org.json.JSONException;
@@ -58,6 +59,18 @@ public class Parsing {
         for (int i=1; i<messages.length; i++){
             //Log.d(myTag,"concatenating " + messages[i] + " to " + message);
             message = message.concat(" " + messages[i]);
+        }
+        return toUpperCase(message.charAt(0)) + message.substring(1);
+    }
+
+    public static String formatMessage(Context context, int [] messages){
+        String myTag = TAG + ".formatMessage";
+        String message = toUpperCase(context.getResources().getString(messages[0]).charAt(0)) + context.getResources().getString(messages[0]).substring(1);
+        //String message = "";
+
+        for (int i=1; i<messages.length; i++){
+            //Log.d(myTag,"concatenating " + messages[i] + " to " + message);
+            message = message.concat(" " + context.getResources().getString(messages[i]));
         }
         return toUpperCase(message.charAt(0)) + message.substring(1);
     }
@@ -892,7 +905,7 @@ public class Parsing {
         }
     }
 
-    public HashMap<String,Object> insertAppointment(Context context, Appointment appointment) {
+    public static HashMap<String,Object> insertAppointment(Context context, Appointment appointment) {
         String myTAG = TAG + ".insertAppointment";
         String customerid = appointment.getCustomerid();
         String providerid = appointment.getProviderid();
@@ -917,12 +930,16 @@ public class Parsing {
 
         if ( response == null ) {
             Log.e(myTAG,"NULL response from server");
+            insertResponse.put("status","ERROR");
+            insertResponse.put("errormessage","nullfromserver");
         } else {
             try {
                 JSONresp = new JSONObject(response);
             } catch (Exception e) {
                 Log.e(myTAG,"FAiled to parse response from server");
-                return null;
+                insertResponse.put("status","ERROR");
+                insertResponse.put("errormessage","repsonseparseerror");
+                return insertResponse;
             }
             HashMap<String,String> status = new HashMap<String,String>();
 
@@ -949,6 +966,7 @@ public class Parsing {
                 } catch (Exception e) {
                     Log.e(myTAG,"Failed to get appointment id from successful insetion response");
                 }
+                insertResponse.put("status",context.getResources().getString(R.string.success_status));
                 insertResponse.put("appointmentid",appointmentid);
             }
         }
@@ -1044,5 +1062,73 @@ public class Parsing {
         }
 
         return appointmentsList;
+    }
+
+    public static HashMap<String,Object> updateAppointment(Context context, FullCustomerSettings customer, Appointment appointment) {
+        /*
+         update DB with new apppointment.
+         If update is successful, then update the customer. Otherwise return customer unchanged + errormessage
+          */
+        String myTAG = TAG + ".updateAppointment";
+
+        HashMap<String,Object> updateReturn = new HashMap<String, Object>();
+        updateReturn.put("customer",customer); // by default return unchanged customer. Will be overridden if the DB update is successful
+
+        String url = venyaUrl + "/updateAppointment" +
+                "?id=" + appointment.getId() +
+                "&date=" + appointment.getDate() +
+                "&status=" + appointment.getStatus() +
+                "&delay=" + appointment.getDelay();
+
+        MyHttpHandler httpHandler = new MyHttpHandler(context);
+        String response = null;
+        try {
+            response = httpHandler.execute(url).get();
+        } catch (Exception e) {
+            Log.e(myTAG,"Exception while performing HTTP async task");
+            e.printStackTrace();
+        }
+
+        if ( response != null ) {
+            try {
+                JSONObject respJSON = new JSONObject(response);
+                try {
+                    String status = respJSON.getString("status");
+                    updateReturn.put("status",status);
+                    if (!status.equals(context.getResources().getString(R.string.success_status))) {
+                        Log.e(myTAG,"unsuccesful update");
+                        try {
+                            String errormessage = respJSON.getString("errormessage");
+                            updateReturn.put("errormessage",errormessage);
+                        } catch (Exception getErrorEx) {
+                            Log.e(myTAG,"Failed to get error message");
+                            updateReturn.put("errormessage",context.getResources().getString(R.string.errors_unknwon));
+                            getErrorEx.printStackTrace();
+                        }
+                    } else {
+                        customer.addAppointment(appointment); // addAppointment performs "put", which will override existin appointment
+                        updateReturn.put("customer",customer);
+                    }
+                } catch (Exception readEx) {
+                    Log.e(myTAG,"Failed to get status from server response");
+                    readEx.printStackTrace();
+                    updateReturn.put("status","ERROR");
+                    updateReturn.put("errormessage",context.getResources().getString(R.string.errors_unknwon));
+                }
+            } catch (Exception parseEx) {
+                Log.e(myTAG,"Failed to parse response from server");
+                parseEx.printStackTrace();
+                updateReturn.put("status","ERROR");
+                updateReturn.put("errormessage",context.getResources().getString(R.string.errors_unknwon));
+            }
+        }
+        return updateReturn;
+    }
+
+    public static void setCellFormat(Context context, TextView cell, TableRow.LayoutParams lp, String text, int padding, int color) {
+        cell.setLayoutParams(lp);
+        cell.setText(text);
+        cell.setPadding(padding,padding,padding,padding);
+        cell.setBackgroundColor(context.getColor(color));
     }
 }

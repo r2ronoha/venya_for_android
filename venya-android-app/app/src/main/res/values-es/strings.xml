@@ -175,4 +175,12 @@
     <string name="appointment_status">estado</string>
     <string name="appointment_display">ver</string>
     <string name="header_appointmentdetails">Detalles de la cita</string>
+    <string name="menu_updateappointment">Cambia tu cita</string>
+    <string name="menu_newappointment">Nueva cita</string>
+    <string name="form_update">cambiar</string>
+    <string name="setnewdate">elige una fecha</string>
+    <string name="appointment_cancelled">Appointment Cancelled</string>
+    <string name="menu_selectprovider">Selecciona un proveedor</string>
+    <string name="menu_settime">elige una hora</string>
+    <string name="errors_repsonseparseerror">No ha sido posible interpretar la respuesta del servidor</string>
 </resources>

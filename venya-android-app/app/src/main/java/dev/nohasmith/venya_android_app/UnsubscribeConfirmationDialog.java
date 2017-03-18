@@ -10,13 +10,13 @@ import android.support.v7.app.AlertDialog;
 import android.util.Log;
 
 
-public class UnsubscribeConfirmationFragment extends DialogFragment {
+public class UnsubscribeConfirmationDialog extends DialogFragment {
     private String message;
     private String sessionid;
     private String providerid;
-    private final String TAG = "UnsubscribeConfirmationFragment";
+    private final String TAG = "UnsubscribeConfirmationDialog";
 
-    public UnsubscribeConfirmationFragment() {
+    public UnsubscribeConfirmationDialog() {
         // Required empty public constructor
     }
 /*
@@ -26,9 +26,9 @@ public class UnsubscribeConfirmationFragment extends DialogFragment {
     */
 
     public interface ConfirmDialogListener {
-        public void onDialogPositiveClick(DialogFragment dialog, Context context, String providerid, String sessionid);
-        //public void onDialogPositiveUnsubscribe(DialogFragment dialog, Context context, String providerid, String customerid);
-        public void onDialogNegativeClick(DialogFragment dialog);
+        void onDialogPositiveClick(DialogFragment dialog, Context context, String providerid, String sessionid);
+        //void onDialogPositiveUnsubscribe(DialogFragment dialog, Context context, String providerid, String customerid);
+        void onDialogNegativeClick(DialogFragment dialog);
     }
 
     ConfirmDialogListener listener;
@@ -76,13 +76,13 @@ public class UnsubscribeConfirmationFragment extends DialogFragment {
                 .setPositiveButton(R.string.form_confirm, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        listener.onDialogPositiveClick(UnsubscribeConfirmationFragment.this,getActivity(),providerid,sessionid);
+                        listener.onDialogPositiveClick(UnsubscribeConfirmationDialog.this,getActivity(),providerid,sessionid);
                     }
                 })
                 .setNegativeButton(R.string.form_cancel, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        listener.onDialogNegativeClick(UnsubscribeConfirmationFragment.this);
+                        listener.onDialogNegativeClick(UnsubscribeConfirmationDialog.this);
                     }
                 });
 
