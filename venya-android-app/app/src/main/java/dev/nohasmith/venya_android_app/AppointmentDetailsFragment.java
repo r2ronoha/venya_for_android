@@ -15,8 +15,10 @@ import android.widget.TableRow;
 import android.widget.TextView;
 
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 
+import static dev.nohasmith.venya_android_app.MainActivity.appointmentActiveStatus;
 import static dev.nohasmith.venya_android_app.MainActivity.appointmentFields;
 
 
@@ -33,12 +35,12 @@ public class AppointmentDetailsFragment extends Fragment {
         // Required empty public constructor
     }
 
-    /*
-    interface AppointmentUpdateListener {
-        void appointmentUpdateClicked(FullCustomerSettings customer, Appointment appointment);
+
+    interface BackListener {
+        void backClicked(FullCustomerSettings customer);
     }
-    AppointmentUpdateListener updateListener;
-    */
+    BackListener backListener;
+
     interface CancelAppointmentListener {
         void cancelAppointmentClicked(FullCustomerSettings customer);
     }
@@ -49,13 +51,11 @@ public class AppointmentDetailsFragment extends Fragment {
         String myTAG = TAG + ".onAttach";
         super.onAttach(context);
 
-        /*
-        if ( context instanceof AppointmentUpdateListener ) {
-            updateListener = (AppointmentUpdateListener)context;
+        if ( context instanceof BackListener ) {
+            backListener = (BackListener)context;
         } else {
-            Log.e(myTAG,context.toString() + " must implement AppointmentUpdateListener");
+            Log.e(myTAG,context.toString() + " must implement BackListener");
         }
-        */
 
         if ( context instanceof CancelAppointmentListener ) {
             cancelListener = (CancelAppointmentListener)context;
@@ -82,6 +82,14 @@ public class AppointmentDetailsFragment extends Fragment {
         final TextView errorsView = (TextView)view.findViewById(R.id.errorsView);
         errorsView.setText("");
 
+        TextView backButton = (TextView)view.findViewById(R.id.backButton);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                backListener.backClicked(customer);
+            }
+        });
+
         TextView title = (TextView)view.findViewById(R.id.tableFragmentTitle);
         Parsing.displayTextView(appContext,title,R.string.header_appointmentdetails);
 
@@ -96,40 +104,49 @@ public class AppointmentDetailsFragment extends Fragment {
         }
 
         if ( customer != null && appointmentid != null ) {
-            HashMap<String,Appointment> appointments = (HashMap<String,Appointment>)customer.getAppointments().getValue();
+            final HashMap<String,Appointment> appointments = (HashMap<String,Appointment>)customer.getAppointments().getValue();
             appointment = appointments.get(appointmentid);
 
-            final Button updateButton = (Button) view.findViewById(R.id.updateButtom);
-            updateButton.setText(getResources().getString(R.string.form_update));
-            updateButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    //updateListener.appointmentUpdateClicked(customer,appointment);
-                    showUpdateTimeDialog(customer,appointment);
-                }
-            });
-
-            final Button cancelButton = (Button) view.findViewById(R.id.cancelButtom);
-            cancelButton.setText(getResources().getString(R.string.form_cancel));
-            cancelButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    appointment.setStatus("cancelled");
-                    HashMap<String,Object> updateResult = Parsing.updateAppointment(appContext,customer,appointment);
-                    String status = (String)updateResult.get("status");
-
-                    if ( ! status.equals(getResources().getString(R.string.success_status)) ) {
-                        String errormessage = (String)updateResult.get("errormessage");
-                        Parsing.displayTextView(appContext,errorsView,"errors_" + errormessage);
-                    } else {
-                        cancelListener.cancelAppointmentClicked(customer);
+            if ( Parsing.getIndexOf(appointmentActiveStatus,appointment.getStatus()) >= 0 ) {
+                // set button listeners if the appointment is active
+                final Button updateButton = (Button) view.findViewById(R.id.updateButtom);
+                updateButton.setText(getResources().getString(R.string.form_update));
+                updateButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //backListener.backClicked(customer,appointment);
+                        showUpdateTimeDialog(customer, appointment);
                     }
+                });
 
-                }
-            });
+                final Button cancelButton = (Button) view.findViewById(R.id.cancelButtom);
+                cancelButton.setText(getResources().getString(R.string.form_cancel));
+                cancelButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        DialogFragment confirmDialog = new UnsubscribeConfirmationDialog();
+
+                        Bundle args = confirmDialog.getArguments();
+                        if ( args == null ) { args = new Bundle(); }
+                        args.putString("action","cancelappointment");
+                        args.putParcelable("customer",customer);
+                        args.putSerializable("appointment",appointment);
+                        args.putString("message",getResources().getString(R.string.form_confirm_cancel_appointment));
+                        confirmDialog.setArguments(args);
+
+                        confirmDialog.show(getActivity().getSupportFragmentManager(),"cancel appointment confirmation");
+                    }
+                });
+            } else {
+                // hide buttons if appointment not active
+                Button updateButton = (Button)view.findViewById(R.id.updateButtom);
+                updateButton.setVisibility(View.INVISIBLE);
+
+                Button cancelButton = (Button)view.findViewById(R.id.cancelButtom);
+                cancelButton.setVisibility(View.INVISIBLE);
+            }
 
             TableLayout appTable = (TableLayout) view.findViewById(R.id.my_table);
-            int rowCount = 0;
 
             TableRow.LayoutParams rowLayoutParams = new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT);
 
@@ -200,8 +217,10 @@ public class AppointmentDetailsFragment extends Fragment {
                                 row.addView(titleCell);
 
                                 valueCell = new TextView(appContext);
-                                String date = DateFormat.getDateInstance().format(appointment.getDate());
-                                Parsing.setCellFormat(appContext,valueCell,valueLayoutParams,date,10,R.color.venya_table_value_cell);
+                                long date = appointment.getDate();
+                                SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+                                String dateStr = dateFormat.format(date);
+                                Parsing.setCellFormat(appContext,valueCell,valueLayoutParams,dateStr,10,R.color.venya_table_value_cell);
                                 row.addView(valueCell);
                                 appTable.addView(row, 2);
 
@@ -214,8 +233,9 @@ public class AppointmentDetailsFragment extends Fragment {
                                 row.addView(titleCell);
 
                                 valueCell = new TextView(appContext);
-                                String time = DateFormat.getTimeInstance().format(appointment.getDate());
-                                Parsing.setCellFormat(appContext,valueCell,valueLayoutParams,time,10,R.color.venya_table_value_cell);
+                                SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
+                                String timeStr = timeFormat.format(date);
+                                Parsing.setCellFormat(appContext,valueCell,valueLayoutParams,timeStr,10,R.color.venya_table_value_cell);
                                 row.addView(valueCell);
 
                                 appTable.addView(row, 3);

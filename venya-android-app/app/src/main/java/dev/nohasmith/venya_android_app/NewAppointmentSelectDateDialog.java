@@ -23,23 +23,26 @@ public class NewAppointmentSelectDateDialog extends DialogFragment implements Da
     Calendar calendar;
     final String TAG = this.getClass().getSimpleName();
     Context appContext;
+    Bundle savedInstanceState;
 
     @Override
     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+
         Bundle args = new Bundle();
-        args.putParcelable("customer",customer);
-        args.putSerializable("appointment",appointment);
-        args.putInt("year",year);
-        args.putInt("month",month);
-        args.putInt("day",dayOfMonth);
+        args.putParcelable("customer", customer);
+        args.putSerializable("appointment", appointment);
+        args.putInt("year", year);
+        args.putInt("month", month);
+        args.putInt("day", dayOfMonth);
 
         DialogFragment timeDialog = new NewAppointmentSelectTimeDialog();
         timeDialog.setArguments(args);
-        timeDialog.show(getActivity().getSupportFragmentManager(),"NewAppointmentSelectTimeDialog");
+        timeDialog.show(getActivity().getSupportFragmentManager(), "NewAppointmentSelectTimeDialog");
     }
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+        this.savedInstanceState = savedInstanceState;
         appContext = getContext();
         String myTAG = TAG + ".onCreateDialog";
 
@@ -61,6 +64,8 @@ public class NewAppointmentSelectDateDialog extends DialogFragment implements Da
             int day = calendar.get(Calendar.DAY_OF_MONTH);
 
             DatePickerDialog dateDialog = new DatePickerDialog(appContext, this, year, month, day);
+            // disable past dates
+            dateDialog.getDatePicker().setMinDate(Calendar.getInstance().getTimeInMillis());
 
             TextView title = new TextView(appContext);
             Parsing.displayTextView(appContext,title,R.string.setnewdate);

@@ -94,6 +94,8 @@ public class UpdateAppointmentDateDialog extends DialogFragment implements DateP
             int year = calendar.get(Calendar.YEAR);
 
             DatePickerDialog datePickerDialog = new DatePickerDialog(appContext,this,year,month,day);
+            //Disaable past dates
+            datePickerDialog.getDatePicker().setMinDate(Calendar.getInstance().getTimeInMillis());
 
             TextView title = new TextView(appContext);
             Parsing.displayTextView(appContext,title,R.string.setnewdate);

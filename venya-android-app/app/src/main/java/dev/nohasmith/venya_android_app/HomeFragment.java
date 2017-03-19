@@ -4,6 +4,7 @@ package dev.nohasmith.venya_android_app;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +21,7 @@ import static dev.nohasmith.venya_android_app.MainActivity.appLanguage;
 import static dev.nohasmith.venya_android_app.MainActivity.booleanFields;
 import static dev.nohasmith.venya_android_app.MainActivity.customerFields;
 import static dev.nohasmith.venya_android_app.MainActivity.dateFields;
+import static dev.nohasmith.venya_android_app.MainActivity.homeFields;
 import static dev.nohasmith.venya_android_app.MainActivity.privateFields;
 import static dev.nohasmith.venya_android_app.MainActivity.providerFields;
 import static dev.nohasmith.venya_android_app.MainActivity.secretFields;
@@ -85,8 +87,10 @@ public class HomeFragment extends Fragment {
             */
 
             //for ( int i=customerFields.length-1; i>=0; i-- ) {
-            for ( int i=0; i<customerFields.length; i++ ) {
-                String field = customerFields[i];
+            //for ( int i=0; i<customerFields.length; i++ ) {
+                //String field = customerFields[i];
+            for ( int i=0; i<homeFields.length; i++ ) {
+                String field = homeFields[i];
                 if ( customer.getField(field) != null && ! Arrays.asList(privateFields).contains(field) ) {
                     row = new TableRow(getContext());
                     layoutParams = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT);
@@ -155,6 +159,19 @@ public class HomeFragment extends Fragment {
                     tableLayout.addView(row, rowCount++);
                 }
             }
+
+            Fragment fragment = new AppointmentsFragment();
+            Bundle args = fragment.getArguments();
+            if ( args == null ) { args = new Bundle(); }
+            args.putParcelable("customer",customer);
+            fragment.setArguments(args);
+
+            FragmentTransaction ft = getChildFragmentManager().beginTransaction();
+            ft.replace(R.id.appointments_table,fragment,"homeAppointmentsFragment");
+            ft.addToBackStack(null);
+            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+            ft.commit();
+
         }
     }
 

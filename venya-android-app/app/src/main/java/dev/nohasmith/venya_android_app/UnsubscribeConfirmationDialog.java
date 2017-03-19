@@ -14,6 +14,9 @@ public class UnsubscribeConfirmationDialog extends DialogFragment {
     private String message;
     private String sessionid;
     private String providerid;
+    private String action;
+    private Appointment appointment;
+    private FullCustomerSettings customer;
     private final String TAG = "UnsubscribeConfirmationDialog";
 
     public UnsubscribeConfirmationDialog() {
@@ -26,7 +29,12 @@ public class UnsubscribeConfirmationDialog extends DialogFragment {
     */
 
     public interface ConfirmDialogListener {
+        //default listener if something went wrong initialising
+        void onDialogPositiveClick();
+        // listener for provider unsubscription confirmation dialog
         void onDialogPositiveClick(DialogFragment dialog, Context context, String providerid, String sessionid);
+        // listener for cancel appointment confirmtion
+        void onDialogPositiveClick(DialogFragment dialog, Context context, FullCustomerSettings customer, Appointment appointment);
         //void onDialogPositiveUnsubscribe(DialogFragment dialog, Context context, String providerid, String customerid);
         void onDialogNegativeClick(DialogFragment dialog);
     }
@@ -63,12 +71,23 @@ public class UnsubscribeConfirmationDialog extends DialogFragment {
         }
 
         try {
-            sessionid = (String)argsBundle.get("sessionid");
-            providerid = (String)argsBundle.get("providerid");
+            sessionid = argsBundle.getString("sessionid");
+            providerid = argsBundle.getString("providerid");
+            action = argsBundle.getString("action");
+            customer = argsBundle.getParcelable("customer");
+            appointment = (Appointment)argsBundle.getSerializable("appointment");
         } catch (Exception e) {
             Log.e(myTAG, "Failed to parse required values from bundle");
             e.printStackTrace();
             return null;
+        }
+
+        if ( action == null ||
+                ( action.equals("unsubscribe") && ( providerid == null || sessionid == null ) ) ||
+                ( action.equals("cancelappointment") && ( ! (customer instanceof FullCustomerSettings) || !(appointment instanceof Appointment) ) )
+                ) {
+            action = "home";
+            message = getResources().getString(R.string.errors_gohomeafterfail);
         }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
@@ -76,7 +95,17 @@ public class UnsubscribeConfirmationDialog extends DialogFragment {
                 .setPositiveButton(R.string.form_confirm, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        listener.onDialogPositiveClick(UnsubscribeConfirmationDialog.this,getActivity(),providerid,sessionid);
+                        switch (action) {
+                            case "unsubscribe":
+                            listener.onDialogPositiveClick(UnsubscribeConfirmationDialog.this, getActivity(), providerid, sessionid);
+                                break;
+                            case "cancelappointment":
+                                listener.onDialogPositiveClick(UnsubscribeConfirmationDialog.this,getActivity(),customer,appointment);
+                                break;
+                            default:
+                                listener.onDialogPositiveClick();
+                                break;
+                        }
                     }
                 })
                 .setNegativeButton(R.string.form_cancel, new DialogInterface.OnClickListener() {

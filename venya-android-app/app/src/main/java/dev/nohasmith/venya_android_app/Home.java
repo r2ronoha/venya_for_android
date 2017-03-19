@@ -25,10 +25,13 @@ import android.widget.Toast;
 import java.util.HashMap;
 
 import static android.app.PendingIntent.getActivity;
+import static android.os.Parcelable.PARCELABLE_WRITE_RETURN_VALUE;
 import static dev.nohasmith.venya_android_app.MainActivity.appLanguage;
 import static dev.nohasmith.venya_android_app.MainActivity.locale_from_language;
 import static dev.nohasmith.venya_android_app.MainActivity.menuOptions;
 import static dev.nohasmith.venya_android_app.MainActivity.menuOptionsTags;
+import static dev.nohasmith.venya_android_app.MainActivity.supportedLanguages;
+import static dev.nohasmith.venya_android_app.MainActivity.venyaUrl;
 
 /**
  * Created by arturo on 07/03/2017.
@@ -56,6 +59,7 @@ public class Home extends AppCompatActivity implements
 
         ChangeLanguageFragment.UpdateLanguageListener,
         ChangeLanguageFragment.CancelListener,
+        ChangeLanguageDialog.UpdateLanguageListener,
 
         ChangePhoneFragment.UpdatePhoneListener,
         ChangePhoneFragment.CancelListener,
@@ -64,13 +68,14 @@ public class Home extends AppCompatActivity implements
 
         AppointmentsFragment.AppointmentListener,
         AppointmentsFragment.NewAppointmentListener,
-        //AppointmentDetailsFragment.AppointmentUpdateListener,
+
+        AppointmentDetailsFragment.BackListener,
         AppointmentDetailsFragment.CancelAppointmentListener,
 
         UpdateAppointmentTimeDialog.ConfirmUpdateListener,
 
         NewAppointmentSelectTimeDialog.NewAppointmentListener{
-    String TAG = this.getClass().getName();
+    String TAG = this.getClass().getSimpleName();
 
     public String SESSION_ID = "closed";
     public FullCustomerSettings customer;
@@ -188,10 +193,10 @@ public class Home extends AppCompatActivity implements
                 //appointments
                 toast.makeText(this,getResources().getString(R.string.menu_appointments).toUpperCase(),Toast.LENGTH_SHORT).show();
                 fragment = new AppointmentsFragment();
-                Bundle args = fragment.getArguments();
-                if ( args == null ) { args = new Bundle(); }
-                args.putParcelable("customer",customer);
-                fragment.setArguments(args);
+                Bundle appArgs = fragment.getArguments();
+                if ( appArgs == null ) { appArgs = new Bundle(); }
+                appArgs.putParcelable("customer",customer);
+                fragment.setArguments(appArgs);
                 break;
             case 2:
                 // notifications
@@ -234,7 +239,12 @@ public class Home extends AppCompatActivity implements
             case 10:
                 // change language
                 toast.makeText(this,getResources().getString(R.string.menu_changelanguage).toUpperCase(),Toast.LENGTH_SHORT).show();
-                fragment = new ChangeLanguageFragment(customer);
+                fragment = new ChangeLanguageFragment();
+                Bundle langArgs = fragment.getArguments();
+                if ( langArgs == null ) { langArgs = new Bundle(); }
+                langArgs.putParcelable("customer", customer);
+                langArgs.putInt("currentPosition",currentPosition);
+                fragment.setArguments(langArgs);
                 break;
             case 11:
                 // change language
@@ -354,7 +364,13 @@ public class Home extends AppCompatActivity implements
                 goToFragment(fragment,Parsing.getIndexOf(menuOptionsTags,"settings"));
                 return true;
             case R.id.options_menu_lang:
-                changeLanguageClicked(customer);
+                DialogFragment langDialog = new ChangeLanguageDialog();
+                Bundle args = langDialog.getArguments();
+                if ( args == null ) { args = new Bundle(); }
+                args.putParcelable("customer",customer);
+                args.putInt("currentPosition",currentPosition);
+                langDialog.setArguments(args);
+                langDialog.show(getSupportFragmentManager(),"change language options menu");
                 return true;
             case R.id.options_menu_logout:
                 logout(Home.this,customer);
@@ -402,7 +418,13 @@ public class Home extends AppCompatActivity implements
     }
 
     public void changeLanguageClicked(FullCustomerSettings customer) {
-        goToFragment(new ChangeLanguageFragment(customer),Parsing.getIndexOf(menuOptionsTags,"changelanguage"));
+        Fragment fragment = new ChangeLanguageFragment();
+        Bundle args = fragment.getArguments();
+        if ( args == null ) { args = new Bundle(); }
+        args.putInt("currentPosition",currentPosition);
+        args.putParcelable("customer",customer);
+
+        goToFragment(fragment,args,Parsing.getIndexOf(menuOptionsTags,"changelanguage"));
     }
 
     public void changePhoneClicked(FullCustomerSettings customer) {
@@ -430,7 +452,8 @@ public class Home extends AppCompatActivity implements
         goToFragment(new SettingsFragment(SESSION_ID,customer),Parsing.getIndexOf(menuOptionsTags,"settings"));
     }
 
-    public void updateLanguageClicked(FullCustomerSettings customer) {
+    // update language via standard fragment
+    public void updateLanguageClicked(FullCustomerSettings customer, int currentPosition) {
         appLanguage = (String)customer.getLanguage().getValue();
 
         Parsing.setLocale(this,locale_from_language.get((String)customer.getLanguage().getValue()));
@@ -440,7 +463,65 @@ public class Home extends AppCompatActivity implements
         ArrayAdapter<String> menuAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_activated_1,menuOptions);
         menuList.setAdapter(menuAdapter);
 
-        goToFragment(new SettingsFragment(SESSION_ID,customer),Parsing.getIndexOf(menuOptionsTags,"settings"));
+        this.customer = customer;
+        selectItem(currentPosition);
+
+        //goToFragment(new SettingsFragment(SESSION_ID,customer),Parsing.getIndexOf(menuOptionsTags,"settings"));
+    }
+    // update language via options menu alert dialog
+    @Override
+    public void updateLanguageClicked(FullCustomerSettings customer, int choice, int currentPosition) {
+        String response = null;
+        Toast toast = new Toast(appContext);
+
+        String lang = supportedLanguages[choice].toLowerCase();
+        //if (!lang.equals((String) customer.getLanguage().getValue())) {
+        String reqUrl = venyaUrl + "/updateSetting?" +
+                "action=update&type=customer" +
+                "&id=" + (String) customer.getId().getValue() +
+                "&field=language" +
+                "&newvalue=" + lang;
+        MyHttpHandler httpHandler = new MyHttpHandler(appContext);
+        try {
+            response = httpHandler.execute(reqUrl).get();
+        } catch (Exception e) {
+            Log.e("ChangeLanguage.OptionSelected", "Failed to update customer with language: " + lang);
+            toast.makeText(appContext,R.string.errors_failedupdate,Toast.LENGTH_LONG);
+        }
+
+        if (response == null) {
+            Log.e("ChangeLanguage.OptionSelected", "NULL response from server to lang: " + lang);
+            toast.makeText(appContext,R.string.errors_failedupdate,Toast.LENGTH_LONG);
+        } else {
+            HashMap<String, Object> parsedResponse = Parsing.parseGetCustomerResponseJson(response, appContext);
+            String status = (String) parsedResponse.get("status");
+            Log.d("CHangeLAnguage.OptinSelected", "Request status: " + status);
+            if (!status.equals(getResources().getString(R.string.success_status))) {
+                String errormessage = (String) parsedResponse.get("errormessage");
+                Log.d("ChangeLanguage.Optionselecte", "Error to update request = " + errormessage);
+                try {
+                    toast.makeText(appContext,Parsing.getResId(appContext,"errors_" + errormessage),Toast.LENGTH_LONG);
+                } catch (Exception e) {
+                    toast.makeText(appContext,errormessage,Toast.LENGTH_LONG);
+                }
+            } else {
+                CustomerSettings updatedCustomer = (CustomerSettings) parsedResponse.get("customer");
+                String updatedLang = updatedCustomer.getLanguage();
+                customer.setField("language", updatedLang);
+
+                appLanguage = (String)customer.getLanguage().getValue();
+
+                Parsing.setLocale(this,locale_from_language.get((String)customer.getLanguage().getValue()));
+
+                invalidateOptionsMenu();
+                menuOptions = getResources().getStringArray(R.array.menuOptions);
+                ArrayAdapter<String> menuAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_activated_1,menuOptions);
+                menuList.setAdapter(menuAdapter);
+
+                this.customer = customer;
+                selectItem(currentPosition);
+            }
+        }
     }
 
     public void updateBooleanClicked(FullCustomerSettings customer) {
@@ -469,6 +550,11 @@ public class Home extends AppCompatActivity implements
 
 
     @Override
+    public void onDialogPositiveClick() {
+        goToFragment(new HomeFragment(),0);
+    }
+
+    @Override
     public void onDialogPositiveClick(DialogFragment dialog, Context context, String providerid, String sessionid) {
         if ( Parsing.unsubscribeProvider(context,providerid,sessionid) ) {
             //update custoemr
@@ -479,6 +565,38 @@ public class Home extends AppCompatActivity implements
         }
         // call the customer's providers fragment with updated customer
         goToFragment(new CustomerProvidersFragment(sessionid,customer),Parsing.getIndexOf(menuOptionsTags,"providers"));
+    }
+
+    @Override
+    public void onDialogPositiveClick(DialogFragment dialog, Context context, FullCustomerSettings customer, Appointment appointment) {
+        appointment.setStatus("cancelled");
+        HashMap<String, Object> updateResult = Parsing.updateAppointment(appContext, customer, appointment);
+        String status = (String) updateResult.get("status");
+
+        if (!status.equals(getResources().getString(R.string.success_status))) {
+            // if the update failed, show a message (toast) and go back to the appointment details
+            Toast toast = new Toast(appContext);
+            toast.makeText(appContext,getResources().getString(R.string.errors_failedupdate).toUpperCase(),Toast.LENGTH_LONG);
+
+            Fragment fragment = new AppointmentDetailsFragment();
+
+            Bundle args = fragment.getArguments();
+            if ( args == null ) { args = new Bundle(); }
+            args.putParcelable("customer",customer);
+            args.putString("appointmentid",appointment.getId());
+
+            goToFragment(fragment,args,Parsing.getIndexOf(menuOptionsTags,"appointmentdetails"));
+        } else {
+            // if update successfull, got to the appointmets fragment
+            //cancelAppointmentClicked(customer);
+            Toast toast = new Toast(appContext);
+            toast.makeText(appContext,getResources().getString(R.string.appointment_cancelled).toUpperCase(),Toast.LENGTH_SHORT);
+
+            Bundle args = new Bundle();
+            args.putParcelable("customer",customer);
+
+            goToFragment(new AppointmentsFragment(),args,Parsing.getIndexOf(menuOptionsTags,"appointments"));
+        }
     }
 
     @Override
@@ -523,6 +641,18 @@ public class Home extends AppCompatActivity implements
         goToFragment(newFragment,args,Parsing.getIndexOf(menuOptionsTags,"updateappointment"));
     }
     */
+
+    // back button in appointment details fragment -> go back to appointments view
+    @Override
+    public void backClicked(FullCustomerSettings customer) {
+        Fragment fragment = new AppointmentsFragment();
+
+        Bundle args = fragment.getArguments();
+        if ( args == null ) { args = new Bundle(); }
+        args.putParcelable("customer",customer);
+
+        goToFragment(fragment,args,Parsing.getIndexOf(menuOptionsTags,"appointments"));
+    }
 
     @Override
     public void cancelAppointmentClicked(FullCustomerSettings customer) {

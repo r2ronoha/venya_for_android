@@ -3,6 +3,7 @@ package dev.nohasmith.venya_android_app;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,6 +19,7 @@ import static dev.nohasmith.venya_android_app.MainActivity.booleanFields;
 import static dev.nohasmith.venya_android_app.MainActivity.customerFields;
 import static dev.nohasmith.venya_android_app.MainActivity.dateFields;
 import static dev.nohasmith.venya_android_app.MainActivity.listFields;
+import static dev.nohasmith.venya_android_app.MainActivity.menuOptionsTags;
 import static dev.nohasmith.venya_android_app.MainActivity.nameFields;
 import static dev.nohasmith.venya_android_app.MainActivity.privateFields;
 import static dev.nohasmith.venya_android_app.MainActivity.secretFields;
@@ -80,7 +82,7 @@ public class SettingsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.home_fragment, container, false);
+        return inflater.inflate(R.layout.settings_fragment, container, false);
     }
 
     @Override
@@ -272,7 +274,15 @@ public class SettingsFragment extends Fragment {
                             optionCell.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
-                                    languageListener.changeLanguageClicked(customer);
+                                    //languageListener.changeLanguageClicked(customer);
+                                    DialogFragment fragment = new ChangeLanguageDialog();
+                                    Bundle args = fragment.getArguments();
+                                    if ( args == null ) { args = new Bundle(); }
+                                    args.putParcelable("customer",customer);
+                                    args.putInt("currentPosition",Parsing.getIndexOf(menuOptionsTags,"settings"));
+                                    fragment.setArguments(args);
+
+                                    fragment.show(getActivity().getSupportFragmentManager(),"change language options menu");
                                 }
                             });
                             break;

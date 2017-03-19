@@ -183,4 +183,11 @@
     <string name="menu_selectprovider">Selecciona un proveedor</string>
     <string name="menu_settime">elige una hora</string>
     <string name="errors_repsonseparseerror">No ha sido posible interpretar la respuesta del servidor</string>
+    <string name="menu_status_short">st</string>
+    <string name="errors_invalidtime">La hora no es válida</string>
+    <string name="form_back">volver</string>
+    <string name="form_cancelappointment">cancelar</string>
+    <string name="errors_gohomeafterfail">Ha habido un fallo. Volviendo a inicio</string>
+    <string name="form_confirm_cancel_appointment">¿Estás seguro que quieres cancelar la cita?</string>
+    <string name="menu_select_language">Elige tu idioma</string>
 </resources>

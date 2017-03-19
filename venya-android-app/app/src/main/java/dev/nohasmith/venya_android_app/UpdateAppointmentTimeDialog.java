@@ -32,6 +32,7 @@ public class UpdateAppointmentTimeDialog extends DialogFragment implements TimeP
     private TimePicker timePicker;
     private DatePicker datePicker;
     private Calendar calendar;
+    private Bundle savedInstanceState;
 
     public UpdateAppointmentTimeDialog() {
         // Required empty public constructor
@@ -47,7 +48,12 @@ public class UpdateAppointmentTimeDialog extends DialogFragment implements TimeP
         long newDate = calendar.getTimeInMillis();
         appointment.setDate(newDate);
 
-        updateListener.confirmNewDatePositiveClick(UpdateAppointmentTimeDialog.this,customer,appointment);
+        if ( calendar.before(Calendar.getInstance()) ) {
+            savedInstanceState.putString("errormessage",getResources().getString(R.string.errors_invalidtime));
+            this.onCreateDialog(savedInstanceState).show();
+        } else {
+            updateListener.confirmNewDatePositiveClick(UpdateAppointmentTimeDialog.this, customer, appointment);
+        }
     }
 
     interface ConfirmUpdateListener {
@@ -77,6 +83,7 @@ public class UpdateAppointmentTimeDialog extends DialogFragment implements TimeP
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+        this.savedInstanceState = savedInstanceState;
         String myTAG = TAG + ".onCreateDialog";
 
         View view = getView();
@@ -108,6 +115,12 @@ public class UpdateAppointmentTimeDialog extends DialogFragment implements TimeP
 
             TextView dialogTitle = new TextView(appContext);
             Parsing.displayTextView(appContext,dialogTitle,R.string.menu_settime);
+
+            try {
+                String errormessage = savedInstanceState.getString("errormessage");
+                Parsing.displayTextView(appContext,dialogTitle,"errors_" + errormessage);
+            } catch (Exception e) {}
+
             dialogTitle.setGravity(Gravity.CENTER_HORIZONTAL);
 
             dialog.setCustomTitle(dialogTitle);

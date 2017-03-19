@@ -58,7 +58,7 @@
         app:layout_constraintLeft_toLeftOf="parent" />
 
     <Button
-        android:text="@string/form_cancel"
+        android:text="@string/form_cancelappointment"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/cancelButtom"
@@ -66,5 +66,17 @@
         app:layout_constraintTop_toBottomOf="@+id/my_table"
         android:layout_marginEnd="100dp"
         app:layout_constraintRight_toRightOf="parent" />
+
+    <TextView
+        android:text="@string/form_back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/backButton"
+        android:layout_marginTop="25dp"
+        app:layout_constraintTop_toBottomOf="@+id/cancelButtom"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginStart="16dp"
+        app:layout_constraintLeft_toLeftOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

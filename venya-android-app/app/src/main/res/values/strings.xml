@@ -59,6 +59,11 @@
         <item>sessionid</item>
         <item>providers</item>
     </string-array>
+    <string-array name="homeFields">
+        <item>firstname</item>
+        <item>surname</item>
+        <item>email</item>
+    </string-array>
     <string-array name="customerCunstructFields">
         <item>id</item>
         <item>firstname</item>
@@ -149,6 +154,12 @@
         <item>changephone</item>
         <item>appointmentdetails</item>
         <item>updateappointment</item>
+    </string-array>
+    <string-array name="appointmentActiveStatus">
+        <item>future</item>
+        <item>scheduled</item>
+        <item>delayed</item>
+        <item>waiting</item>
     </string-array>
     <string-array name="signinOptions">
         <item>signin</item>
@@ -378,5 +389,12 @@
     <string name="menu_selectprovider">Choose a provider</string>
     <string name="menu_settime">select time</string>
     <string name="errors_repsonseparseerror">Failed to interprete response fomr server</string>
+    <string name="menu_status_short">st</string>
+    <string name="errors_invalidtime">The time is not valid</string>
+    <string name="form_back">go back</string>
+    <string name="form_cancelappointment">cancel</string>
+    <string name="errors_gohomeafterfail">Something went wrong. Going back home</string>
+    <string name="form_confirm_cancel_appointment">Are you sure you want to cancel your appointment?</string>
+    <string name="menu_select_language">Select a language</string>
 
 </resources>

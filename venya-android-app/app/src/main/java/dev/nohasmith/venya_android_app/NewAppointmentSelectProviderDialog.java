@@ -40,6 +40,24 @@ public class NewAppointmentSelectProviderDialog extends DialogFragment{
         return inflater.inflate(R.layout.new_appointment_fragment, container,false);
     }
     */
+    /*
+    interface CancelListener {
+        void onCancelNewAppointmentClicked(FullCustomerSettings customer);
+    }
+    CancelListener cancelListener;
+    */
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        /*
+        if ( context instanceof CancelListener ) {
+            cancelListener = (CancelListener)context;
+        } else {
+            throw new RuntimeException(TAG + " " + context.toString() + " must implement CancelListener");
+        }
+        */
+    }
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -58,16 +76,9 @@ public class NewAppointmentSelectProviderDialog extends DialogFragment{
 
         if ( customer instanceof FullCustomerSettings && activeProviders.length > 0 ) {
             HashMap<String, Provider> provList = (HashMap<String, Provider>) customer.getProviders().getValue();
-            // match active providerids and names for later selection
-            /*if ( activeProviders.length == 1 ) {
-                // go directly to the date picker dialog with the provider info
-                Provider provider = provList.get(activeProviders[0]);
-                providerid = provider.getId();
-                goToDatePicker(customer,providerid);
-            } else { */
             final HashMap<String, String> activeProvPairs = new HashMap<String, String>();
             final String[] activeProvNames = new String[activeProviders.length];
-            Log.d(myTAG, "number of active providers received = " + activeProviders.length);
+            //Log.d(myTAG, "number of active providers received = " + activeProviders.length);
             for (int i = 0; i < activeProviders.length; i++) {
                 Log.d(myTAG, "i = " + i);
                 String myproviderid = activeProviders[i];
@@ -80,7 +91,8 @@ public class NewAppointmentSelectProviderDialog extends DialogFragment{
 
             TextView title = new TextView(appContext);
             Parsing.displayTextView(appContext, title, R.string.menu_selectprovider);
-            int option = (activeProviders.length == 1) ? 0 : -1;
+            final int option = (activeProviders.length == 1) ? 0 : -1;
+            //int option = -1;
             //AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(appContext)
             return new AlertDialog.Builder(appContext)
                     .setCustomTitle(title)
@@ -94,7 +106,16 @@ public class NewAppointmentSelectProviderDialog extends DialogFragment{
                     .setPositiveButton(getResources().getString(R.string.form_confirm), new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
+                            if ( option == 0 && providerid == null ) {
+                                providerid = activeProvPairs.get(activeProvNames[0]);
+                            }
                             goToDatePicker(customer, providerid);
+                        }
+                    })
+                    .setNegativeButton(getResources().getString(R.string.form_cancel), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            //cancelListener.onCancelNewAppointmentClicked(customer);
                         }
                     })
                     .show();

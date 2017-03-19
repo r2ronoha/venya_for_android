@@ -16,12 +16,14 @@ import android.widget.TableRow;
 import android.widget.TextView;
 
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayDeque;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Set;
 
+import static dev.nohasmith.venya_android_app.MainActivity.appointmentActiveStatus;
 import static dev.nohasmith.venya_android_app.Parsing.displayTextView;
 import static dev.nohasmith.venya_android_app.Parsing.formatName;
 
@@ -148,19 +150,25 @@ public class AppointmentsFragment extends Fragment {
 
             TableRow.LayoutParams providerLayoutParams = new TableRow.LayoutParams();
             providerLayoutParams.width = 0;
-            providerLayoutParams.weight = 1;
+            providerLayoutParams.weight = 3;
             providerLayoutParams.setMargins(1,1,1,1);
 
             TableRow.LayoutParams dateLayoutParams = new TableRow.LayoutParams();
             dateLayoutParams.width = 0;
-            dateLayoutParams.weight = 1;
+            dateLayoutParams.weight = 3;
             dateLayoutParams.setMargins(1,1,1,1);
             //dateLayoutParams.gravity = Gravity.CENTER_HORIZONTAL;
 
             TableRow.LayoutParams timeLayoutParams = new TableRow.LayoutParams();
             timeLayoutParams.width = 0;
-            timeLayoutParams.weight = 1;
+            timeLayoutParams.weight = 3;
             timeLayoutParams.setMargins(1,1,1,1);
+            //timeLayoutParams.gravity = Gravity.CENTER_HORIZONTAL;
+
+            TableRow.LayoutParams statusLayoutParams = new TableRow.LayoutParams();
+            statusLayoutParams.width = 0;
+            statusLayoutParams.weight = 1;
+            statusLayoutParams.setMargins(1,1,1,1);
             //timeLayoutParams.gravity = Gravity.CENTER_HORIZONTAL;
 
             int rowCount = 0;
@@ -180,34 +188,58 @@ public class AppointmentsFragment extends Fragment {
             Parsing.setCellFormat(appContext,timeCell,timeLayoutParams,getResources().getString(R.string.menu_time).toUpperCase(),15,R.color.venya_table_title_cell);
             row.addView(timeCell);
 
+            TextView statusCell = new TextView(appContext);
+            Parsing.setCellFormat(appContext,statusCell,statusLayoutParams,getResources().getString(R.string.menu_status_short).toUpperCase(),15,R.color.venya_table_title_cell);
+            row.addView(statusCell);
+
             appointmentsTable.addView(row,rowCount++);
 
             for ( String appointmentid : appointments.keySet() ) {
                 Log.d(myTAG,"id " + appointmentid);
                 Appointment appointment = appointments.get(appointmentid);
 
-                row = new TableRow(appContext);
-                row.setLayoutParams(rowLayoutParams);
-
                 String providerid = appointment.getProviderid();
                 Provider provider = ((HashMap<String,Provider>)customer.getProviders().getValue()).get(providerid);
-                String name = provider.getName();
-                providerCell = new TextView(appContext);
-                Parsing.setCellFormat(appContext,providerCell,providerLayoutParams,formatName(name),15,R.color.venya_table_title_cell);
-                row.addView(providerCell);
 
-                long dateLong = appointment.getDate();
-                Date date = new Date(dateLong);
-                String dateStr = DateFormat.getDateInstance().format(date);
-                String timeStr = DateFormat.getTimeInstance().format(date);
+                if ( provider.isActive() ) { // Only display appointment for providers tht the customer is currently subcribed to
 
-                dateCell = new TextView(appContext);
-                Parsing.setCellFormat(appContext,dateCell,dateLayoutParams,dateStr,15,R.color.venya_table_value_cell);
-                row.addView(dateCell);
+                    row = new TableRow(appContext);
+                    row.setLayoutParams(rowLayoutParams);
 
-                timeCell = new TextView(appContext);
-                Parsing.setCellFormat(appContext,timeCell,timeLayoutParams,timeStr,15,R.color.venya_table_value_cell);
-                row.addView(timeCell);
+                    String name = provider.getName();
+                    providerCell = new TextView(appContext);
+                    Parsing.setCellFormat(appContext, providerCell, providerLayoutParams, formatName(name), 15, R.color.venya_table_title_cell);
+                    row.addView(providerCell);
+
+                    long dateLong = appointment.getDate();
+                    Date date = new Date(dateLong);
+
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+                    String dateStr = dateFormat.format(date);
+
+                    SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
+                    String timeStr = timeFormat.format(date);
+
+                    dateCell = new TextView(appContext);
+                    Parsing.setCellFormat(appContext, dateCell, dateLayoutParams, dateStr, 15, R.color.venya_table_value_cell);
+                    row.addView(dateCell);
+
+                    timeCell = new TextView(appContext);
+                    Parsing.setCellFormat(appContext, timeCell, timeLayoutParams, timeStr, 15, R.color.venya_table_value_cell);
+                    row.addView(timeCell);
+
+                    String status = appointment.getStatus().substring(0,2);
+                    statusCell = new TextView(appContext);
+                    Parsing.setCellFormat(appContext,statusCell,statusLayoutParams,status,15,R.color.venya_table_value_cell);
+                    row.addView(statusCell);
+
+                    if ( Parsing.getIndexOf(appointmentActiveStatus,appointment.getStatus()) < 0 ) {
+                        row.setBackgroundColor(appContext.getColor(R.color.venya_cancelled_background));
+                        providerCell.setTextColor(appContext.getColor(R.color.venya_cancelled_text));
+                        dateCell.setTextColor(appContext.getColor(R.color.venya_cancelled_text));
+                        timeCell.setTextColor(appContext.getColor(R.color.venya_cancelled_text));
+                        statusCell.setTextColor(appContext.getColor(R.color.venya_cancelled_text));
+                    }
 
                 /*
                 Button displayButton = new Button(appContext);
@@ -215,17 +247,18 @@ public class AppointmentsFragment extends Fragment {
                 displayButton.setPadding(10,10,10,10);
                 */
 
-                final String myAppId = appointmentid;
-                //displayButton.setOnClickListener
-                row.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        listener.appointmentClicked(customer,myAppId);
-                    }
-                });
-                //row.addView(displayButton);
+                    final String myAppId = appointmentid;
+                    //displayButton.setOnClickListener
+                    row.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            listener.appointmentClicked(customer, myAppId);
+                        }
+                    });
+                    //row.addView(displayButton);
 
-                appointmentsTable.addView(row,rowCount++);
+                    appointmentsTable.addView(row, rowCount++);
+                }
             }
 
         }

@@ -7,7 +7,7 @@
     <string name="init_customer">JE SUIS UN CLIENT</string>
     <string name="init_provider">JE SUIS UN OPERATERU</string>
     <string-array name="menuOptions">
-        <item>home</item>
+        <item>départ</item>
         <item>RDV</item>
         <item>notifications</item>
         <item>mes spécialistes</item>
@@ -181,4 +181,11 @@
     <string name="menu_selectprovider">Choisissez un spécialiste</string>
     <string name="menu_settime">choisissez une heure</string>
     <string name="errors_repsonseparseerror">Il n\'a pas été possible d\'interpréter la réponse du server</string>
+    <string name="menu_status_short">st</string>
+    <string name="errors_invalidtime">L\'heure n\'est pas valide</string>
+    <string name="form_back">retour</string>
+    <string name="form_cancelappointment">annuler</string>
+    <string name="errors_gohomeafterfail">Il y a eu un échec. Retour au départ</string>
+    <string name="form_confirm_cancel_appointment">Etes-vous sure de vouloir anuuler le rendez-vous?</string>
+    <string name="menu_select_language">Choisessez votre langue</string>
 </resources>

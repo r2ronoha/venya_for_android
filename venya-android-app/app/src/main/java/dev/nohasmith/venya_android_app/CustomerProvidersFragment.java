@@ -84,24 +84,34 @@ public class CustomerProvidersFragment extends Fragment{
 
             final TableLayout tableLayout = (TableLayout) view.findViewById(R.id.providers_table);
             TableRow row;
-            TableRow.LayoutParams layoutParams;
+            TableRow.LayoutParams layoutParams = new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT);
+
+            TableRow.LayoutParams providerLayoutParams = new TableRow.LayoutParams();
+            providerLayoutParams.width = 0;
+            providerLayoutParams.weight = 2;
+            providerLayoutParams.setMargins(1,1,1,1);
+
+            TableRow.LayoutParams detailsLayoutParams = new TableRow.LayoutParams();
+            detailsLayoutParams.width = 0;
+            detailsLayoutParams.weight = 2;
+            detailsLayoutParams.setMargins(1,1,1,1);
+
+            TableRow.LayoutParams optionLayoutParams = new TableRow.LayoutParams();
+            optionLayoutParams.width = 0;
+            optionLayoutParams.weight = 1;
+            optionLayoutParams.setMargins(1,1,1,1);
 
             TextView nameCell = new TextView(appContext);
             TextView detailsCellTitle = new TextView(appContext);
             TextView optionCell = new TextView(appContext);
 
             row = new TableRow(appContext);
-            layoutParams = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT);
             row.setLayoutParams(layoutParams);
 
             int rowCount = 0;
-            nameCell.setText(getResources().getString(R.string.provider_name).toUpperCase());
-            detailsCellTitle.setText(getResources().getString(R.string.form_details).toUpperCase());
-            optionCell.setText(getResources().getString(R.string.settings_option).toUpperCase());
-
-            nameCell.setPadding(10, 10, 10, 10);
-            detailsCellTitle.setPadding(10, 10, 10, 10);
-            optionCell.setPadding(10, 10, 10, 10);
+            Parsing.setCellFormat(appContext,nameCell,providerLayoutParams,getResources().getString(R.string.provider_name).toUpperCase(),15,R.color.venya_table_title_cell);
+            Parsing.setCellFormat(appContext,detailsCellTitle,detailsLayoutParams,getResources().getString(R.string.form_details).toUpperCase(),15,R.color.venya_table_title_cell);
+            Parsing.setCellFormat(appContext,optionCell,optionLayoutParams,getResources().getString(R.string.settings_option).toUpperCase(),15,R.color.venya_table_title_cell);
 
             row.addView(nameCell);
             row.addView(detailsCellTitle);
@@ -114,24 +124,33 @@ public class CustomerProvidersFragment extends Fragment{
                 Provider provider = customerProviders.get(providerid);
                 if (provider.isActive()) {
                     final TableRow providerRow = new TableRow(appContext);
+                    providerRow.setLayoutParams(layoutParams);
+                    providerRow.setBackgroundColor(appContext.getColor(R.color.venya_table_value_cell));
 
                     nameCell = new TextView(appContext);
-                    nameCell.setText(Parsing.formatName(provider.getName()));
-                    nameCell.setPadding(10, 10, 10, 10);
+                    TableRow.LayoutParams nameValueLP = new TableRow.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT);
+                    nameValueLP.width = 0;
+                    nameValueLP.weight = 5;
+                    Parsing.setCellFormat(appContext,nameCell,nameValueLP,Parsing.formatName(provider.getName()),15,R.color.venya_table_value_cell);
 
                     providerRow.addView(nameCell);
                     providerRow.setPadding(10, 10, 10, 10);
                     final int rowid = View.generateViewId();
                     providerRow.setId(rowid);
 
-                    // create a table with the details of the provider and insert it in the "details" cell
+                    // create a table with the details of the providernd insert it in the "details" cell
                     TableLayout detailsTable = new TableLayout(appContext);
+                    TableLayout.LayoutParams detailsTableLP = new TableLayout.LayoutParams();
+                    detailsTableLP.width = 0;
+                    detailsTableLP.weight = 5;
+                    detailsTable.setBackgroundColor(appContext.getColor(R.color.venya_table_value_cell));
                     int fieldRowCount = 0;
                     for (int i = 0; i < providerFields.length; i++) {
                         String field = providerFields[i];
                         if (!field.equals("name") && !field.equals("id")) {
                             TableRow detailRow = new TableRow(appContext);
                             TableRow.LayoutParams detaileLayoutParams = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT);
+                            detaileLayoutParams.setMargins(0,0,0,0);
                             detailRow.setLayoutParams(detaileLayoutParams);
 
                         /*
@@ -148,18 +167,25 @@ public class CustomerProvidersFragment extends Fragment{
                             String valueStr = (field.equals("address")) ? ((Address) fieldValue).formatAddress() : (String) fieldValue;
                             valueStr = (valueStr.equals("") || valueStr.toLowerCase().equals("n/a")) ? field + " N/A" : valueStr;
 
-                            valueCell.setText(valueStr);
-                            valueCell.setPadding(5, 5, 5, 5);
+                            TableRow.LayoutParams valueLP = new TableRow.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT);
+                            Parsing.setCellFormat(appContext,valueCell,valueLP,valueStr,5,R.color.venya_table_value_cell);
+                            //valueCell.setText(valueStr);
+                            //valueCell.setBackgroundColor(appContext.getColor(R.color.venya_table_value_cell));
+
                             detailRow.addView(valueCell);
 
                             detailsTable.addView(detailRow, fieldRowCount++);
                         }
                     }
+
                     providerRow.addView(detailsTable);
 
                     optionCell = new TextView(appContext);
+                    TableRow.LayoutParams optionLP = new TableRow.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT);
+                    optionLP.width = 0;
+                    optionLP.weight = 2;
                     optionCell.setText(getResources().getString(R.string.deactivate));
-                    optionCell.setPadding(10, 10, 10, 10);
+                    Parsing.setCellFormat(appContext,optionCell,optionLP,getResources().getString(R.string.deactivate).toUpperCase(),5,R.color.venya_table_value_cell);
                     optionCell.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -183,6 +209,7 @@ public class CustomerProvidersFragment extends Fragment{
         if ( dialogBundle == null ) {
             dialogBundle = new Bundle();
         }
+        dialogBundle.putString("action","unsubscribe");
         dialogBundle.putString("message",message);
         dialogBundle.putString("providerid",providerid);
         dialogBundle.putString("sessionid",sessionid);

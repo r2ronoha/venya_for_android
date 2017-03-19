@@ -16,6 +16,7 @@ import android.widget.TextView;
 
 import java.util.HashMap;
 
+import static dev.nohasmith.venya_android_app.MainActivity.menuOptionsTags;
 import static dev.nohasmith.venya_android_app.MainActivity.supportedLanguages;
 import static dev.nohasmith.venya_android_app.MainActivity.venyaUrl;
 
@@ -27,17 +28,19 @@ public class ChangeLanguageFragment extends Fragment {
     FullCustomerSettings customer;
     Context appContext;
     TextView [] languageOptions;
+    private int currentPosition;
+    private final String TAG = this.getClass().getSimpleName();
 
     public ChangeLanguageFragment() {
         // Required empty public constructor
     }
-
+    /*
     public ChangeLanguageFragment(FullCustomerSettings customer) {
         this.customer = customer;
     }
-
+    */
     interface UpdateLanguageListener {
-        void updateLanguageClicked(FullCustomerSettings customer);
+        void updateLanguageClicked(FullCustomerSettings customer, int currentPosition);
     }
     UpdateLanguageListener updateListener;
 
@@ -72,42 +75,58 @@ public class ChangeLanguageFragment extends Fragment {
         final TextView errorsView = (TextView)view.findViewById(R.id.errorsView);
         errorsView.setText("");
 
-        TextView cancelView = (TextView)view.findViewById(R.id.cancel);
-        cancelView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                cancelListener.cancelClicked(customer);
-            }
-        });
+        Bundle args = getArguments();
+        try {
+            currentPosition = args.getInt("currentPosition");
+        } catch (Exception e) {
+            Log.w(TAG,"Could not get current position from arguments. Setting to 'settings'");
+            currentPosition = Parsing.getIndexOf(menuOptionsTags,"settings");
+        }
 
-        TableLayout tableLayout = (TableLayout)view.findViewById(R.id.options_table);
-        TableRow row;
-        TableRow.LayoutParams layoutParams;
-        RadioButton tableButton;
-        ImageView langImage;
-        int rowCount = 0;
+        try {
+            customer = args.getParcelable("customer");
+        } catch (Exception e) {
+            Log.e(TAG,"Could not get custoemr from arguments");
+            e.printStackTrace();
+        }
 
-        for (int i=0; i<supportedLanguages.length; i++) {
-            // create select menu
-            final String language = supportedLanguages[i];
-            row = new TableRow(appContext);
-            layoutParams = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT);
-            row.setLayoutParams(layoutParams);
-
-            tableButton = new RadioButton(appContext);
-            langImage = new ImageView(appContext);
-            
-            int imageid = Parsing.getResId(appContext,language,"drawable");
-            langImage.setImageResource(imageid);
-
-            //tableButton.setOnClickListener(new View.OnClickListener() {
-            row.setOnClickListener(new View.OnClickListener() {
+        if ( customer instanceof FullCustomerSettings ) {
+            TextView cancelView = (TextView) view.findViewById(R.id.cancel);
+            cancelView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    String response = null;
+                    cancelListener.cancelClicked(customer);
+                }
+            });
 
-                    String lang = language.toLowerCase();
-                    //if (!lang.equals((String) customer.getLanguage().getValue())) {
+            TableLayout tableLayout = (TableLayout) view.findViewById(R.id.options_table);
+            TableRow row;
+            TableRow.LayoutParams layoutParams;
+            RadioButton tableButton;
+            ImageView langImage;
+            int rowCount = 0;
+
+            for (int i = 0; i < supportedLanguages.length; i++) {
+                // create select menu
+                final String language = supportedLanguages[i];
+                row = new TableRow(appContext);
+                layoutParams = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT);
+                row.setLayoutParams(layoutParams);
+
+                tableButton = new RadioButton(appContext);
+                langImage = new ImageView(appContext);
+
+                int imageid = Parsing.getResId(appContext, language, "drawable");
+                langImage.setImageResource(imageid);
+
+                //tableButton.setOnClickListener(new View.OnClickListener() {
+                row.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String response = null;
+
+                        String lang = language.toLowerCase();
+                        //if (!lang.equals((String) customer.getLanguage().getValue())) {
                         String reqUrl = venyaUrl + "/updateSetting?" +
                                 "action=update&type=customer" +
                                 "&id=" + (String) customer.getId().getValue() +
@@ -117,41 +136,42 @@ public class ChangeLanguageFragment extends Fragment {
                         try {
                             response = httpHandler.execute(reqUrl).get();
                         } catch (Exception e) {
-                            Log.e("ChangeLanguage.OptionSelected","Failed to update customer with language: " + lang);
+                            Log.e("ChangeLanguage.OptionSelected", "Failed to update customer with language: " + lang);
                         }
 
-                        if ( response == null ) {
-                            Log.e("ChangeLanguage.OptionSelected","NULL response from server to lang: " + lang);
-                            Parsing.displayTextView(appContext,errorsView,R.string.errors_nullfromserver);
+                        if (response == null) {
+                            Log.e("ChangeLanguage.OptionSelected", "NULL response from server to lang: " + lang);
+                            Parsing.displayTextView(appContext, errorsView, R.string.errors_nullfromserver);
                         } else {
-                            HashMap<String,Object> parsedResponse = Parsing.parseGetCustomerResponseJson(response,appContext);
-                            String status = (String)parsedResponse.get("status");
-                            Log.d("CHangeLAnguage.OptinSelected","Request status: " + status);
-                            if ( ! status.equals(getResources().getString(R.string.success_status)) ) {
-                                String errormessage = (String)parsedResponse.get("errormessage");
-                                Log.d("ChangeLanguage.Optionselecte","Error to update request = " + errormessage);
+                            HashMap<String, Object> parsedResponse = Parsing.parseGetCustomerResponseJson(response, appContext);
+                            String status = (String) parsedResponse.get("status");
+                            Log.d("CHangeLAnguage.OptinSelected", "Request status: " + status);
+                            if (!status.equals(getResources().getString(R.string.success_status))) {
+                                String errormessage = (String) parsedResponse.get("errormessage");
+                                Log.d("ChangeLanguage.Optionselecte", "Error to update request = " + errormessage);
                                 try {
-                                    Parsing.displayTextView(appContext,errorsView,"errors_" + errormessage);
+                                    Parsing.displayTextView(appContext, errorsView, "errors_" + errormessage);
                                 } catch (Exception e) {
                                     errorsView.setText(errormessage);
                                 }
                             } else {
-                                CustomerSettings updatedCustomer = (CustomerSettings)parsedResponse.get("customer");
+                                CustomerSettings updatedCustomer = (CustomerSettings) parsedResponse.get("customer");
                                 String updatedLang = updatedCustomer.getLanguage();
-                                customer.setField("language",updatedLang);
-                                updateListener.updateLanguageClicked(customer);
+                                customer.setField("language", updatedLang);
+                                updateListener.updateLanguageClicked(customer,currentPosition);
                             }
                         }
-                    //}
-                }
-            });
-            
-            //row.addView(tableButton);
-            langImage.setPadding(10,10,10,10);
-            row.addView(langImage);
-            
-            tableLayout.addView(row,rowCount);
-            rowCount++;
+                        //}
+                    }
+                });
+
+                //row.addView(tableButton);
+                langImage.setPadding(10, 10, 10, 10);
+                row.addView(langImage);
+
+                tableLayout.addView(row, rowCount);
+                rowCount++;
+            }
         }
     }
 
