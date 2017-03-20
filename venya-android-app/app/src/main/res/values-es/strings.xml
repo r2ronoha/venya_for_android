@@ -190,4 +190,5 @@
     <string name="errors_gohomeafterfail">Ha habido un fallo. Volviendo a inicio</string>
     <string name="form_confirm_cancel_appointment">¿Estás seguro que quieres cancelar la cita?</string>
     <string name="menu_select_language">Elige tu idioma</string>
+    <string name="form_newappointment">Nueva cita</string>
 </resources>

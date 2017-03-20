@@ -139,6 +139,7 @@ public class SettingsFragment extends Fragment {
         appContext = getContext();
 
         TableLayout tableLayout = (TableLayout)view.findViewById(R.id.customer_table);
+        tableLayout.setBackgroundColor(appContext.getColor(R.color.colorPrimaryDark));
         TableRow row;
         TableRow.LayoutParams layoutParams;
         TextView fieldCell = new TextView(getContext());
@@ -149,19 +150,29 @@ public class SettingsFragment extends Fragment {
         layoutParams = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT);
         row.setLayoutParams(layoutParams);
 
-        int rowCount = 0;
-        fieldCell.setText(getResources().getString(R.string.settings_setting).toUpperCase());
-        valueCell.setText(getResources().getString(R.string.settings_value).toUpperCase());
-        optionCell.setText(getResources().getString(R.string.settings_option).toUpperCase());
+        TableRow.LayoutParams fieldLP = new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT);
+        fieldLP.width = 0;
+        fieldLP.weight = 7;
+        fieldLP.setMargins(1,1,1,1);
+        Parsing.setCellFormat(appContext,fieldCell,fieldLP,getResources().getString(R.string.settings_setting).toUpperCase(),10,R.color.venya_table_title_cell);
 
-        fieldCell.setPadding(10,10,10,10);
-        valueCell.setPadding(10,10,10,10);
-        optionCell.setPadding(10,10,10,10);
+        TableRow.LayoutParams valueLP = new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT);
+        valueLP.width = 0;
+        valueLP.weight = 11;
+        valueLP.setMargins(1,1,1,1);
+        Parsing.setCellFormat(appContext,valueCell,valueLP,getResources().getString(R.string.settings_value).toUpperCase(),10,R.color.venya_table_title_cell);
+
+        TableRow.LayoutParams optionLP = new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT);
+        optionLP.width = 0;
+        optionLP.weight = 4;
+        optionLP.setMargins(1,1,1,1);
+        Parsing.setCellFormat(appContext,optionCell,optionLP,getResources().getString(R.string.settings_option).toUpperCase(),10,R.color.venya_table_title_cell);
 
         row.addView(fieldCell);
         row.addView(valueCell);
         row.addView(optionCell);
 
+        int rowCount = 0;
         tableLayout.addView(row,rowCount++);
 
         if ( customer != null ) {
@@ -176,8 +187,7 @@ public class SettingsFragment extends Fragment {
 
                     fieldCell = new TextView(getContext());
                     int langFieldId = Parsing.getResId(getContext(),"customer_" + field);
-                    fieldCell.setText(Parsing.formatMessage(new String [] {getResources().getString(langFieldId)}));
-                    fieldCell.setPadding(10,10,10,10);
+                    Parsing.setCellFormat(appContext,fieldCell,fieldLP,Parsing.formatMessage(new String [] {getResources().getString(langFieldId)}),10,R.color.venya_table_value_cell);
                     row.addView(fieldCell);
 
                     valueCell = new TextView(getContext());
@@ -206,8 +216,7 @@ public class SettingsFragment extends Fragment {
                     } else if ( Arrays.asList(dateFields).contains(field) ) {
                         value = Parsing.formatDate(value);
                     }
-                    valueCell.setText(value);
-                    valueCell.setPadding(10,10,10,10);
+                    Parsing.setCellFormat(appContext,valueCell,valueLP,value,10,R.color.venya_table_value_cell);
                     row.addView(valueCell);
 
                     if ( Arrays.asList(listFields).contains(field) ) {
@@ -217,8 +226,7 @@ public class SettingsFragment extends Fragment {
                     } else {
                         option = getResources().getString(R.string.settings_stringoption);
                     }
-                    optionCell.setText(option.toUpperCase());
-                    optionCell.setPadding(10,10,10,10);
+                    Parsing.setCellFormat(appContext,optionCell,optionLP,option.toUpperCase(),10,R.color.venya_table_value_cell);
 
                     // attach listeners to option cell
                     switch(field) {

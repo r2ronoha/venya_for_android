@@ -147,6 +147,7 @@ public class AppointmentDetailsFragment extends Fragment {
             }
 
             TableLayout appTable = (TableLayout) view.findViewById(R.id.my_table);
+            appTable.setBackgroundColor(getContext().getColor(R.color.colorPrimaryDark));
 
             TableRow.LayoutParams rowLayoutParams = new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT);
 

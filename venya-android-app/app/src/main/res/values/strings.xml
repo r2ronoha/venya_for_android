@@ -63,6 +63,7 @@
         <item>firstname</item>
         <item>surname</item>
         <item>email</item>
+        <item>providers</item>
     </string-array>
     <string-array name="customerCunstructFields">
         <item>id</item>
@@ -396,5 +397,6 @@
     <string name="errors_gohomeafterfail">Something went wrong. Going back home</string>
     <string name="form_confirm_cancel_appointment">Are you sure you want to cancel your appointment?</string>
     <string name="menu_select_language">Select a language</string>
+    <string name="form_newappointment">New appointment</string>
 
 </resources>

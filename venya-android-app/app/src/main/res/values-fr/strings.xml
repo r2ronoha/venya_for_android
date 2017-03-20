@@ -188,4 +188,5 @@
     <string name="errors_gohomeafterfail">Il y a eu un échec. Retour au départ</string>
     <string name="form_confirm_cancel_appointment">Etes-vous sure de vouloir anuuler le rendez-vous?</string>
     <string name="menu_select_language">Choisessez votre langue</string>
+    <string name="form_newappointment">Nouveau rendez-vous</string>
 </resources>

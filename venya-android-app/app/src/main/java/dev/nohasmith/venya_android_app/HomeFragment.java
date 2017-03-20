@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -93,16 +94,25 @@ public class HomeFragment extends Fragment {
                 String field = homeFields[i];
                 if ( customer.getField(field) != null && ! Arrays.asList(privateFields).contains(field) ) {
                     row = new TableRow(getContext());
-                    layoutParams = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT);
+                    layoutParams = new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT);
                     row.setLayoutParams(layoutParams);
+
                     fieldCell = new TextView(getContext());
+                    TableRow.LayoutParams fieldLP = new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT);
+                    fieldLP.width = 0;
+                    fieldLP.weight = 3;
+                    fieldCell.setLayoutParams(fieldLP);
 
                     int langFieldId = Parsing.getResId(getContext(),"customer_" + field);
                     fieldCell.setText(Parsing.formatMessage(new String [] {getResources().getString(langFieldId)}));
                     fieldCell.setPadding(10,10,10,10);
+                    fieldCell.setGravity(Gravity.END);
                     row.addView(fieldCell);
 
                     CustomerField fullField = customer.getField(field);
+                    TableRow.LayoutParams valueLP = new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT);
+                    valueLP.width = 0;
+                    valueLP.weight = 2;
                     valueCell = new View(getContext());
                     textCell = new TextView(getContext());
                     imageCell = new ImageView(getContext());
@@ -118,11 +128,18 @@ public class HomeFragment extends Fragment {
                             if ( providers.get(providerid).isActive() ){
                                 Provider providerDetails = Parsing.getProviderDetails(getContext(),providerid);
 
+                                TableRow.LayoutParams provLP = new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT);
+                                provLP.width = 0;
+                                provLP.weight = 1;
+                                provLP.setMargins(0,0,0,0);
+
                                 TableRow provRow = new TableRow(getContext());
                                 TextView provView = new TextView(getContext());
                                 String providerName = providerDetails.getName();
-                                provView.setText(providerName);
+                                provView.setText(Parsing.formatName(providerName));
+                                provView.setLayoutParams(provLP);
                                 provView.setPadding(5,5,5,5);
+                                provView.setGravity(Gravity.END);
                                 provRow.addView(provView);
                                 providersTable.addView(provRow,provCount++);
 
@@ -144,16 +161,19 @@ public class HomeFragment extends Fragment {
                         } else if (field.equals("language")) {
                             String lang = (String) fullField.getValue();
                             imageCell.setImageResource(Parsing.getResId(getContext(), lang, "drawable"));
+                            imageCell.setForegroundGravity(Gravity.END);
                         } else {
-                            String value = (String) fullField.getValue();
+                            String value = Parsing.formatName((String) fullField.getValue());
                             if (Arrays.asList(secretFields).contains(field)) {
                                 value = Parsing.hideValue(value);
                             }
                             textCell.setText(value);
                         }
+                        textCell.setGravity(Gravity.END);
+                        valueCell.setLayoutParams(valueLP);
                         valueCell = (field.equals("language")) ? imageCell : textCell;
                         valueCell.setPadding(10, 10, 10, 10);
-                        valueCell.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
+                        //valueCell.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
                         row.addView(valueCell);
                     }
                     tableLayout.addView(row, rowCount++);
