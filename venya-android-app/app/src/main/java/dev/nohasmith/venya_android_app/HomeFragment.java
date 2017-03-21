@@ -14,7 +14,10 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import com.roomorama.caldroid.CaldroidFragment;
+
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.HashMap;
 
 import static android.R.attr.left;
@@ -180,10 +183,13 @@ public class HomeFragment extends Fragment {
                 }
             }
 
+
             Fragment fragment = new AppointmentsFragment();
             Bundle args = fragment.getArguments();
             if ( args == null ) { args = new Bundle(); }
             args.putParcelable("customer",customer);
+            args.putString("title",getResources().getString(R.string.title_nextappointments));
+            args.putInt("numberofappointments",4); // Limit the number of appointments displayed in home page to next 4
             fragment.setArguments(args);
 
             FragmentTransaction ft = getChildFragmentManager().beginTransaction();
@@ -191,6 +197,20 @@ public class HomeFragment extends Fragment {
             ft.addToBackStack(null);
             ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
             ft.commit();
+
+
+            /*
+            CaldroidFragment caldroidFragment = new CaldroidFragment();
+            Bundle args = new Bundle();
+            Calendar calendar = Calendar.getInstance();
+            args.putInt(CaldroidFragment.MONTH, calendar.get(Calendar.MONTH) + 1);
+            args.putInt(CaldroidFragment.YEAR, calendar.get(Calendar.YEAR));
+            caldroidFragment.setArguments(args);
+
+            FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
+            ft.replace(R.id.appointments_table, caldroidFragment);
+            ft.commit();
+            */
 
         }
     }

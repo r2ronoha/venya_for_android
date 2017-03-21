@@ -27,6 +27,7 @@
     <string name="menu_changelanguage">Choisissez votre langue</string>
     <string name="menu_changephone">Actualisez votre téléphone</string>
     <string name="menu_appointmentdetails">Détails du rdv</string>
+    <string name="menu_calendar">calendrier</string>
     <string name="header_register">Inscrivez vous</string>
     <string name="header_lostid">Rétrouvez votre ID d\'imscription</string>
     <string name="header_lostpassword">Récupérez votre mot de pas</string>
@@ -189,4 +190,28 @@
     <string name="form_confirm_cancel_appointment">Etes-vous sure de vouloir anuuler le rendez-vous?</string>
     <string name="menu_select_language">Choisessez votre langue</string>
     <string name="form_newappointment">Nouveau rendez-vous</string>
+
+    <string name="monday">lundi</string>
+    <string name="tuesday">mardi</string>
+    <string name="wednesday">mercredi</string>
+    <string name="thursday">jeudi</string>
+    <string name="friday">vendredi</string>
+    <string name="saturday">samedi</string>
+    <string name="sunday">dimanche</string>
+    <string name="january">janvier</string>
+    <string name="february">février</string>
+    <string name="march">mars</string>
+    <string name="april">avril</string>
+    <string name="may">mai</string>
+    <string name="june">juin</string>
+    <string name="july">juillet</string>
+    <string name="august">aout</string>
+    <string name="september">septembre</string>
+    <string name="october">octobre</string>
+    <string name="november">novembre</string>
+    <string name="december">décembre</string>
+    <string name="title_dayAppointments">Rendez-vous pour le</string>
+    <string name="form_toappointments">Tous les rendez-vous</string>
+    <string name="title_nextappointments">Prochains rendez-vous</string>
+    <string name="noappointments">Vous n\'avez aucun rendez vous</string>
 </resources>

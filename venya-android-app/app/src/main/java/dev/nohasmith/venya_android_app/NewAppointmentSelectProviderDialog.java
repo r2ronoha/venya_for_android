@@ -28,6 +28,7 @@ public class NewAppointmentSelectProviderDialog extends DialogFragment{
     String [] activeProviders;
     String TAG = this.getClass().getSimpleName();
     Context appContext;
+    long newAppointmentDate = 0;
 
     public NewAppointmentSelectProviderDialog() {
         // Required empty public constructor
@@ -69,6 +70,7 @@ public class NewAppointmentSelectProviderDialog extends DialogFragment{
         try {
             customer = args.getParcelable("customer");
             activeProviders = args.getStringArray("activeproviders");
+            newAppointmentDate = args.getLong("newdate");
         } catch (Exception e) {
             Log.e(myTAG,"Failed to get arguments from Bundle");
             e.printStackTrace();
@@ -109,7 +111,7 @@ public class NewAppointmentSelectProviderDialog extends DialogFragment{
                             if ( option == 0 && providerid == null ) {
                                 providerid = activeProvPairs.get(activeProvNames[0]);
                             }
-                            goToDatePicker(customer, providerid);
+                            goToDatePicker(customer, providerid, newAppointmentDate);
                         }
                     })
                     .setNegativeButton(getResources().getString(R.string.form_cancel), new DialogInterface.OnClickListener() {
@@ -128,13 +130,14 @@ public class NewAppointmentSelectProviderDialog extends DialogFragment{
         }
     }
 
-    public void goToDatePicker(FullCustomerSettings customer, String providerid) {
+    public void goToDatePicker(FullCustomerSettings customer, String providerid, long newAppointmentDate) {
         long date = new Date().getTime();
         appointment = new Appointment((String)customer.getId().getValue(),providerid,date);
 
         Bundle args = new Bundle();
         args.putParcelable("customer",customer);
         args.putSerializable("appointment",appointment);
+        args.putLong("newdate",newAppointmentDate);
 
         DialogFragment dateDialog = new NewAppointmentSelectDateDialog();
         dateDialog.setArguments(args);

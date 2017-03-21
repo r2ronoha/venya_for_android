@@ -7,6 +7,7 @@
     <color name="venya_menu">#c4d4da</color>
     <color name="venya_table_title_cell">#5998d2</color>
     <color name="venya_table_value_cell">#89b9e6</color>
+    <color name="venya_appointment_date">#5998d2</color>
     <color name="venya_cancelled_background">#b3b6b7</color>
     <color name="venya_cancelled_text">#797d7f</color>
     <color name="black">@android:color/black</color>

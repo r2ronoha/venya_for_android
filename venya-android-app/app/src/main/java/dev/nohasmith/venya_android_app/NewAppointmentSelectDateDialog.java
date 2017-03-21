@@ -24,6 +24,7 @@ public class NewAppointmentSelectDateDialog extends DialogFragment implements Da
     final String TAG = this.getClass().getSimpleName();
     Context appContext;
     Bundle savedInstanceState;
+    private long newAppointmentDate = 0;
 
     @Override
     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
@@ -50,6 +51,7 @@ public class NewAppointmentSelectDateDialog extends DialogFragment implements Da
             Bundle args = getArguments();
             customer = args.getParcelable("customer");
             appointment = (Appointment)args.getSerializable("appointment");
+            newAppointmentDate = args.getLong("newdate");
         } catch (Exception e) {
             Log.e(myTAG,"Failed to get arguments from Bundle");
             e.printStackTrace();
@@ -58,7 +60,11 @@ public class NewAppointmentSelectDateDialog extends DialogFragment implements Da
         if ( customer instanceof FullCustomerSettings && appointment instanceof Appointment ) {
 
             calendar = Calendar.getInstance();
-            calendar.setTime(new Date());
+            if ( newAppointmentDate != 0 ) {
+                calendar.setTime(new Date(newAppointmentDate));
+            } else {
+                calendar.setTime(new Date());
+            }
             int year = calendar.get(Calendar.YEAR);
             int month = calendar.get(Calendar.MONTH);
             int day = calendar.get(Calendar.DAY_OF_MONTH);

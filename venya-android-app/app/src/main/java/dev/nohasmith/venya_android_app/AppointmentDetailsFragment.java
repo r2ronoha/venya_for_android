@@ -83,6 +83,7 @@ public class AppointmentDetailsFragment extends Fragment {
         errorsView.setText("");
 
         TextView backButton = (TextView)view.findViewById(R.id.backButton);
+        Parsing.displayTextView(appContext,backButton,R.string.form_toappointments);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

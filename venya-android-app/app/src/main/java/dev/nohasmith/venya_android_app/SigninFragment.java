@@ -238,7 +238,7 @@ public class SigninFragment extends Fragment {
 
                             String action = (String) parsedResponse.get("action");
                             FullCustomerSettings customer = (FullCustomerSettings) parsedResponse.get("customer");
-                            Log.d("MAIN Activity","ID after parsing = " + customer.getId().getValue());
+                            //Log.d("Signin","ID after parsing = " + customer.getId().getValue() + " - sessionid = " + customer.getSessionid().getValue());
 
                             if ( ! customer.getSessionid().getValue().equals(getResources().getString(R.string.sessionclosed))) {
                                 Parsing.displayTextView(appContext,errorsView,R.string.errors_sessionopened);

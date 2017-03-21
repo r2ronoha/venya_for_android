@@ -155,6 +155,7 @@
         <item>changephone</item>
         <item>appointmentdetails</item>
         <item>updateappointment</item>
+        <item>calendar</item>
     </string-array>
     <string-array name="appointmentActiveStatus">
         <item>future</item>
@@ -234,6 +235,7 @@
     <string name="menu_changelanguage">Select a language</string>
     <string name="menu_changephone">Update phone</string>
     <string name="menu_appointmentdetails">Appointment details</string>
+    <string name="menu_calendar">calendar</string>
     <string name="header_register">Create your account</string>
     <string name="header_lostid">Recover your registration ID</string>
     <string name="header_lostpassword">Get your password</string>
@@ -398,5 +400,30 @@
     <string name="form_confirm_cancel_appointment">Are you sure you want to cancel your appointment?</string>
     <string name="menu_select_language">Select a language</string>
     <string name="form_newappointment">New appointment</string>
+
+    // calendar strings
+    <string name="monday">monday</string>
+    <string name="tuesday">tuesday</string>
+    <string name="wednesday">wednesday</string>
+    <string name="thursday">thursday</string>
+    <string name="friday">friday</string>
+    <string name="saturday">saturday</string>
+    <string name="sunday">sunday</string>
+    <string name="january">january</string>
+    <string name="february">february</string>
+    <string name="march">march</string>
+    <string name="april">april</string>
+    <string name="may">may</string>
+    <string name="june">june</string>
+    <string name="july">july</string>
+    <string name="august">august</string>
+    <string name="september">september</string>
+    <string name="october">october</string>
+    <string name="november">november</string>
+    <string name="december">december</string>
+    <string name="title_dayAppointments">Appointments on</string>
+    <string name="form_toappointments">To all appointments</string>
+    <string name="title_nextappointments">next appointments</string>
+    <string name="noappointments">You have no appointments</string>
 
 </resources>

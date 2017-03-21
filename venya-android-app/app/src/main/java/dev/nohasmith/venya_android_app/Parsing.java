@@ -163,7 +163,7 @@ public class Parsing {
                 Log.e("[Parsing.getHttpResponse]","No network connection");
                 return  null;
             } else {
-                Log.d("[Parsing.getHttpResponse]", "reqUrl from Main Activiy: " + reqUrl);
+                Log.d("[Parsing.getHttpResponse]", "reqUrl: " + reqUrl);
                 URL url = new URL(reqUrl);
 
                 String dest = reqUrl.replaceAll("https*://","").replaceAll("/.*","");
@@ -178,28 +178,28 @@ public class Parsing {
                 }*/
 
                 if ( url == null ) {
-                    Log.d("[Parsing.getHttpResponse]", "URL initialised is NULL");
+                    Log.e("[Parsing.getHttpResponse]", "URL initialised is NULL");
                 } else {
                     try {
-                        Log.d("[Parsing.getHttpResponse]", "Calling HttpURLConnection");
+                        //Log.d("[Parsing.getHttpResponse]", "Calling HttpURLConnection");
                         HttpURLConnection cnx = (HttpURLConnection) url.openConnection();
                         cnx.setConnectTimeout(5000);
                         cnx.setRequestMethod("GET");
                         if (cnx != null) {
                             int respCode = cnx.getResponseCode();
                             InputStream inputStream;
-                            Log.d("[Parsing.getHttpResponse]", "HTTP connection Response code: " + Integer.toString(respCode));
+                            //Log.d("[Parsing.getHttpResponse]", "HTTP connection Response code: " + Integer.toString(respCode));
                             if (respCode != 200) {
-                                Log.d("[Parsing.getHttpResponse]", "getting ERROR stream");
+                                Log.e("[Parsing.getHttpResponse]", "HTTP connection Response code: " + Integer.toString(respCode) + "getting ERROR stream");
                                 inputStream = cnx.getErrorStream();
                             } else {
-                                Log.d("[Parsing.getHttpResponse]", "getting INPUT stream");
+                                //Log.d("[Parsing.getHttpResponse]", "getting INPUT stream");
                                 inputStream = cnx.getInputStream();
                             }
-                            Log.d("[Parsing.getHttpResponse]", "Parsing response from Input Stream");
+                            //Log.d("[Parsing.getHttpResponse]", "Parsing response from Input Stream");
                             response = streamToString(inputStream);
                         } else {
-                            Log.d("[Parsing.getHttpResponse]", "NULL cnx after openConnection");
+                            Log.e("[Parsing.getHttpResponse]", "NULL cnx after openConnection");
                         }
                     } catch (SocketTimeoutException timeout) {
                         Log.e(TAG,"HTTP Request Timeout");
@@ -338,13 +338,13 @@ public class Parsing {
     }
 
     public static String randomSessionID (String id) {
-        Log.d(TAG,"id recibido : " + id);
+        //Log.d(TAG,"id recibido : " + id);
         // Create a random session id based on the user id and a random suffix of 2 digits
         double suffix = Math.floor(Math.random()*(R.integer.sessionPlusIdMax - R.integer.sessionPlusIdMin + 1) + R.integer.sessionPlusIdMin);
         String suffixString = String.format("%.0f",suffix).replaceAll("/^([0-9])$/","0$1");
         suffixString = suffixString.substring(suffixString.length() - 2);
         String sessionid = id + suffixString;
-        Log.d(TAG,"id = " + id + " - suffix = " + suffix + " - suffixString = " + suffixString + " ==> sessionid = " + sessionid);
+        //Log.d(TAG,"id = " + id + " - suffix = " + suffix + " - suffixString = " + suffixString + " ==> sessionid = " + sessionid);
         return sessionid;
     }
 

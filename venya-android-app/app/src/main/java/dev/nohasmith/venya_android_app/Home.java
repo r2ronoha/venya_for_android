@@ -22,6 +22,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 
 import static android.app.PendingIntent.getActivity;
@@ -32,6 +34,8 @@ import static dev.nohasmith.venya_android_app.MainActivity.menuOptions;
 import static dev.nohasmith.venya_android_app.MainActivity.menuOptionsTags;
 import static dev.nohasmith.venya_android_app.MainActivity.supportedLanguages;
 import static dev.nohasmith.venya_android_app.MainActivity.venyaUrl;
+
+
 
 /**
  * Created by arturo on 07/03/2017.
@@ -66,8 +70,10 @@ public class Home extends AppCompatActivity implements
 
         UnsubscribeConfirmationDialog.ConfirmDialogListener,
 
+        CalendarFragment.ViewAppointmentListener,
         AppointmentsFragment.AppointmentListener,
         AppointmentsFragment.NewAppointmentListener,
+        AppointmentsFragment.GoToCalendarListener,
 
         AppointmentDetailsFragment.BackListener,
         AppointmentDetailsFragment.CancelAppointmentListener,
@@ -266,6 +272,15 @@ public class Home extends AppCompatActivity implements
                 // update appointment fragment
                 toast.makeText(this,getResources().getString(R.string.menu_updateappointment).toUpperCase(),Toast.LENGTH_SHORT);
                 fragment = new UpdateAppointmentTimeDialog();
+                break;
+            case 14:
+                // go to calendar view
+                toast.makeText(this,menuOptionsTags[14].toUpperCase(),Toast.LENGTH_SHORT);
+                Fragment calendarFragment = new CalendarFragment();
+                Bundle args = calendarFragment.getArguments();
+                args.putParcelable("customer",customer);
+                calendarFragment.setArguments(args);
+                break;
             default:
                 // home
                 toast.makeText(this,getResources().getString(R.string.home_welcome),Toast.LENGTH_SHORT).show();
@@ -528,13 +543,37 @@ public class Home extends AppCompatActivity implements
         goToFragment(new SettingsFragment(SESSION_ID,customer),Parsing.getIndexOf(menuOptionsTags,"settings"));
     }
 
-    @Override
+    /*@Override
     public void appointmentClicked(FullCustomerSettings customer, String appointmentId) {
         // display all appointment details
         Bundle args = new Bundle();
         args.putParcelable("customer",customer);
         args.putString("appointmentid",appointmentId);
         goToFragment(new AppointmentDetailsFragment(),args,Parsing.getIndexOf(menuOptionsTags,"appointmentdetails"));
+    }*/
+
+    @Override
+    public void appointmentClicked(FullCustomerSettings customer, String [] appointmentsList, long date) {
+        /*
+         if only 1 appointment passed, display its details (AppointmentDetails Fragment).
+         if multiple appointments, swho list of appointments in appointments fragmet
+          */
+        Bundle args = new Bundle();
+        args.putParcelable("customer", customer);
+
+        if ( appointmentsList.length == 1 ) {
+            String appointmentId = appointmentsList[0];
+            Log.d(TAG + ".appointmentClicked","Calling AppointmentDetails with appointmentid " + appointmentId);
+            args.putString("appointmentid", appointmentId);
+            goToFragment(new AppointmentDetailsFragment(), args, Parsing.getIndexOf(menuOptionsTags, "appointmentdetails"));
+        } else {
+            args.putStringArray("appointmentsList",appointmentsList);
+            SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+            String dateStr = df.format(new Date(date));
+            String title = Parsing.formatMessage(new String[] { getResources().getString(R.string.title_dayAppointments), dateStr });
+            args.putString("title",title);
+            goToFragment(new AppointmentsFragment(),args,Parsing.getIndexOf(menuOptionsTags,"appointments"));
+        }
     }
 
     public void newAppointmentClicked(FullCustomerSettings customer) {
@@ -609,6 +648,8 @@ public class Home extends AppCompatActivity implements
     // Listener to insert the new appointment after provider, date and time have been confirmed
     @Override
     public void newAppointmentClicked(FullCustomerSettings customer, Appointment appointment) {
+        String myTAG = TAG + ".newAppointmentClicked";
+        Log.d(myTAG,"number of appointments for this customer BEFORE insertion: " + ((HashMap<String,Appointment>)customer.getAppointments().getValue()).size());
         HashMap<String,Object> response = Parsing.insertAppointment(appContext,appointment);
         Fragment fragment = new AppointmentsFragment();
 
@@ -622,9 +663,12 @@ public class Home extends AppCompatActivity implements
             String errormessage = (String)response.get("errormessage");
             args.putString("errormessage",errormessage);
         } else {
+            appointment.setId((String)response.get("appointmentid"));
+            Log.d(myTAG,"appointment " + appointment.getId() + " added to the customer");
             customer.addAppointment(appointment);
             args.putParcelable("customer",customer);
         }
+        Log.d(myTAG,"number of appointments for this customer AFTER insertion: " + ((HashMap<String,Appointment>)customer.getAppointments().getValue()).size());
 
         goToFragment(fragment,args,Parsing.getIndexOf(menuOptionsTags,"appointments"));
     }
@@ -663,6 +707,17 @@ public class Home extends AppCompatActivity implements
         args.putParcelable("customer",customer);
 
         goToFragment(new AppointmentsFragment(),args,Parsing.getIndexOf(menuOptionsTags,"appointments"));
+    }
+
+    @Override
+    public void goToCalendarClicked(FullCustomerSettings customer) {
+        Fragment fragment = new CalendarFragment();
+
+        Bundle args = fragment.getArguments();
+        if ( args == null ) { args = new Bundle(); }
+        args.putParcelable("customer",customer);
+
+        goToFragment(fragment,args,Parsing.getIndexOf(menuOptionsTags,"calendar"));
     }
 
     // Listener for appointment change of date

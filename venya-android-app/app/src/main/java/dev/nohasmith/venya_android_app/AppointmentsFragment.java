@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -36,13 +37,18 @@ public class AppointmentsFragment extends Fragment {
     final String TAG = "AppointmentsFragment";
     FullCustomerSettings customer;
     String sessionid;
+    String [] appointmensList;
+    private int countActive;
+    private String [] activeProviders;
+    private int numberofappointments = 0;
 
     public AppointmentsFragment() {
         // Required empty public constructor
     }
 
     interface AppointmentListener {
-        void appointmentClicked(FullCustomerSettings customer, String appointmentId);
+        void appointmentClicked(FullCustomerSettings customer, String [] appointmentsList, long date);
+        // String[] and date added for support of limited number of appointments displayed if a specific date is selected om the calendar
     }
     AppointmentListener listener;
 
@@ -51,11 +57,16 @@ public class AppointmentsFragment extends Fragment {
     }
     NewAppointmentListener newListener;
 
+    interface GoToCalendarListener {
+        void goToCalendarClicked(FullCustomerSettings customer);
+    }
+    GoToCalendarListener calendarListener;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.table_errors_button_fragment, container, false);
+        return inflater.inflate(R.layout.appointments_fragment, container, false);
     }
 
     @Override
@@ -73,6 +84,12 @@ public class AppointmentsFragment extends Fragment {
         } else {
             Log.e(TAG + ".onAttach",context.toString() + " must implement NewAppointmentListener");
         }
+
+        if ( context instanceof GoToCalendarListener ) {
+            calendarListener = (GoToCalendarListener)context;
+        } else {
+            Log.e(TAG + ".onAttach",context.toString() + " must implement GoToCalendarListener");
+        }
     }
 
     @Override
@@ -89,43 +106,11 @@ public class AppointmentsFragment extends Fragment {
         final TextView errorsView = (TextView)view.findViewById(R.id.errorsView);
         errorsView.setText("");
 
-        Button createButton = (Button)view.findViewById(R.id.createButtom);
-        displayTextView(appContext,createButton,R.string.form_newappointment);
-        createButton.setOnClickListener(new View.OnClickListener() {
+        Button calendarButton = (Button)view.findViewById(R.id.calendarButton);
+        calendarButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int countActive = 0;
-                HashMap<String,Provider> providersList = (HashMap<String, Provider>) customer.getProviders().getValue();
-                Set<String> providerids = providersList.keySet();
-                for ( String id : providerids ) {
-                    if ( providersList.get(id).isActive() ) countActive++;
-                }
-                if ( countActive == 0 ) {
-                    Parsing.displayTextView(appContext,errorsView,R.string.errors_notsubscribed);
-                } else {
-                    String [] activeProviders = new String[countActive];
-                    int i = 0;
-                    for ( String providerid : providerids ) {
-                        Log.d(myTAG,"providerid = " + providerid);
-                        if ( providersList.get(providerid).isActive() ) {
-                            Log.d(myTAG,providerid + " is active. i = " + i);
-                            activeProviders[i] = providersList.get(providerid).getId();
-                            i++;
-                        }
-                    }
-
-                    DialogFragment newAppDialog = new NewAppointmentSelectProviderDialog();
-                    Bundle args = newAppDialog.getArguments();
-                    if (args == null) {
-                        args = new Bundle();
-                    }
-                    args.putParcelable("customer", customer);
-                    args.putStringArray("activeproviders",activeProviders);
-                    newAppDialog.setArguments(args);
-
-                    newAppDialog.show(getActivity().getSupportFragmentManager(),"NewAppointmentSelectProvider");
-                }
-                //newListener.newAppointmentClicked(customer);
+                calendarListener.goToCalendarClicked(customer);
             }
         });
 
@@ -134,20 +119,83 @@ public class AppointmentsFragment extends Fragment {
             Bundle arguments = getArguments();
             this.customer = arguments.getParcelable("customer");
             errormessage = arguments.getString("errormessage");
+            appointmensList = arguments.getStringArray("appointmentsList"); // will contain the list of apppointments to display if not all required. i.e after selecting a specific date oin calendar
+            String title = arguments.getString("title"); // specific header to display. i.e to idicate those are the appointments for the date selected in the calendar
+            numberofappointments = arguments.getInt("numberofappointments"); // in home page we limit the appointments diplayed to a max
+            Parsing.displayTextView(appContext,viewTitle, Parsing.formatMessage(new String[] {title}));
         } catch (Exception e) {
             Log.e(myTAG,"Failed to extract customer details from bundle");
+        }
+
+        // get the active providers. This will be used to evaluate whether to allow new dates and dispaly existing dates
+        HashMap<String,Provider> providers = (HashMap<String,Provider>)customer.getProviders().getValue();
+        countActive = 0;
+        Set<String> providerids = providers.keySet();
+        for ( String providerid : providerids ) {
+            if ( providers.get(providerid).isActive() ) countActive++;
+        }
+
+        activeProviders = new String[countActive];
+        int i = 0;
+        for (String providerid : providerids) {
+            //Log.d(myTAG, "providerid = " + providerid);
+            if (providers.get(providerid).isActive()) {
+                //Log.d(myTAG, providerid + " is active. i = " + i);
+                activeProviders[i] = providers.get(providerid).getId();
+                i++;
+            }
+        }
+
+        Button createButton = (Button) view.findViewById(R.id.createButtom);
+        if ( countActive > 0 ) {
+            displayTextView(appContext, createButton, R.string.form_newappointment);
+            createButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    DialogFragment newAppDialog = new NewAppointmentSelectProviderDialog();
+                    Bundle args = newAppDialog.getArguments();
+                    if (args == null) {
+                        args = new Bundle();
+                    }
+                    args.putParcelable("customer", customer);
+                    args.putStringArray("activeproviders", activeProviders);
+                    newAppDialog.setArguments(args);
+
+                    newAppDialog.show(getActivity().getSupportFragmentManager(), "NewAppointmentSelectProvider");
+                }
+            });
+        } else {
+            Parsing.displayTextView(appContext,viewTitle,R.string.noappointments);
+            createButton.setVisibility(View.INVISIBLE);
         }
 
         if ( errormessage != null && ! errormessage.equals("") ) {
             Parsing.displayTextView(appContext,errorsView,"errors_" + errormessage);
         } else if ( customer instanceof FullCustomerSettings ) {
             HashMap<String,Appointment> appointments = (HashMap<String,Appointment>)customer.getAppointments().getValue();
+            //Log.d(myTAG,"total number of appointments: " + appointments.size());
 
-            long [] dates = new long[appointments.keySet().size()];
-            int count = 0;
-            for ( String key : appointments.keySet() ) {
-                dates[count] = appointments.get(key).getDate();
-                count++;
+            if ( appointmensList == null ) {
+                //Log.d(myTAG,"No specific list of appointments provided. Getting full list of appointments");
+                // if no specific list provided, just set it to all customer appointments
+                appointmensList = new String[appointments.size()];
+                int a = 0;
+                for ( String appid : appointments.keySet() ) {
+                    appointmensList[a] = appid;
+                    //Log.d(myTAG,"appid " + appid + " added to appointmentsList[" + a + "]");
+                    a++;
+                }
+                //Log.d(myTAG,a + " appointments to process");
+            }
+
+            //Log.d(myTAG,"Total number of dates to sort: " + appointmensList.length);
+            //long [] dates = new long[appointments.keySet().size()];
+            long [] dates = new long[appointmensList.length];
+            //for ( String key : appointments.keySet() ) {
+            for ( int c=0; c<appointmensList.length; c++ ) {
+                dates[c] = appointments.get(appointmensList[c]).getDate();
+                //Log.d(myTAG,appointments.get(appointmensList[c]).getDate() + " added to dates[" + c + "]");
             }
             Arrays.sort(dates);
 
@@ -207,18 +255,23 @@ public class AppointmentsFragment extends Fragment {
 
             appointmentsTable.addView(row,rowCount++);
 
-            //for ( String appointmentid : appointments.keySet() ) {
-            for ( int d=0; d<dates.length; d++ ) {
+            //Log.d(myTAG,"Processing appointments following sorted date. Total number of appointments: " + dates.length);
+
+            // Check if there is a limit in the number of appointment we want to display
+            int appointmetsToShow = ( numberofappointments == 0 ) ? dates.length : numberofappointments;
+            for ( int d=0; d < appointmetsToShow; d++ ) {
+                //Log.d(myTAG,"current date = " + dates[d]);
                 String appointmentid = null;
-                for ( String key : appointments.keySet() ) {
-                    if ( dates[d] == appointments.get(key).getDate() ) {
-                        appointmentid = appointments.get(key).getId();
-                        break;
+
+                for ( int a=0; a<appointmensList.length; a++) {
+                    if ( dates[d] == appointments.get(appointmensList[a]).getDate() ) {
+                        //Log.d(myTAG,"Found appoitment. ID: " + appointmensList[a]);
+                        appointmentid = appointmensList[a];
                     }
                 }
 
                 if ( appointmentid != null ) {
-                    Log.d(myTAG, "id " + appointmentid);
+                    //Log.d(myTAG, "id " + appointmentid);
                     Appointment appointment = appointments.get(appointmentid);
 
                     String providerid = appointment.getProviderid();
@@ -286,7 +339,7 @@ public class AppointmentsFragment extends Fragment {
                         row.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                listener.appointmentClicked(customer, myAppId);
+                                listener.appointmentClicked(customer, new String[] {myAppId}, 0);
                             }
                         });
                         //row.addView(displayButton);
