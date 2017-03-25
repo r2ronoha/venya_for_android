@@ -19,36 +19,30 @@ public class Appointment implements Serializable {
     private long date;
     private String status;
     private long delay;
+    private String googleId;
+    private long duration;
 
     public Appointment() {
         this.id = "";
         this.customerid = "";
         this.providerid = "";
         this.date = new Date().getTime();
-        this.status = "future";
+        this.duration = 30*60*1000; //30 in bu default (in milliseconds)
+        this.status = "tentative";
         this.delay = 0;
+        this.googleId = "";
     }
 
     public Appointment(String customerid, String providerid, long date) {
         this.customerid = customerid;
         this.providerid = providerid;
         this.date = date;
+        this.duration = 30*60*1000; //30 in bu default (in milliseconds)
 
         this.id = "";
-        this.status = "future";
+        this.status = "tentative";
         this.delay = 0;
-    }
-
-    public void insertAppointment(Context context) {
-        String insertUrl = venyaUrl;
-        String response = null;
-
-        MyHttpHandler httpHandler = new MyHttpHandler(context);
-        try {
-            response = httpHandler.execute(insertUrl).get();
-        } catch (Exception e) {
-            Log.e("","");
-        }
+        this.googleId = "";
     }
 
     // GETTERS
@@ -65,6 +59,10 @@ public class Appointment implements Serializable {
         return date;
     }
 
+    public long getDuration() {
+        return duration;
+    }
+
     public String getStatus() {
         return status;
     }
@@ -77,6 +75,10 @@ public class Appointment implements Serializable {
         return id;
     }
 
+    public String getGoogleId() {
+        return googleId;
+    }
+
     public Object getField(String field) {
         switch (field){
             case "id":
@@ -87,10 +89,14 @@ public class Appointment implements Serializable {
                 return providerid;
             case "date":
                 return date;
+            case "duration":
+                return duration;
             case "status":
                 return status;
             case "delay":
                 return delay;
+            case "googleId":
+                return googleId;
             default:
                 return null;
         }
@@ -111,6 +117,10 @@ public class Appointment implements Serializable {
         this.date = date;
     }
 
+    public void setDuration(long duration) {
+        this.duration = duration;
+    }
+
     public void setDelay(long delay) {
         this.delay = delay;
     }
@@ -121,6 +131,10 @@ public class Appointment implements Serializable {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public void setGoogleId(String googleId) {
+        this.googleId = googleId;
     }
 
     public void setField(String field, Object value) {
@@ -137,11 +151,17 @@ public class Appointment implements Serializable {
             case "date":
                 this.date = (long)value;
                 break;
+            case "duration":
+                this.duration = (long)value;
+                break;
             case "status":
                 this.status = (String)value;
                 break;
             case "delay":
                 this.delay = (long)value;
+                break;
+            case "googleId":
+                this.googleId = (String)value;
                 break;
         }
     }

@@ -151,7 +151,7 @@ public class CalendarFragment extends Fragment {
                     caldroidFragment.setBackgroundDrawableForDate(hasAppointmentColor, date);
                     caldroidFragment.refreshView();
 
-                    // create referenc to date without time, as CAldroid listener does not keep time of appointment
+                    // create referenc to date without time, as CAldroid successListener does not keep time of appointment
                     String dateNoTimeStr = dfNoTime.format(date);
 
                     if (dateToAppointment.containsKey(dateNoTimeStr)) {

@@ -29,11 +29,11 @@ public class UnsubscribeConfirmationDialog extends DialogFragment {
     */
 
     public interface ConfirmDialogListener {
-        //default listener if something went wrong initialising
+        //default successListener if something went wrong initialising
         void onDialogPositiveClick();
-        // listener for provider unsubscription confirmation dialog
+        // successListener for provider unsubscription confirmation dialog
         void onDialogPositiveClick(DialogFragment dialog, Context context, String providerid, String sessionid);
-        // listener for cancel appointment confirmtion
+        // successListener for cancel appointment confirmtion
         void onDialogPositiveClick(DialogFragment dialog, Context context, FullCustomerSettings customer, Appointment appointment);
         //void onDialogPositiveUnsubscribe(DialogFragment dialog, Context context, String providerid, String customerid);
         void onDialogNegativeClick(DialogFragment dialog);

@@ -214,4 +214,9 @@
     <string name="form_toappointments">Tous les rendez-vous</string>
     <string name="title_nextappointments">Prochains rendez-vous</string>
     <string name="noappointments">Vous n\'avez aucun rendez vous</string>
+    <string name="google_event_title_prefix">rendez-vous avec</string>
+    <string name="errors_google_insert_fail">Il n\'a pas été possible de rajouter ton rdv au calandrier Google</string>
+    <string name="google_insert_success">RDV ajouté au calendrier Google</string>
+    <string name="errors_google_update_fail">Il n\'a pas été possible de mettre à jour ton rdv Google Calendar</string>
+    <string name="gettingData">on est en train de récupérer vos données...</string>
 </resources>

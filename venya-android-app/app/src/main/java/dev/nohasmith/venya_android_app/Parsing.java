@@ -15,6 +15,9 @@ import android.util.Log;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.services.calendar.model.Event;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.w3c.dom.Text;
@@ -33,6 +36,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -1078,7 +1082,9 @@ public class Parsing {
                 "?id=" + appointment.getId() +
                 "&date=" + appointment.getDate() +
                 "&status=" + appointment.getStatus() +
-                "&delay=" + appointment.getDelay();
+                "&delay=" + appointment.getDelay() +
+                "&duration=" + appointment.getDuration() +
+                "&googleId=" + appointment.getGoogleId();
 
         MyHttpHandler httpHandler = new MyHttpHandler(context);
         String response = null;

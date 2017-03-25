@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -27,7 +28,6 @@ import java.util.Date;
 import java.util.HashMap;
 
 import static android.app.PendingIntent.getActivity;
-import static android.os.Parcelable.PARCELABLE_WRITE_RETURN_VALUE;
 import static dev.nohasmith.venya_android_app.MainActivity.appLanguage;
 import static dev.nohasmith.venya_android_app.MainActivity.locale_from_language;
 import static dev.nohasmith.venya_android_app.MainActivity.menuOptions;
@@ -35,6 +35,15 @@ import static dev.nohasmith.venya_android_app.MainActivity.menuOptionsTags;
 import static dev.nohasmith.venya_android_app.MainActivity.supportedLanguages;
 import static dev.nohasmith.venya_android_app.MainActivity.venyaUrl;
 
+// FOR GOOGLE CALENDAR
+import com.google.api.client.util.DateTime;
+
+import com.google.api.client.util.Strings;
+import com.google.api.services.calendar.model.*;
+
+import static dev.nohasmith.venya_android_app.MainActivity.mService;
+import static dev.nohasmith.venya_android_app.MainActivity.googleCalendarEvents;
+//END FOR GOOGLE CALENDAR
 
 
 /**
@@ -80,7 +89,7 @@ public class Home extends AppCompatActivity implements
 
         UpdateAppointmentTimeDialog.ConfirmUpdateListener,
 
-        NewAppointmentSelectTimeDialog.NewAppointmentListener{
+        NewAppointmentSelectTimeDialog.NewAppointmentListener { // FOR GOOGLE CALENDAR
     String TAG = this.getClass().getSimpleName();
 
     public String SESSION_ID = "closed";
@@ -95,6 +104,10 @@ public class Home extends AppCompatActivity implements
     private DrawerLayout menuLayout;
     Context appContext;
 
+    // FOR GOOGLE CALENDAR
+    public static SimpleDateFormat eventDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+    // END FOR GOOGLE CALENDAR
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         String myTAG = TAG + ".onCreate";
@@ -102,6 +115,7 @@ public class Home extends AppCompatActivity implements
         //Parsing.setLocale(this,"es");
         setContentView(R.layout.home);
         appContext = getApplicationContext();
+        String errormessage = "";
 
         hostname = getResources().getString(R.string.venya_node_server);
         port = getResources().getString(R.string.venya_node_port);
@@ -116,7 +130,21 @@ public class Home extends AppCompatActivity implements
 
             Log.d(myTAG, "Getting Extras");
             SESSION_ID = (String) getIntent().getExtras().get("sessionid");
-            customer = (FullCustomerSettings) getIntent().getParcelableExtra("customer");
+            customer = (FullCustomerSettings)getIntent().getParcelableExtra("customer");
+            try {
+                currentPosition = (int) getIntent().getExtras().get("currentPosition");
+            } catch (Exception e) {
+                Log.i(TAG + ".onCreate","No current Psotion provided in extras");
+            }
+            try {
+                errormessage = getIntent().getExtras().getString("errormessage");
+                Log.i(TAG,"Error " + errormessage + " received");
+                Toast toast = new Toast(appContext);
+                toast.makeText(appContext,Parsing.getResId(appContext,"errors_" + errormessage),Toast.LENGTH_LONG).show();
+            } catch (Exception e) {
+                Log.i(TAG + ".onCreate","No errormessage received");
+            }
+            //googleEventsList = (MyGoogleEventsList)getIntent().getSerializableExtra("events");
         }
 
         appLanguage = (String) customer.getLanguage().getValue();
@@ -172,6 +200,33 @@ public class Home extends AppCompatActivity implements
             selectItem(currentPosition);
         }
 
+        Log.d(myTAG,"Gogole Calendar: " + mService.toString());
+        //googleEvents = googleEventsList.getEvents();
+        for ( Event event : googleCalendarEvents ) {
+            Log.i(myTAG,"event " + event.getId());
+            Log.i(myTAG,"Summary: " + event.getSummary());
+            Log.i(myTAG,"Status: " + event.getStatus());
+            Log.i(myTAG,"organiser: " + event.getOrganizer().getDisplayName() + " (" + event.getOrganizer().getId() + ")");
+        }
+        //Log.d(myTAG,"Google Credential: " + mCredential.toString());
+
+        /*
+        // FOR GOOGLE CALENDAR
+        // Initialize credentials and service object.
+        CALENDAR_ID = (String)customer.getEmail().getValue();
+        Log.d(myTAG,"Getting credentials");
+        mCredential = GoogleAccountCredential.usingOAuth2(
+                getApplicationContext(), Arrays.asList(SCOPES))
+                .setBackOff(new ExponentialBackOff());
+
+        //Log.d(myTAG,"Google Credential: " + mCredential.toString());
+
+        Log.d(myTAG,"calling getResultsFromApi");
+        //getCalenarFromApi(); // get the callendar instance into the class global variable googleCalendar
+        getResultsFromApi(); // get the calendar envent into the class global variable googleEvents
+
+        // END FOR GOOGLE CALENDAR
+        */
     }
 
     private void setActionBarTitle(int position) {
@@ -284,7 +339,11 @@ public class Home extends AppCompatActivity implements
             default:
                 // home
                 toast.makeText(this,getResources().getString(R.string.home_welcome),Toast.LENGTH_SHORT).show();
-                fragment = new HomeFragment(SESSION_ID, customer);
+                fragment = new HomeFragment();
+                Bundle homeArgs = new Bundle();
+                homeArgs.putParcelable("customer",customer);
+                homeArgs.putString("sessionid",SESSION_ID);
+                fragment.setArguments(homeArgs);
         }
 
         if ( fragment != null ) {
@@ -336,13 +395,13 @@ public class Home extends AppCompatActivity implements
         menuLayout = (DrawerLayout) findViewById(R.id.menuLayout);
         menuLayout.closeDrawer(menuList);
     }
-/*
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu){
-        invalidateOptionsMenu();
-        return super.onPrepareOptionsMenu(menu);
-    }
-*/
+    /*
+        @Override
+        public boolean onPrepareOptionsMenu(Menu menu){
+            invalidateOptionsMenu();
+            return super.onPrepareOptionsMenu(menu);
+        }
+    */
     /*
     @Override
     protected void onResume() {
@@ -587,12 +646,13 @@ public class Home extends AppCompatActivity implements
 
     // Listener for unsubscribe provider confirmation dialog
 
-
+    // Default positive dialog click => Go to Home Page
     @Override
     public void onDialogPositiveClick() {
         goToFragment(new HomeFragment(),0);
     }
 
+    // Positive Click on Unsubscriber from Provider Dialog
     @Override
     public void onDialogPositiveClick(DialogFragment dialog, Context context, String providerid, String sessionid) {
         if ( Parsing.unsubscribeProvider(context,providerid,sessionid) ) {
@@ -606,33 +666,66 @@ public class Home extends AppCompatActivity implements
         goToFragment(new CustomerProvidersFragment(sessionid,customer),Parsing.getIndexOf(menuOptionsTags,"providers"));
     }
 
+    // Positive Click on Cancel Appointment dialog
     @Override
     public void onDialogPositiveClick(DialogFragment dialog, Context context, FullCustomerSettings customer, Appointment appointment) {
         appointment.setStatus("cancelled");
         HashMap<String, Object> updateResult = Parsing.updateAppointment(appContext, customer, appointment);
         String status = (String) updateResult.get("status");
 
+        Bundle args = new Bundle();
+        args.putParcelable("customer",customer);
+        args.putString("appointmentid",appointment.getId());
+
         if (!status.equals(getResources().getString(R.string.success_status))) {
             // if the update failed, show a message (toast) and go back to the appointment details
             Toast toast = new Toast(appContext);
             toast.makeText(appContext,getResources().getString(R.string.errors_failedupdate).toUpperCase(),Toast.LENGTH_LONG);
 
-            Fragment fragment = new AppointmentDetailsFragment();
-
-            Bundle args = fragment.getArguments();
-            if ( args == null ) { args = new Bundle(); }
-            args.putParcelable("customer",customer);
-            args.putString("appointmentid",appointment.getId());
-
-            goToFragment(fragment,args,Parsing.getIndexOf(menuOptionsTags,"appointmentdetails"));
+            goToFragment(new AppointmentDetailsFragment(),args,Parsing.getIndexOf(menuOptionsTags,"appointmentdetails"));
         } else {
+            try {
+                /*
+                String eventId = appointment.getGoogleId();
+
+                args.putString("action","update");
+                args.putString("eventid",eventId);
+                HashMap<String,Object> updatedFields = new HashMap<String, Object>();
+                updatedFields.put("status","cancelled");
+                args.putSerializable("updatedFields",updatedFields);
+                args.putSerializable("appointment",((HashMap<String,Appointment>)customer.getAppointments().getValue()).get(appointment.getId()));
+
+                DialogFragment googleDialog = new ManageGoogleEvents(null);
+                googleDialog.setArguments(args);
+                googleDialog.show(getSupportFragmentManager(),"google event update");
+                */
+
+                String eventId = appointment.getGoogleId();
+                HashMap<String,Object> updatedFields = new HashMap<String, Object>();
+                updatedFields.put("status","cancelled");
+
+                Context intentContext = Home.this;
+                Intent intent = new Intent(intentContext,ManageGoogleEvents.class);
+                intent.putExtra("customer",customer);
+                intent.putExtra("appointment",appointment);
+                intent.putExtra("eventDataMap",updatedFields);
+                intent.putExtra("action","update");
+                intent.putExtra("eventid",eventId);
+                intentContext.startActivity(intent);
+
+            } catch (Exception e) {
+                Log.e(TAG + ".CancelAppointment","Failed to perform status update on Google Calendar");
+                e.printStackTrace();
+                Toast toast = new Toast(appContext);
+                toast.makeText(appContext,R.string.errors_google_update_fail,Toast.LENGTH_LONG).show();
+
+                args.putString("errormessage","google_update_fail");
+                goToFragment(new AppointmentsFragment(),args,Parsing.getIndexOf(menuOptionsTags,"appointments"));
+            }
             // if update successfull, got to the appointmets fragment
             //cancelAppointmentClicked(customer);
             Toast toast = new Toast(appContext);
             toast.makeText(appContext,getResources().getString(R.string.appointment_cancelled).toUpperCase(),Toast.LENGTH_SHORT);
-
-            Bundle args = new Bundle();
-            args.putParcelable("customer",customer);
 
             goToFragment(new AppointmentsFragment(),args,Parsing.getIndexOf(menuOptionsTags,"appointments"));
         }
@@ -662,15 +755,82 @@ public class Home extends AppCompatActivity implements
         if ( ! status.equals(getResources().getString(R.string.success_status)) ) {
             String errormessage = (String)response.get("errormessage");
             args.putString("errormessage",errormessage);
+            goToFragment(fragment,args,Parsing.getIndexOf(menuOptionsTags,"appointments"));
         } else {
             appointment.setId((String)response.get("appointmentid"));
             Log.d(myTAG,"appointment " + appointment.getId() + " added to the customer");
             customer.addAppointment(appointment);
-            args.putParcelable("customer",customer);
-        }
-        Log.d(myTAG,"number of appointments for this customer AFTER insertion: " + ((HashMap<String,Appointment>)customer.getAppointments().getValue()).size());
+            //args.putParcelable("customer",customer);
 
-        goToFragment(fragment,args,Parsing.getIndexOf(menuOptionsTags,"appointments"));
+            // insert appointment in GoogleCalendars
+            if ( googleCalendarEvents != null && mService != null ) {
+                Event newEvent = new Event();
+
+                Provider myProvider = ((HashMap<String,Provider>)customer.getProviders().getValue()).get(appointment.getProviderid());
+                String providerName = myProvider.getName();
+                String address = myProvider.getAddress().formatAddress();
+                String title = Parsing.formatMessage(new String [] {
+                        getResources().getString(R.string.google_event_title_prefix),
+                        providerName});
+                long startDateLong = appointment.getDate();
+                /*
+                Date startDateTime = new Date(startDateLong);
+                String startStr = eventDateFormat.format(startDateTime);
+                */
+                EventDateTime start = new EventDateTime();
+                start.setDateTime(new DateTime(startDateLong));
+                // implements appointment duration. Hack in the meantime. Fixed appointment  duration of 1h
+                long endDateLong = appointment.getDate() + (60*60*1000);
+                /*
+                Date endDateTime = new Date(endDateLong);
+                String endStr = eventDateFormat.format(endDateTime);
+                */
+                EventDateTime end = new EventDateTime();
+                end.setDateTime(new DateTime(endDateLong));
+
+                /*
+                newEvent.setSummary(title);
+                newEvent.setLocation(address);
+                newEvent.setStart(start);
+                newEvent.setEnd(end);
+                newEvent.setStatus(appointment.getStatus());
+                newEvent.set("provider.id",myProvider.getId());
+                newEvent.set("provider.email",myProvider.getEmail());
+                newEvent.set("provider.displayName",myProvider.getName());
+                newEvent.setStatus("confirmed");
+
+                DialogFragment googleDialog = new ManageGoogleEvents(newEvent);
+                args.putString("action","insert");
+                googleDialog.setArguments(args);
+
+                googleDialog.show(getSupportFragmentManager(),"google insert dialog");
+                */
+
+                HashMap<String,Object> newEventMap = new HashMap<String, Object>();
+                newEventMap.put("summary",title);
+                newEventMap.put("location",address);
+                newEventMap.put("start",startDateLong);
+                newEventMap.put("end",endDateLong  );
+                newEventMap.put("provider.id",myProvider.getId());
+                newEventMap.put("provider.email",myProvider.getEmail());
+                newEventMap.put("provider.displayName",myProvider.getName());
+
+                Log.d(myTAG,"Number of appointment fields added to the intent: " + newEventMap.keySet().size());
+                Context intentContext = Home.this;
+                Intent intent = new Intent(intentContext,ManageGoogleEvents.class);
+                intent.putExtra("action","insert");
+                intent.putExtra("customer",customer);
+                intent.putExtra("appointment",appointment);
+                intent.putExtra("eventDataMap",newEventMap);
+                intent.putExtra("currentPosition",currentPosition);
+
+                intentContext.startActivity(intent);
+            } else {
+                Log.e(myTAG,"No Google Calendar instance available . Skip Google Calendar Sync");
+                goToFragment(fragment,args,Parsing.getIndexOf(menuOptionsTags,"appointments"));
+            }
+
+        }
     }
 
     // Listener to go to update appoitment fragment from fragment details fragment
@@ -730,15 +890,47 @@ public class Home extends AppCompatActivity implements
         if ( args == null ) { args = new Bundle(); }
 
         HashMap<String,Object> updateResult = Parsing.updateAppointment(appContext,customer,appointment);
+        FullCustomerSettings newCustomer = (FullCustomerSettings)updateResult.get("customer");
+        args.putParcelable("customer",newCustomer);
+
         String status = (String)updateResult.get("status");
         if ( ! status.equals(getResources().getString(R.string.success_status)) ) {
             String errormessage = (String)updateResult.get("errormessage");
             args.putString("errormessage",errormessage);
-        }
-        FullCustomerSettings newCustomer = (FullCustomerSettings)updateResult.get("customer");
-        args.putParcelable("customer",newCustomer);
+            goToFragment(newFragment,args,Parsing.getIndexOf(menuOptionsTags,"appointments"));
+        } else {
+            try {
+                HashMap<String,Object> updatedFields = new HashMap<String, Object>();
+                updatedFields.put("date",appointment.getDate());
 
-        goToFragment(newFragment,args,Parsing.getIndexOf(menuOptionsTags,"appointments"));
+                String eventId = appointment.getGoogleId();
+
+                Context intentContext = Home.this;
+                Intent intent = new Intent(intentContext,ManageGoogleEvents.class);
+                intent.putExtra("customer",customer);
+                intent.putExtra("appointment",appointment);
+                intent.putExtra("eventDataMap",updatedFields);
+                intent.putExtra("action","update");
+                intent.putExtra("eventid",eventId);
+                intent.putExtra("currentPosition",currentPosition);
+                intentContext.startActivity(intent);
+
+                /*
+                DialogFragment googleDialog = new ManageGoogleEvents(null);
+                googleDialog.setArguments(args);
+                googleDialog.show(getSupportFragmentManager(),"google event update");
+                */
+            } catch (Exception e) {
+                Log.e(TAG + ".UpdateAppointment","Failed to perform update on Google Calendar");
+                e.printStackTrace();
+
+                Toast toast = new Toast(appContext);
+                toast.makeText(appContext,R.string.errors_google_update_fail,Toast.LENGTH_LONG).show();
+
+                args.putString("errormessage","google_update_fail");
+                goToFragment(newFragment,args,Parsing.getIndexOf(menuOptionsTags,"appointments"));
+            }
+        }
     }
 
     public void confirmNewDateNegativeClick(DialogFragment fragment, FullCustomerSettings customer) {
@@ -753,11 +945,21 @@ public class Home extends AppCompatActivity implements
         goToFragment(newFragment,args,Parsing.getIndexOf(menuOptionsTags,"appointments"));
     }
 
+    // FOR GOOGLE CALENDAR
+    private class InsertGoogleEvent extends AsyncTask<Event, Void, Event> {
 
-/*
-    @Override
-    protected void attachBaseContext(Context newBase) {
-        super.attachBaseContext(MyContextWrapper.wrapContext(newBase,appLanguage));
+        @Override
+        protected Event doInBackground(Event... params) {
+            Event event = params[0];
+            try {
+                Event newEvent = mService.events().insert("primary", event).execute();
+                return newEvent;
+            } catch (Exception e) {
+                Log.e(TAG + ".InsertGoogleEvent.doInBackground","Failed to insert new event");
+                e.printStackTrace();
+                return null;
+            }
+        }
     }
-    */
+    // END FOR GOOGLE CALENDAR
 }

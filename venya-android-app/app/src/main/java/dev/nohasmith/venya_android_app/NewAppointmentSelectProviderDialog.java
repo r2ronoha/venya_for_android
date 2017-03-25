@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -111,7 +112,16 @@ public class NewAppointmentSelectProviderDialog extends DialogFragment{
                             if ( option == 0 && providerid == null ) {
                                 providerid = activeProvPairs.get(activeProvNames[0]);
                             }
-                            goToDatePicker(customer, providerid, newAppointmentDate);
+                            if ( providerid == null ) {
+                                Toast toast = new Toast(appContext);
+                                toast.makeText(appContext,R.string.menu_selectprovider,Toast.LENGTH_LONG).show();
+
+                                DialogFragment newDialog = new NewAppointmentSelectProviderDialog();
+                                newDialog.setArguments(getArguments());
+                                newDialog.show(getActivity().getSupportFragmentManager(),"new appointment select provider");
+                            } else {
+                                goToDatePicker(customer, providerid, newAppointmentDate);
+                            }
                         }
                     })
                     .setNegativeButton(getResources().getString(R.string.form_cancel), new DialogInterface.OnClickListener() {

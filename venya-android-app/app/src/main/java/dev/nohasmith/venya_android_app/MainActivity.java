@@ -17,7 +17,13 @@ import android.widget.TextView;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.services.calendar.Calendar;
+import com.google.api.services.calendar.model.Event;
+
 import java.util.HashMap;
+import java.util.List;
 
 class MainActivity extends AppCompatActivity implements
         SigninFragment.SigninListener,
@@ -43,6 +49,10 @@ class MainActivity extends AppCompatActivity implements
     TextView errorsView;*/
     //Context appContext;
     int currentPosition = 0;
+
+    public static com.google.api.services.calendar.Calendar mService;
+    public static GoogleAccountCredential mCredential;
+    public static List<Event> googleCalendarEvents;
 
     public static String [] customerFields;
     public static String [] privateFields;
@@ -157,6 +167,7 @@ class MainActivity extends AppCompatActivity implements
         ft.commit();
     }
 
+    /*
     public void signinClicked(String sessionid, FullCustomerSettings customer){
         Context intentContext = MainActivity.this;
         Intent intent = new Intent(intentContext, Home.class);
@@ -168,6 +179,23 @@ class MainActivity extends AppCompatActivity implements
     public void registerClicked(String sessionid, FullCustomerSettings customer){
         Context intentContext = MainActivity.this;
         Intent intent = new Intent(intentContext, Home.class);
+        intent.putExtra("sessionid", sessionid);
+        intent.putExtra("customer", customer);
+        intentContext.startActivity(intent);
+    }
+    */
+
+    public void signinClicked(String sessionid, FullCustomerSettings customer){
+        Context intentContext = MainActivity.this;
+        Intent intent = new Intent(intentContext, GetGoogleCalendarOnSignIn.class);
+        intent.putExtra("sessionid", sessionid);
+        intent.putExtra("customer", customer);
+        intentContext.startActivity(intent);
+    }
+
+    public void registerClicked(String sessionid, FullCustomerSettings customer){
+        Context intentContext = MainActivity.this;
+        Intent intent = new Intent(intentContext, GetGoogleCalendarOnSignIn.class);
         intent.putExtra("sessionid", sessionid);
         intent.putExtra("customer", customer);
         intentContext.startActivity(intent);
@@ -215,5 +243,13 @@ class MainActivity extends AppCompatActivity implements
 
     public void lostPasswordClicked(String field, String value) {
         goToFragment(new SigninFragment(field, value));
+    }
+
+    public GoogleAccountCredential getGoogleCredential() {
+        return mCredential;
+    }
+
+    public Calendar getGoogleCalendar() {
+        return mService;
     }
 }

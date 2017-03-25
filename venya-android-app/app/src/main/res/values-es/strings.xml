@@ -216,4 +216,9 @@
     <string name="form_toappointments">Todas las citas</string>
     <string name="title_nextappointments">Próximas citas</string>
     <string name="noappointments">No tienes ninguna cita</string>
+    <string name="google_event_title_prefix">cita con</string>
+    <string name="errors_google_insert_fail">ha sido imposible añadir la cita a tu calendario Google</string>
+    <string name="google_insert_success">cita añadida a tu calendario Google</string>
+    <string name="errors_google_update_fail">ha sido imposibler actualizar la cita en Google Calendar</string>
+    <string name="gettingData">estamos recuperando tus datos...</string>
 </resources>

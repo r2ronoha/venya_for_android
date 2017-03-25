@@ -255,15 +255,17 @@ public class AppointmentsFragment extends Fragment {
 
             appointmentsTable.addView(row,rowCount++);
 
-            //Log.d(myTAG,"Processing appointments following sorted date. Total number of appointments: " + dates.length);
+            Log.d(myTAG,"Processing appointments following sorted date. Total number of appointments: " + dates.length);
 
             // Check if there is a limit in the number of appointment we want to display
-            int appointmetsToShow = ( numberofappointments == 0 ) ? dates.length : numberofappointments;
+            int appointmetsToShow = ( numberofappointments == 0 || numberofappointments > dates.length ) ? dates.length : numberofappointments;
             for ( int d=0; d < appointmetsToShow; d++ ) {
                 //Log.d(myTAG,"current date = " + dates[d]);
                 String appointmentid = null;
 
+                Log.d(myTAG,"Checking date of appointments. Nb of appointments to check: " + appointmensList.length);
                 for ( int a=0; a<appointmensList.length; a++) {
+                    Log.d(myTAG,"dates index = " + d + " -- appointment inndex = " + a);
                     if ( dates[d] == appointments.get(appointmensList[a]).getDate() ) {
                         //Log.d(myTAG,"Found appoitment. ID: " + appointmensList[a]);
                         appointmentid = appointmensList[a];

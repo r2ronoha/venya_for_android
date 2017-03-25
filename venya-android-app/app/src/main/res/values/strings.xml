@@ -162,6 +162,8 @@
         <item>scheduled</item>
         <item>delayed</item>
         <item>waiting</item>
+        <item>tentative</item>
+        <item>confirmed</item>
     </string-array>
     <string-array name="signinOptions">
         <item>signin</item>
@@ -235,7 +237,6 @@
     <string name="menu_changelanguage">Select a language</string>
     <string name="menu_changephone">Update phone</string>
     <string name="menu_appointmentdetails">Appointment details</string>
-    <string name="menu_calendar">calendar</string>
     <string name="header_register">Create your account</string>
     <string name="header_lostid">Recover your registration ID</string>
     <string name="header_lostpassword">Get your password</string>
@@ -425,5 +426,10 @@
     <string name="form_toappointments">To all appointments</string>
     <string name="title_nextappointments">next appointments</string>
     <string name="noappointments">You have no appointments</string>
+    <string name="google_event_title_prefix">appointment with</string>
+    <string name="errors_google_insert_fail">failed to insert the appointment into your google calendar</string>
+    <string name="google_insert_success">Event successfully created on Google Calendar</string>
+    <string name="errors_google_update_fail">Google Calendar Update Failed</string>
+    <string name="gettingData">we are retrienving your data...</string>
 
 </resources>

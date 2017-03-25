@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,37 +38,23 @@ import static dev.nohasmith.venya_android_app.MainActivity.venyaUrl;
 public class HomeFragment extends Fragment {
     FullCustomerSettings customer;
     String sessionid;
+    private final String TAG = this.getClass().getSimpleName();
 
-    public HomeFragment() {
+    public HomeFragment() {}
 
-    }
-
+    /*
     public HomeFragment(String sessionid, FullCustomerSettings customer) {
         this.customer = customer;
         this.sessionid = sessionid;
     }
-
+    */
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        //TextView textView = new TextView(getActivity());
-        //textView.setText(R.string.hello_blank_fragment);
-        //customer = (CustomerSettings)savedInstanceState.getParcelable("customer");
-        //sessionid = (String)savedInstanceState.get("sessionid");
         return inflater.inflate(R.layout.home_fragment, container, false);
     }
-/*
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
 
-        if ( savedInstanceState != null ) {
-            customer = (FullCustomerSettings)savedInstanceState.getParcelable("customer");
-            sessionid = savedInstanceState.getString("sessionid");
-        }
-    }
-*/
     @Override
     public void onStart() {
         super.onStart();
@@ -82,17 +69,15 @@ public class HomeFragment extends Fragment {
         ImageView imageCell;
         int rowCount = 0;
 
-        if ( customer != null ) {
-            /*
-            customerFields = getResources().getStringArray(R.array.customerFields);
-            privateFields = getResources().getStringArray(R.array.privateFields);
-            booleanFields = getResources().getStringArray(R.array.booleanFields);
-            secretFields = getResources().getStringArray(R.array.secretFields);
-            */
+        try {
+            sessionid = getArguments().getString("sessionid");
+            customer = (FullCustomerSettings)getArguments().getParcelable("customer");
+        } catch (Exception e) {
+            Log.e(TAG + ".onStart","Failed to get arguments");
+            e.printStackTrace();
+        }
 
-            //for ( int i=customerFields.length-1; i>=0; i-- ) {
-            //for ( int i=0; i<customerFields.length; i++ ) {
-                //String field = customerFields[i];
+        if ( customer instanceof FullCustomerSettings ) {
             for ( int i=0; i<homeFields.length; i++ ) {
                 String field = homeFields[i];
                 if ( customer.getField(field) != null && ! Arrays.asList(privateFields).contains(field) ) {
